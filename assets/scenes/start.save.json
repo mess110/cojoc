@@ -1,0 +1,25 @@
+{
+  "id": "start",
+  "engine": {},
+  "assets": [
+    {
+      "type": "particle",
+      "libPath": "workspace/lib/particles/fireflies-1.save.json",
+      "destPath": "assets/fireflies-1.save.json"
+    },
+    {
+      "libPath": "workspace/lib/textures/star.png",
+      "destPath": "assets/star.png",
+      "type": "texture"
+    }
+  ],
+  "cameras": [],
+  "items": [
+    {
+      "type": "particle",
+      "id": "menu-fireflies",
+      "key": "fireflies-1"
+    }
+  ],
+  "scripts": []
+}
