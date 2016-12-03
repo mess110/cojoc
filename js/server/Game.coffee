@@ -1,8 +1,6 @@
 server = require('../../bower_components/coffee-engine/src/server/server.coffee')
 common = require('../game/common.coffee')
 
-console.log common.FOO
-
 class Game extends server.Game
   tick: =>
     for input in @inputs

@@ -8,7 +8,7 @@ config =
     id: server.Utils.guid()
     dirname: __dirname
     version: 1
-    port: 1337
+    port: process.env.COJOC_PORT || 1337
   gameServer:
     ticksPerSecond: 50
     ioMethods: ['join']
