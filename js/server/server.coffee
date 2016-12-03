@@ -19,12 +19,20 @@ class GameServer extends server.GameServer
   connect: (socket) ->
     socket.emit('connected', config.gameServer)
 
-  join: (socket, data) ->
-    console.log 'joined'
-
   disconnect: (socket) ->
     @game.disconnect(socket)
 
+  join: (socket, data) ->
+    console.log 'joined'
+
 gameServer = new GameServer(config.gameServer)
 pod = new server.Pod(config.pod, gameServer)
+
+pod.app.get '/info', (req, res) ->
+  hash =
+    pod: config.pod
+    keys: pod.keys()
+
+  res.send hash
+
 pod.listen()

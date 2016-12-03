@@ -1,9 +1,9 @@
+Helper.fade(type: 'in', duration: 0)
+
 config = Config.get()
 config.fillWindow()
 config.transparentBackground = true
 # config.toggleStats()
-
-Helper.fade(type: 'in', duration: 0)
 
 LoadingScene.prototype.preStart = ->
 
