@@ -27,10 +27,10 @@
   "dependencies": {
     "express.io": "^1.1.13",
     "coffee-script": "^1.11.1",
+    "node-sass": "^3.4.2",
     "connect": "^3.4.1"
   },
   "devDependencies": {
-    "node-sass": "^3.4.2",
     "nodemon": "^1.8.1"
   }
 }
