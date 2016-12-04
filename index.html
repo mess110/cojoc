@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="app">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0">
@@ -8,10 +8,12 @@
 
         <link rel="import" href="imports.html">
     </head>
-    <body>
+    <body ng-controller="MainController">
+        <div id="ng-view" class="slide" ng-view></div>
 
-        <img class="centered" src="assets/logo.png" alt="" />
-        <!-- <img class="settings" src="assets/button.png" alt="" /> -->
+        <div id="loading">
+            <img src="assets/logo.png" alt="" ng-click="goTo('/games')"/>
+        </div>
 
         <script src="js/game/game.js"></script>
     </body>
