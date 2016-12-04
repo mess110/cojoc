@@ -16,6 +16,41 @@
       "type": "texture"
     },
     {
+      "libPath": "",
+      "destPath": "assets/wood-sword.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/mana-crystal.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/heart.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/card-art-bg.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/card-bg.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/card-template.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
       "type": "model",
       "libPath": "/home/kiki/Sync/blender/models/bear/bear_all.json",
       "destPath": "assets/bear_all.json"
@@ -54,12 +89,6 @@
       }
     }
   ],
-  "items": [
-    {
-      "type": "particle",
-      "id": "menu-fireflies",
-      "key": "fireflies-1"
-    }
-  ],
+  "items": [],
   "scripts": []
 }

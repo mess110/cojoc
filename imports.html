@@ -8,6 +8,7 @@
 <script src="bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
 
 <script type="text/javascript" charset="utf-8">
+    // TODO: explain why this is needed
     require = function (s) {
         console.log('in the browser ' + s);
         return {}
@@ -15,6 +16,12 @@
 </script>
 
 <script src="js/game/models/LandingModel.js"></script>
+<script src="js/game/models/Card.js"></script>
+
+<script src="js/game/scenes/MenuScene.js"></script>
+<script src="js/game/scenes/GameScene.js"></script>
+<script src="js/game/scenes/CardsScene.js"></script>
+
 <script src="js/game/common.js"></script>
 <script src="js/game/constants.js"></script>
 <script src="js/game/menu.js"></script>

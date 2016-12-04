@@ -7,6 +7,11 @@ $cojoc-text-color-light: #f2ddcc;
 $cojoc-text-color-dark: #492811;
 $cojoc-placeholder-color: fade($cojoc-text-color-dark, 60%);
 
+$z-canvas: 0
+$z-below-menu: 1
+$z-menu: 2
+$z-above-all: 10001
+
 @font-face
   font-family: 'Pirata One'
   font-style: normal
@@ -16,7 +21,7 @@ $cojoc-placeholder-color: fade($cojoc-text-color-dark, 60%);
 *
   font-family: 'Pirata One', cursive
   font-size: 28px
-  color: $cojoc-text-color-dark
+  color: $cojoc-text-color-light
 
   -webkit-user-drag: none
   -khtml-user-drag: none
@@ -30,9 +35,6 @@ $cojoc-placeholder-color: fade($cojoc-text-color-dark, 60%);
   -moz-user-select: none
   -ms-user-select: none
   user-select: none
-
-.toast-title, .toast-message
-  color: $cojoc-text-color-light
 
 html, body
   width: 100%
@@ -57,11 +59,11 @@ canvas
   position: absolute
   left: 0px
   top: 0px
-  z-index: 0
+  z-index: $z-canvas
 
 #loading
   position: fixed
-  z-index: 10001
+  z-index: $z-above-all
   top: 0px;
   left: 0px;
   padding: 15px;
@@ -75,15 +77,25 @@ canvas
   -webkit-transition: opacity .25s ease-in-out
   pointer-events: none
 
+#back-button
+  position: absolute
+  left: 0px
+  bottom: 0px
+  padding-left: 15px
+  opacity: 0;
+  transition: opacity .25s ease-in-out
+  -moz-transition: opacity .25s ease-in-out
+  -webkit-transition: opacity .25s ease-in-out
+  z-index: $z-below-menu
+
+  img
+    width: 64px
+
 .settings
   position: fixed
   right: 0px
   bottom: 0px
   max-width: 64px
-
-p
-  position: relative
-  z-index: 1
 
 .landing
   text-align: center
@@ -98,11 +110,14 @@ p
     padding-bottom: 30px
 
   .menu-button
+    position: relative
+    z-index: $z-menu
     pointer-events: auto
     overflow: hidden
     height: 72px
 
     p
+      color: $cojoc-text-color-dark
       position: relative
       top: -52px
     img
