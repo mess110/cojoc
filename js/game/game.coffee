@@ -1,6 +1,9 @@
 Helper.fade(type: 'in', duration: 0)
 
 Utils.FADE_DEFAULT_DURATION = 250
+Persist.PREFIX = 'cojoc'
+Persist.default('sound', false)
+Persist.default('volume', 0.75)
 
 config = Config.get()
 config.fillWindow()
@@ -24,7 +27,6 @@ nm.on 'connected', (data) ->
 nm.on 'join', (data) ->
 
 nm.on 'disconnect', (data) ->
-  gameScene.disconnect(data)
 
 engine = new Engine3D()
 Helper.fancyShadows(engine.renderer)
@@ -43,6 +45,9 @@ Engine3D.scenify(engine, ->
   scope = getScope()
   scope.game.loaded = true
   scope.start()
+
+  if SoundManager.get().has('prologue') and Persist.get('sound') == true
+    SoundManager.get().play('prologue')
 )
 
 engine.render()

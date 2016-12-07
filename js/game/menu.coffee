@@ -73,6 +73,16 @@ app.controller 'NewGameController', ($scope) ->
 
 app.controller 'SettingsController', ($scope) ->
   document.getElementById("back-button").style.opacity = 1
+  $scope.sound = Persist.get('sound')
+
+  $scope.$watch 'sound', (newValue, oldValue) ->
+    return unless SoundManager.get().has('prologue')
+    return if oldValue == newValue
+    Persist.set('sound', newValue)
+    if newValue
+      SoundManager.get().play('prologue')
+    else
+      SoundManager.get().stop('prologue')
 
 getScope = ->
   angular.element(document.body).scope()

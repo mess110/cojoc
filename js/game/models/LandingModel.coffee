@@ -19,6 +19,7 @@ class LandingModel extends BaseModel
         key: 'chest'
         position: new THREE.Vector3(3, -2, 0)
         rotation: new THREE.Vector3(0.3, 0, 0)
+        animate: 0
       }
     ]
     if index?

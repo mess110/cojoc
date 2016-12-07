@@ -69,6 +69,11 @@
       "type": "model",
       "libPath": "/home/kiki/Sync/blender/models/lost-blender-file/chest.json",
       "destPath": "assets/chest.json"
+    },
+    {
+      "type": "sound",
+      "libPath": "",
+      "destPath": "assets/sounds/prologue.wav"
     }
   ],
   "cameras": [
