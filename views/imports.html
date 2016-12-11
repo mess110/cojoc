@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="../css/app.css" />
+
+<script src="../bower_components/coffee-engine/build/coffee-engine-3d.js"></script>
+<!-- <link rel="import" href="/tools/coffee-engine.html"> -->
+
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../bower_components/angular-route/angular-route.js"></script>
+<script src="../bower_components/angular-animate/angular-animate.js"></script>
+<script src="../bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+    // TODO: explain why this is needed
+    require = function (s) {
+        console.ce('in the browser ' + s);
+        return {}
+    }
+</script>
+
+<script src="../js/game/Constants.js"></script>
+
+<script src="../js/game/models/LandingModel.js"></script>
+<script src="../js/game/models/Cards.js"></script>
+<script src="../js/game/models/Card.js"></script>
+
+<script src="../js/game/scenes/MenuScene.js"></script>
+<script src="../js/game/scenes/GameScene.js"></script>
+<script src="../js/game/scenes/CardsScene.js"></script>
+
+<script src="../js/server/ArenaReferee.js"></script>

@@ -32,7 +32,7 @@ class Card extends BaseModel
     @dissolved = true
     @front.material = @dm
 
-  foo: (tpf) ->
+  dissolveTick: (tpf) ->
     return unless @dissolved
     return if @dm.uniforms.dissolve.value > 1.1
     @dm.uniforms.dissolve.value += tpf

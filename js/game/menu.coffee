@@ -29,7 +29,6 @@ app.config ($routeProvider) ->
   return
 
 app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toastr) ->
-  $scope.transition = 'slide'
   $scope.inputDisabled = false
   $scope.game =
     loaded: false
@@ -70,10 +69,17 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
       $scope.inputDisabled = false
     , Utils.FADE_DEFAULT_DURATION
 
+  $scope.toastr = (data={}) ->
+    unless Constants.ValidToasts.includes(data.type)
+      data.type = Constants.DEFAULT_TOAST
+    console.ce "Toastr: #{data.code} - #{data.message} - #{data.type}"
+    toastr[data.type](data.message) if data.message?
+
   $scope.goTo = (url) ->
     $location.path(url)
 
   $scope.game = (data) ->
+    toastr.clear()
     $scope.goTo("/game/#{data.id}")
     engine.initScene(gameScene, data, true)
 
@@ -92,7 +98,7 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
 
     if path == '/cards'
       scene = cardsScene
-    if path == '/waiting'
+    else if path == '/waiting'
       return
     else if path.startsWith('/game')
       scene = gameScene
@@ -118,11 +124,11 @@ app.controller 'GamesController', ($scope) ->
 
 app.controller 'WaitingController', ($scope, $interval, toastr) ->
   document.getElementById("back-button").style.opacity = 1
-  if Persist.get('bot')
+  if Persist.get(Constants.Storage.BOT)
     $scope.game(id: 'bot')
   else
-    toastr.success 'you are queued'
-    NetworkManager.emit(type: 'join')
+    $scope.toastr(message: 'You are queued')
+    NetworkManager.emit(type: 'joinQueue')
 
 app.controller 'GameController', ($scope) ->
   document.getElementById("back-button").style.opacity = 1
@@ -131,21 +137,21 @@ app.controller 'NewGameController', ($scope) ->
 
 app.controller 'SettingsController', ($scope) ->
   document.getElementById("back-button").style.opacity = 1
-  $scope.sound = Persist.get('sound')
-  $scope.bot = Persist.get('bot')
-  $scope.volume = Persist.get('volume')
+  $scope.sound = Persist.get(Constants.Storage.SOUND)
+  $scope.bot = Persist.get(Constants.Storage.BOT)
+  $scope.volume = Persist.get(Constants.Storage.VOLUME)
 
   $scope.$watch 'bot', (newValue, oldValue) ->
-    Persist.set('bot', newValue)
+    Persist.set(Constants.Storage.BOT, newValue)
 
   $scope.$watch 'volume', (newValue, oldValue) ->
-    Persist.set('volume', newValue)
+    Persist.set(Constants.Storage.VOLUME, newValue)
     SoundManager.volumeAll(newValue)
 
   $scope.$watch 'sound', (newValue, oldValue) ->
     return unless SoundManager.get().has('prologue')
     return if oldValue == newValue
-    Persist.set('sound', newValue)
+    Persist.set(Constants.Storage.SOUND, newValue)
     if newValue
       SoundManager.get().play('prologue')
     else

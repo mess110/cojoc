@@ -2,9 +2,9 @@ class GameScene extends BaseScene
   init: (options) ->
     if options.id != 'bot'
       NetworkManager.emit(type: 'join', id: options.id)
-      console.log "#{options.id} game"
+      console.ce "#{options.id} game"
     else
-      console.log 'bot game'
+      console.ce 'bot game'
 
     @referee = new ArenaReferee()
 

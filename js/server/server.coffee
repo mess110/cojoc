@@ -2,6 +2,7 @@
 
 server = require('../../bower_components/coffee-engine/src/server/server.coffee')
 PlayerQueue = require('./PlayerQueue').PlayerQueue
+Constants = require('../game/Constants.coffee').Constants
 
 config =
   pod:
@@ -11,7 +12,7 @@ config =
     port: process.env.COJOC_PORT || 1337
   gameServer:
     ticksPerSecond: 10
-    ioMethods: ['join', 'gameInput', 'leaveQueue']
+    ioMethods: ['join', 'gameInput', 'leaveQueue', 'joinQueue']
 
 class GameServer extends server.GameServer
 
@@ -26,15 +27,21 @@ class GameServer extends server.GameServer
     @queue.leave(socket)
 
   join: (socket, data) ->
-    if data.id?
-      game = @getGame(data.id)
-      unless game?
-        console.log "ERROR: game #{data.id} not found"
-        socket.emit('goToMenu', data)
-        return
-      game.join(socket, data)
-    else
-      @queue.push(socket)
+    console.log data
+    if !(data? && data.id?)
+      console.log 'ERROR: data.id missing'
+      socket.emit('error', code: Constants.Errors.MISSING_GAME_ID, message: 'Missing game id')
+      return
+
+    game = @getGame(data.id)
+    unless game?
+      console.log "ERROR: game #{data.id} not found"
+      socket.emit('error', code: Constants.Errors.GAME_NOT_FOUND, message: "Game with id #{data.id} not found")
+      return
+    game.join(socket, data)
+
+  joinQueue: (socket, data) ->
+    @queue.push(socket)
 
   leaveQueue: (socket, data) ->
     @queue.leave(socket)

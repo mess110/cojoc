@@ -1,1 +1,0 @@
-exports.FOO = 1

@@ -14,10 +14,7 @@ class CardsScene extends BaseScene
     @card3.mesh.position.x += 4
     @scene.add @card3.mesh
 
-    # Helper.orbitControls(engine)
-
   tick: (tpf) ->
-    # @card.foo(tpf)
 
   doKeyboardEvent: (event) ->
 
