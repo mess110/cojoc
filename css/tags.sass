@@ -1,0 +1,105 @@
+.logo
+  padding-bottom: 30px
+
+#back-button
+  position: absolute
+  left: 0px
+  bottom: 0px
+  padding-left: 15px
+  opacity: 0;
+  transition: opacity .25s ease
+  z-index: $z-below-menu
+
+  img
+    width: 64px
+
+// menu button
+
+.menu-button
+  position: relative
+  z-index: $z-menu
+  pointer-events: auto
+  overflow: hidden
+  height: 72px
+
+  p
+    color: $cojoc-text-color-dark
+    position: relative
+    top: -52px
+
+  img
+    width: 100%
+    height: 64px !important
+    padding: 0px 15px
+    max-width: 320px
+
+// checkbox
+
+input[type=checkbox]
+    display: none
+
+input[type=checkbox] + label
+    display: inline-block
+    padding: 8px 0px 0px 60px
+    background: url('../assets/checkboxBg.png') no-repeat 0px 0px
+    min-height: 50px
+
+input[type=checkbox]:checked + label
+    display: inline-block
+    padding: 8px 0px 0px 60px
+    background: url('../assets/checkboxTick.png') no-repeat 0px 0px
+    min-height: 50px
+
+.checkbox
+  position: relative
+  z-index: $z-menu
+  pointer-events: auto
+
+.radio label, .checkbox label, *:hover
+  cursor: url('../assets/hand.png'), pointer
+
+// slider/range
+
+.range
+  position: relative
+  z-index: $z-menu
+  pointer-events: auto
+
+input[type=range]
+  -webkit-appearance: none;
+  background: transparent;
+  position: absolute;
+  width: 200px;
+
+input[type='range']::-webkit-slider-thumb
+  -webkit-appearance: none;
+  background: url(../assets/slider-knob.png) center center no-repeat;
+  position: relative;
+  top: 1px;
+  width: 32px;
+  height: 32px;
+
+input[type=range]::-webkit-slider-runnable-track
+  -webkit-appearance: none;
+  background: url(../assets/slider-bg.png) center center no-repeat;
+  background-size: cover;
+
+#prev, #next
+  top: 50%
+  transform: translate(0%, -50%)
+  z-index: $z-menu
+  pointer-events: auto
+  position: absolute
+  opacity: 0
+  max-width: 94px
+  transition: opacity 0.5s ease, max-width .05s ease
+
+#next
+  right: -3px
+
+#prev
+  left: -3px
+
+#next:active, #prev:active
+  transition: max-width .05s ease
+  max-width: 75px

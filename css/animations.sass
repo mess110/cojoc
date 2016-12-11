@@ -1,0 +1,35 @@
+.slide
+  position: absolute
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+.slide.ng-enter
+  transition: left 0.5s ease, opacity 0.25s ease 0.25s
+.slide.ng-leave
+  transition: left 0.5s ease 0.25s, opacity 0.25s ease
+.slide.ng-enter
+  left: 100%
+  opacity: 0
+.slide.ng-enter-active
+  left: 0
+  opacity: 1
+.slide.ng-leave
+  left: 0
+  opacity: 1
+.slide.ng-leave-active
+  left: -100%
+  opacity: 0
+
+.loading:after
+  overflow: hidden
+  display: inline-block
+  vertical-align: bottom
+  animation: ellipsis steps(4, end) 1500ms infinite
+  content: "\2026"
+  width: 0px
+  font-size: 30px
+
+@keyframes ellipsis
+  to
+    width: 28px

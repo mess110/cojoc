@@ -47,6 +47,21 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/cards/calulNazdravan.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/corb.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/muma.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/cards/sanziene.png",
       "type": "texture"
     },

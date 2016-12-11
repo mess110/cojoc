@@ -6,7 +6,11 @@
 
         <title>cojoc</title>
 
-        <link rel="import" href="imports.html">
+        <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" href="css/app.css" />
+
     </head>
     <body ng-controller="MainController">
         <div id="ng-view" class="slide" ng-view></div>
@@ -19,6 +23,11 @@
             <img src="assets/button-back.png" alt="" ng-click="home()"/>
         </div>
 
+        <img id="prev" src="assets/button-prev.png" alt="" ng-click="prev()"/>
+        <img id="next" src="assets/button-next.png" alt="" ng-click="next()"/>
+
+        <link rel="import" href="imports.html">
         <script src="js/game/game.js"></script>
+
     </body>
 </html>

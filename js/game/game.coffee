@@ -1,8 +1,9 @@
 Helper.fade(type: 'in', duration: 0)
 
-Utils.FADE_DEFAULT_DURATION = 250
+Utils.FADE_DEFAULT_DURATION = 500
 Persist.PREFIX = 'cojoc'
 Persist.default('sound', false)
+Persist.default('bot', false)
 Persist.default('volume', 0.75)
 
 config = Config.get()
@@ -24,7 +25,14 @@ nm.on 'connected', (data) ->
   scope.game.connected = true
   scope.start()
 
-nm.on 'join', (data) ->
+nm.on 'startGame', (data) ->
+  scope = getScope()
+  scope.game(data)
+
+nm.on 'goToMenu', (data) ->
+  console.log "game #{data.id} not found"
+  scope = getScope()
+  scope.home()
 
 nm.on 'disconnect', (data) ->
 
@@ -46,6 +54,7 @@ Engine3D.scenify(engine, ->
   scope.game.loaded = true
   scope.start()
 
+  SoundManager.volumeAll(Persist.get('volume'))
   if SoundManager.get().has('prologue') and Persist.get('sound') == true
     SoundManager.get().play('prologue')
 )

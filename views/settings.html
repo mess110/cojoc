@@ -1,8 +1,15 @@
 <div class="landing">
     <div>
         <div class="checkbox">
+            <input type="checkbox" ng-model="bot" id="bot" name="bot" />
+            <label for="bot">vs Bot</label>
+        </div>
+        <div class="checkbox">
             <input type="checkbox" ng-model="sound" id="sound" name="sound" />
             <label for="sound">Sound</label>
+        </div>
+        <div class="range">
+            <input type="range" min="0" max="1" step="0.01" ng-model="volume">
         </div>
     </div>
 </div>
