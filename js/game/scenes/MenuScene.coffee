@@ -3,8 +3,6 @@ class MenuScene extends BaseScene
     @landingModel = new LandingModel()
     @scene.add @landingModel.model
 
-    Helper.orbitControls(engine)
-
     engine.camera.position.set 0, 0, 10
     engine.camera.lookAt Helper.zero.clone()
 

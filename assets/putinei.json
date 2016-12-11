@@ -530,7 +530,6 @@
         "DbgColor": 15658734,
         "wireframe": false,
         "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
-        "colorAmbient": [0.64,0.64,0.64],
         "depthWrite": true,
         "DbgIndex": 0,
         "mapDiffuseRepeat": [1,1],

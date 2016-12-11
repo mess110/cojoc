@@ -67,16 +67,6 @@
     },
     {
       "type": "model",
-      "libPath": "/home/kiki/Sync/blender/models/bear/bear_all.json",
-      "destPath": "assets/bear_all.json"
-    },
-    {
-      "type": "model",
-      "libPath": "/home/kiki/Sync/blender/models/coloana-infinitului/coloana-infinitului.json",
-      "destPath": "assets/coloana-infinitului.json"
-    },
-    {
-      "type": "model",
       "libPath": "/home/kiki/Sync/blender/models/putinei/putinei.json",
       "destPath": "assets/putinei.json"
     },

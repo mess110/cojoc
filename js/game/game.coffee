@@ -10,7 +10,7 @@ Persist.default(Constants.Storage.VOLUME, 0.75)
 config = Config.get()
 config.fillWindow()
 config.transparentBackground = true
-# config.toggleStats()
+config.debug = false
 
 nm = NetworkManager.get()
 nm.connect()

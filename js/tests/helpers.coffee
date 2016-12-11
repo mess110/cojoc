@@ -4,7 +4,6 @@ assert = (condition, message) ->
     if typeof Error != 'undefined'
       throw new Error(message)
     throw message
-    # Fallback
   console.log '.'
   return
 
@@ -17,6 +16,7 @@ scene = () ->
 Helper.fade(type: 'in', duration: 0)
 config = Config.get()
 config.transparentBackground = true
+config.debug = true
 config.toggleStats()
 
 engine = new Engine3D()
