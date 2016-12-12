@@ -7,8 +7,9 @@ assert = (condition, message) ->
   console.log '.'
   return
 
-scenify = (func) ->
-  Engine3D.scenify(engine, func)
+scenify = (funcName) ->
+  Persist.set('lastTest', funcName)
+  Engine3D.scenify(engine, eval(funcName))
 
 scene = () ->
   SceneManager.currentScene()
@@ -18,8 +19,9 @@ config = Config.get()
 config.transparentBackground = true
 config.debug = true
 config.toggleStats()
+Persist.default('lastTest', 'cubeTest')
 
 engine = new Engine3D()
 engine.setWidthHeight(window.innerWidth / 2, window.innerHeight)
-scenify(cubeTest)
+scenify(Persist.get('lastTest'))
 engine.render()

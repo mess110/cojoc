@@ -1,1 +1,1 @@
-class Deck extends BaseModel
+class Deck extends Card

@@ -8,7 +8,15 @@ class GameScene extends BaseScene
 
     @referee = new ArenaReferee()
 
+    Helper.orbitControls(engine)
+    @tree = new Tree()
+    @scene.add @tree.mesh
+    @wind = 0
+
   tick: (tpf) ->
+    return unless @tree?
+    @wind += tpf + Math.random()
+    @tree.wind(@wind)
 
   doKeyboardEvent: (event) ->
 

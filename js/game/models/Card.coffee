@@ -1,5 +1,5 @@
 class Card extends BaseModel
-  constructor: (json) ->
+  constructor: () ->
     super()
 
     @cardWidth = 3
@@ -10,17 +10,17 @@ class Card extends BaseModel
     @mesh = new THREE.Object3D()
 
     @art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
-    material = @mkMaterial(json)
 
-    @front = Helper.plane(material: material, width: @cardWidth, height: @cardHeight)
+    @front = Helper.plane(material: Helper.basicMaterial('card-bg'), width: @cardWidth, height: @cardHeight)
     @mesh.add @front
 
-    backMaterial = new THREE.MeshBasicMaterial(
-      map: TextureManager.get().items['card-bg']
-    )
-    @back = Helper.plane(material: backMaterial, width: @cardWidth, height: @cardHeight)
+    @back = Helper.plane(material: Helper.basicMaterial('card-bg'), width: @cardWidth, height: @cardHeight)
     @back.rotation.set Math.PI, 0, Math.PI
     @mesh.add @back
+
+    @glow = new Glow()
+    @glow.mesh.position.set 0, 0, -0.01
+    @mesh.add @glow.mesh
 
   impersonate: (json) ->
     # TODO: check if it is a card

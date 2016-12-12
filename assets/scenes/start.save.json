@@ -22,6 +22,11 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/turn-notification.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/mana-crystal.png",
       "type": "texture"
     },
@@ -63,6 +68,46 @@
     {
       "libPath": "",
       "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/putinei.jpg",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/chest.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/glowBlue.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/glowGreen.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/glowRed.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/glowYellow.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/end-turn-bg.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/end-turn-front.png",
       "type": "texture"
     },
     {
