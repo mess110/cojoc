@@ -5,8 +5,10 @@ class CojocText extends BaseText
       strokeStyle: 'black'
       fillStyle: 'white'
       text: 'hello'
+      # align: 'center'
       w: 1.25
       h: 1.25
+      y: 10
       canvasW: 256
       canvasH: 256
     super(options)

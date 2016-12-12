@@ -4,16 +4,16 @@ class Glow extends BaseModel
 
     @cardWidth = 3
     @cardHeight = 4
+    @defaultOpacity = 0.75
 
-    @redMaterial = Helper.basicMaterial('glowRed')
-    @greenMaterial = Helper.basicMaterial('glowGreen')
-    @blueMaterial = Helper.basicMaterial('glowBlue')
-    @yellowMaterial = Helper.basicMaterial('glowYellow')
+    @redMaterial = @mkMaterial('glowRed')
+    @greenMaterial = @mkMaterial('glowGreen')
+    @blueMaterial = @mkMaterial('glowBlue')
+    @yellowMaterial = @mkMaterial('glowYellow')
 
     extra = 0.5
     @mesh = Helper.plane(material: @greenMaterial, width: @cardWidth + extra, height: @cardHeight + extra)
     @none()
-    @setOpacity(0.25)
 
   none: ->
     return unless @mesh.visible
@@ -44,3 +44,32 @@ class Glow extends BaseModel
 
   _isSame: (material) ->
     @mesh.material == material && @mesh.visible
+
+  _funkyAnimation: ->
+    @funkyScale = 1
+    setInterval =>
+      step = 0.002
+      rand = Math.random()
+      if rand > 0.5
+        @funkyScale += step
+      else
+        @funkyScale -= step
+
+      if @funkyScale > 1.06
+        if rand > 0.5
+          @funkyScale -= step
+        else
+          @funkyScale += step
+      if @funkyScale < 0.98
+        if rand > 0.5
+          @funkyScale -= step
+        else
+          @funkyScale += step
+
+      @mesh.scale.set @funkyScale, @funkyScale, @funkyScale
+    , 20
+
+  mkMaterial: (key) ->
+    material = Helper.basicMaterial(key)
+    material.opacity = @defaultOpacity
+    material

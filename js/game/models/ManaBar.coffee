@@ -31,7 +31,7 @@ class ManaCrystal extends BaseModel
   hide: ->
     new FadeModifier(@, @mesh.material.opacity, 0, ANIMATION_DURATION).start()
 
-class ManaBar extends BaseModel
+class ManaBar extends BoxedModel
   constructor: () ->
     super()
     @cubes = []
@@ -43,16 +43,12 @@ class ManaBar extends BaseModel
     @mesh = new THREE.Object3D()
 
     @box = new THREE.Mesh(
-      new THREE.BoxGeometry( @distanceBetweenCrystals * @maxManaAllowed, 1, 0.1 ),
-      new THREE.MeshNormalMaterial(
-        transparent: true
-        opacity: 0.4
-        wireframe: true
-      )
+      new THREE.BoxGeometry(@distanceBetweenCrystals * @maxManaAllowed, 1, 0.1),
+      @_boxMaterial()
     )
     @box.position.x = @distanceBetweenCrystals * @maxManaAllowed / 2 - @distanceBetweenCrystals / 2
     @box.position.y = 0.2
-    @box.visible = false
+    # @box.position.z = -0.1
     @mesh.add @box
 
     @manaText = new CojocText()
@@ -66,12 +62,6 @@ class ManaBar extends BaseModel
 
       @cubes.push cube
       @mesh.add cube.mesh
-
-  isHovered: (raycaster) ->
-    raycaster.intersectObject(@box).length > 0
-
-  toggleWireframe: ->
-    @box.visible = !@box.visible
 
   update: (currentMana, maxMana) ->
     return if maxMana == @maxMana and currentMana == @currentMana

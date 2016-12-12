@@ -1,4 +1,4 @@
-class Card extends BaseModel
+class Card extends BoxedModel
   constructor: () ->
     super()
 
@@ -8,29 +8,64 @@ class Card extends BaseModel
     @canvasHeight = 452
 
     @mesh = new THREE.Object3D()
+    @pivot = new THREE.Object3D()
+    @mesh.add @pivot
 
     @art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
 
-    @front = Helper.plane(material: Helper.basicMaterial('card-bg'), width: @cardWidth, height: @cardHeight)
-    @mesh.add @front
+    frontMat = Helper.basicMaterial('card-bg')
+    @front = Helper.plane(material: frontMat, width: @cardWidth, height: @cardHeight)
+    @pivot.add @front
 
-    @back = Helper.plane(material: Helper.basicMaterial('card-bg'), width: @cardWidth, height: @cardHeight)
+    backMat = Helper.basicMaterial('card-bg')
+    @back = Helper.plane(material: backMat, width: @cardWidth, height: @cardHeight)
     @back.rotation.set Math.PI, 0, Math.PI
-    @mesh.add @back
+    @pivot.add @back
 
     @glow = new Glow()
     @glow.mesh.position.set 0, 0, -0.01
-    @mesh.add @glow.mesh
+    @pivot.add @glow.mesh
+
+    @box = new THREE.Mesh(
+      new THREE.BoxGeometry(@cardWidth, @cardHeight, 0.1),
+      @_boxMaterial()
+    )
+    @mesh.add @box
+
+  setOpacity: (value) ->
+    @front.material.opacity = value if @front?
+    @back.material.opacity = value if @back?
 
   impersonate: (json) ->
     # TODO: check if it is a card
     @front.material = @mkMaterial(json)
 
-  dissolve: () ->
-    # @dm = Helper.dissolveMaterial(@front.material.map)
-    @dm = Helper.dissolveMaterial(TextureManager.get().items['card-bg'])
-    @dissolved = true
+  dissolve: (r=0, g=0, b=0) ->
+    dm = Helper.dissolveMaterial(@front.material.clone().map)
+    @dm = Helper.setDissolveMaterialColor(dm, r, g, b)
+    # @dm = Helper.dissolveMaterial(TextureManager.get().items['card-bg'])
     @front.material = @dm
+    @dissolved = true
+    return
+
+  cancelMove: ->
+    @tween.stop() if @tween?
+
+  move: (position, rotation, duration = 1000) ->
+    @cancelMove()
+
+    @tween = Helper.tween(
+      mesh: @mesh
+      duration: duration
+      target:
+        x: position.x
+        y: position.y
+        z: position.z
+        rX: rotation.x
+        rY: rotation.y
+        rZ: rotation.z
+    )
+    @tween.start()
 
   dissolveTick: (tpf) ->
     return unless @dissolved

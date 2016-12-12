@@ -17,7 +17,7 @@ class EndTurnButton extends Card
   isFaceUp: ->
     @faceUp
 
-  setPosition: (x, y, z) ->
+  setOriginalPosition: (x, y, z) ->
     @original.x = x
     @original.y = y
     @original.z = z
@@ -34,16 +34,16 @@ class EndTurnButton extends Card
       @glow.green()
 
   hover: (event, raycaster) ->
+    @hovered = @isHovered(raycaster)
     if !@hasActionsLeft
       @glow.green()
-      if event.type == 'mousedown'
+      if event.type == 'mousedown' && @hovered
         if event.button == 0
           @click()
         else
           @click(true)
       return
 
-    @hovered = @isHovered(raycaster)
     if @hovered
       if event.type == 'mousedown'
         @glow.yellow()
@@ -74,19 +74,19 @@ class EndTurnButton extends Card
     @animating = true
 
     @up = Helper.tween(
-      mesh: @mesh
+      mesh: @pivot
       target:
         x: @original.x
         y: @original.y
         z: @original.z + 2
-        rX: if @faceUp then 0 else Math.PI
+        rY: if @faceUp then 0 else -Math.PI
       duration: ANIMATION_DURATION / 3
       kind: 'Exponential'
       direction: 'Out'
     ).start()
     @downTimeout = setTimeout =>
       @down = Helper.tween(
-        mesh: @mesh
+        mesh: @pivot
         target:
           x: @original.x
           y: @original.y
@@ -100,7 +100,6 @@ class EndTurnButton extends Card
     @endTimeout = setTimeout =>
       @animating = false
     , ANIMATION_DURATION
-    console.log @faceUp
     return
 
   stop: ->

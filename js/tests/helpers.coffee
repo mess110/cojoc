@@ -16,12 +16,13 @@ scene = () ->
 
 Helper.fade(type: 'in', duration: 0)
 config = Config.get()
+config.fillWindow()
 config.transparentBackground = true
 config.debug = true
 config.toggleStats()
 Persist.default('lastTest', 'cubeTest')
 
 engine = new Engine3D()
-engine.setWidthHeight(window.innerWidth / 2, window.innerHeight)
+# engine.setWidthHeight(window.innerWidth / 3 * 2, window.innerHeight)
 scenify(Persist.get('lastTest'))
 engine.render()

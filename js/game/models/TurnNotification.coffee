@@ -28,8 +28,8 @@ class TurnNotification extends BaseModel
     @animating = true
 
     new FadeModifier(@, 0, 1, ANIMATION_DURATION / 5).start()
-    new ScaleModifier(@, 0.001, 1, ANIMATION_DURATION).start()
-    new ScaleModifier(@, 1, 0.001, ANIMATION_DURATION).delay(ANIMATION_DURATION * 3).start()
+    new ScaleModifier(@, 0.001, 1, ANIMATION_DURATION).tween.easing(TWEEN.Easing.Elastic.Out).start()
+    new ScaleModifier(@, 1, 0.001, ANIMATION_DURATION).delay(ANIMATION_DURATION * 3).tween.easing(TWEEN.Easing.Cubic.Out).start()
     new FadeModifier(@, 1, 0, ANIMATION_DURATION / 5).delay(ANIMATION_DURATION * 4 - ANIMATION_DURATION / 5).start()
 
     setTimeout =>
