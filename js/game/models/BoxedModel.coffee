@@ -9,6 +9,9 @@ class BoxedModel extends BaseModel
   toggleWireframe: ->
     @box.material.opacity = if @box.material.opacity == 0 then 0.4 else 0
 
+  setWireframe: (bool) ->
+    @box.material.opacity = if !bool then 0.4 else 0
+
   _boxMaterial: ->
     new THREE.MeshNormalMaterial(
       transparent: true

@@ -1,6 +1,7 @@
 handTest = ->
   # Helper.orbitControls(engine)
   scene = SceneManager.currentScene()
+  allCards = []
 
   scene.redraw = (count) ->
     scene.drawCard()
@@ -12,6 +13,7 @@ handTest = ->
     card.mesh.rotation.set Math.PI / 2, 0, 0
     scene.scene.add card.mesh
     scene.hand.add card
+    allCards.push card
 
   scene.removeCard = ->
     toRemove = scene.hand.cards.first()
@@ -26,11 +28,17 @@ handTest = ->
   scene.hand.mesh.position.y = -3
   scene.scene.add scene.hand.mesh
   scene.addCard()
-  scene.addCard()
-  scene.addCard()
+  setTimeout =>
+    scene.addCard()
+  , 1000
+  setTimeout =>
+    scene.addCard()
+  , 2000
 
   scene.afterCinematic = (tpf) ->
     scene.hand.tick(tpf)
+    for card in allCards
+      card.dissolveTick(tpf)
 
   scene.doMouseEvent = (event, raycaster) ->
     scene.hand.doMouseEvent(event, raycaster)

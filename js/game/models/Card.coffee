@@ -51,7 +51,7 @@ class Card extends BoxedModel
   cancelMove: ->
     @tween.stop() if @tween?
 
-  move: (position, rotation, duration = 1000) ->
+  move: (position, rotation = {}, duration = 1000) ->
     @cancelMove()
 
     @tween = Helper.tween(
