@@ -78,10 +78,12 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
   $scope.goTo = (url) ->
     $location.path(url)
 
-  $scope.game = (data) ->
-    toastr.clear()
-    $scope.goTo("/game/#{data.id}")
-    engine.initScene(gameScene, data, true)
+  $scope.startGame = (data) ->
+    $timeout ->
+      toastr.clear()
+      $scope.goTo("/game/#{data.id}")
+      engine.initScene(gameScene, data, true)
+    , 500
 
   $scope.prev = ->
     if SceneManager.currentScene() == cardsScene
@@ -125,7 +127,7 @@ app.controller 'GamesController', ($scope) ->
 app.controller 'WaitingController', ($scope, $interval, toastr) ->
   document.getElementById("back-button").style.opacity = 1
   if Persist.get(Constants.Storage.BOT)
-    $scope.game(id: 'bot')
+    $scope.startGame(id: 'bot')
   else
     $scope.toastr(message: 'You are queued')
     NetworkManager.emit(type: 'joinQueue')

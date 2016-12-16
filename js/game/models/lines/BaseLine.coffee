@@ -1,18 +1,13 @@
-class Hand extends BoxedModel
-  MAX_ROTATION = 1
-
-  constructor: () ->
+class BaseLine extends BoxedModel
+  constructor: ->
     super()
 
+    @maxRotation = 1
     @mouseDown = false
     @cards = []
     @mesh = new THREE.Object3D()
-
-    @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
-    @mesh.add @box
-
-    @curve = new HandCurve()
     @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1)
+
     @direction =
       x: 0
       y: 0
@@ -70,6 +65,7 @@ class Hand extends BoxedModel
     @direction.x = Helper.tendToZero(@direction.x, amount)
     @direction.y = Helper.tendToZero(@direction.y, amount)
 
+    # TODO: maybe move this to hand
     if @selectedCard? && @takenOut
       @selectedCard.pivot.rotation.x = -@direction.y / 2
       @selectedCard.pivot.rotation.y = @direction.x / 2
@@ -85,34 +81,20 @@ class Hand extends BoxedModel
 
     # Selected card
     if event.type == 'mousemove' && @mouseDown
-      if @hoveredCard? && found != @selectedCard
+      if @hoveredCard? && found != @selectedCard && !@takenOut
         @_changeSelected(found, @selectedCard, raycaster)
 
       if !@hoveredCard? && !@takenOut
         @_changeSelected(undefined, @selectedCard, raycaster)
 
     if event.type == 'mouseup'
-      if @_isInPlayArea(pos)
-        @remove(@selectedCard)
-        @selectedCard.dissolve()
+      @_doMouseUp(raycaster, pos)
       @_changeSelected(undefined, @selectedCard, raycaster)
 
     if event.type == 'mousedown' && @hoveredCard?
       @_changeSelected(found, @selectedCard, raycaster)
 
-    # handle dragging
-    if @selectedCard?
-      if @takenOut
-        @_moveWithDiff(@selectedCard, pos)
-      else if @_isInPlayArea(pos)
-        # happens only once
-        @takenOut = true
-        @diff =
-          x: @selectedCard.mesh.position.x - pos.x
-          y: @selectedCard.mesh.position.y - pos.y
-
-        @selectedCard.cancelMove()
-        @_moveWithDiff(@selectedCard, pos)
+    @_doAfterMouseEvent(event, raycaster, pos)
 
     return
 
@@ -134,32 +116,7 @@ class Hand extends BoxedModel
     @takenOut = false
     pos = raycaster.ray.intersectPlane(@plane)
     @selectedCard = newSelected
-
-    if oldSelected?
-      point = @getPoint(oldSelected)
-      if point?
-        oldSelected.move(
-          { x: point.x, y: point.y, z: point.z + oldSelected.indexInHand * 0.1 }
-          { x: 0, y: 0, z: -point.x / 20 }
-          200
-        )
-        Helper.tween(
-          mesh: oldSelected.pivot
-          duration: 100
-          target: { rX: 0, rY: 0, rZ: 0 }
-        ).start()
-
-    if newSelected?
-      point = @getPoint(@selectedCard.indexInHand)
-      if !@_isInPlayArea(pos)
-        point.z += 1
-        point.y += 1.6
-        @selectedCard.mesh.position.x = point.x
-        @selectedCard.mesh.position.y = point.y
-        @selectedCard.mesh.position.z = point.z
-        @selectedCard.mesh.rotation.set 0, 0, 0
-        @selectedCard.move({ y: point.y + 0.2 })
-
+    @_doChangeSelected(newSelected, oldSelected, raycaster, pos)
     @_updateGlow(newSelected, oldSelected)
 
   _updateMouseStatus: (event) ->
@@ -169,10 +126,10 @@ class Hand extends BoxedModel
     if event.type == 'mousemove' && @oldEvent?
       if @oldEvent.pageX != event.pageX
         amount = if event.pageX < @oldEvent.pageX then -0.01 else 0.01
-        @direction.x = Helper.addWithMinMax(@direction.x, amount, -MAX_ROTATION, MAX_ROTATION)
+        @direction.x = Helper.addWithMinMax(@direction.x, amount, -@maxRotation, @maxRotation)
       if @oldEvent.pageY != event.pageY
         amount = if event.pageY < @oldEvent.pageY then 0.01 else -0.01
-        @direction.y = Helper.addWithMinMax(@direction.y, amount, -MAX_ROTATION, MAX_ROTATION)
+        @direction.y = Helper.addWithMinMax(@direction.y, amount, -@maxRotation, @maxRotation)
 
     @oldEvent = event
 
@@ -193,19 +150,19 @@ class Hand extends BoxedModel
     @mesh.add @line
 
   _moveInPosition: () ->
-    points = @getPoints()
-    i = 0
     for card in @cards
-      # if card == @hoveredCard || card == @selectedCard
       if card == @selectedCard
-        i += 1
         continue
-      point = points[i]
+      point = @getPoint(card)
       card.move(
-        { x: point.x, y: point.y, z: i * 0.1 }
-        { x: 0, y: 0, z: -point.x / 20 }
+        target:
+          x: point.x
+          y: point.y
+          z: point.z + card.indexInHand * 0.1
+          rX: 0
+          rY: 0
+          rZ: -point.x / 20
       )
-      i += 1
 
   _findHoveredCard: (raycaster) ->
     found = []
@@ -215,5 +172,4 @@ class Hand extends BoxedModel
     found.sort((a,b) -> a.mesh.position.z - b.mesh.position.z).last()
 
   _changeHovered: (newFound, oldFound)->
-    points = @getPoints()
     @hoveredCard = newFound

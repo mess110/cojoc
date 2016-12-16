@@ -47,6 +47,11 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/minion-template.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/card-template.png",
       "type": "texture"
     },
@@ -68,6 +73,21 @@
     {
       "libPath": "",
       "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/babaDochia.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/ileanaCosanzeana.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/zalmoxis.png",
       "type": "texture"
     },
     {

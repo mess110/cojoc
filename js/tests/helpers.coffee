@@ -9,6 +9,8 @@ assert = (condition, message) ->
 
 scenify = (funcName) ->
   Persist.set('lastTest', funcName)
+  if SceneManager.get().currentSceneIndex? && SceneManager.currentScene().clearTests?
+    SceneManager.currentScene().clearTests()
   Engine3D.scenify(engine, eval(funcName))
 
 scene = () ->
@@ -18,7 +20,7 @@ Helper.fade(type: 'in', duration: 0)
 config = Config.get()
 config.fillWindow()
 config.transparentBackground = true
-config.debug = true
+# config.debug = true
 config.toggleStats()
 Persist.default('lastTest', 'cubeTest')
 

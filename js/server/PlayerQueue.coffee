@@ -1,7 +1,7 @@
 server = require('../../bower_components/coffee-engine/src/server/server.coffee')
 Game = require('./Game.coffee').Game
 
-class PlayerQueue extends server.Game
+class PlayerQueue extends server.GameInstance
   constructor: (gameServer) ->
     super(tickPerSecond: 1)
     @gameServer = gameServer

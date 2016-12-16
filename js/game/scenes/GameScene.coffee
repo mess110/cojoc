@@ -5,18 +5,17 @@ class GameScene extends BaseScene
       console.ce "#{options.id} game"
     else
       console.ce 'bot game'
+      @game = new Game(ticksPerSecond: 10)
+      @game.afterServerTick = afterServerTick
 
-    @referee = new ArenaReferee()
+  uninit: ->
+    super()
+    @game.stopTicking() if @game?
 
-    Helper.orbitControls(engine)
-    @tree = new Tree()
-    @scene.add @tree.mesh
-    @wind = 0
+  afterServerTick: (output) ->
+    console.log output
 
   tick: (tpf) ->
-    return unless @tree?
-    @wind += tpf + Math.random()
-    @tree.wind(@wind)
 
   doKeyboardEvent: (event) ->
 

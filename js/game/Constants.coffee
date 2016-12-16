@@ -17,6 +17,11 @@ Constants =
     BOT: 'bot'
     VOLUME: 'volume'
 
+  CardTypes:
+    HERO: 'hero'
+    MINION: 'minion'
+    SPELL: 'spell'
+
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
 exports.Constants = Constants

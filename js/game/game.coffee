@@ -28,9 +28,14 @@ nm.on 'connected', (data) ->
   scope.game.connected = true
   scope.start()
 
+afterServerTick = (data) ->
+  SceneManager.currentScene().afterServerTick(data)
+
+nm.on 'serverTick', afterServerTick
+
 nm.on 'startGame', (data) ->
   scope = getScope()
-  scope.game(data)
+  scope.startGame(data)
 
 nm.on 'disconnect', (data) ->
 

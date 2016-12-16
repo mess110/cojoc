@@ -1,4 +1,4 @@
-handTest = ->
+minionsTest = ->
   # Helper.orbitControls(engine)
   scene = SceneManager.currentScene()
   allCards = []
@@ -8,17 +8,16 @@ handTest = ->
 
   scene.addCard = ->
     card = new Card()
-    card.impersonate(Cards.shuffle().first())
+    card.minion(Cards.shuffle().first())
     card.mesh.position.set 5, -4, -10
     card.mesh.rotation.set Math.PI / 2, 0, 0
     scene.scene.add card.mesh
-    scene.hand.add card
+    scene.minions.add card
     allCards.push card
 
   scene.removeCard = ->
-    toRemove = scene.hand.cards.first()
-    console.log toRemove.indexInHand
-    card = scene.hand.remove toRemove
+    toRemove = scene.minions.cards.first()
+    card = scene.minions.remove toRemove
     card.move(
       target:
         x: 5
@@ -29,9 +28,13 @@ handTest = ->
         rZ: 0
     )
 
-  scene.hand = new Hand()
-  scene.hand.mesh.position.y = -3
-  scene.scene.add scene.hand.mesh
+  scene.minions = new Minions()
+  scene.minions.mesh.position.z = -20
+  scene.scene.add scene.minions.mesh
+  scene.addCard()
+  scene.addCard()
+  scene.addCard()
+  scene.addCard()
   scene.addCard()
   setTimeout =>
     scene.addCard()
@@ -41,9 +44,9 @@ handTest = ->
   , 2000
 
   scene.afterCinematic = (tpf) ->
-    scene.hand.tick(tpf)
+    scene.minions.tick(tpf)
     for card in allCards
       card.dissolveTick(tpf)
 
   scene.doMouseEvent = (event, raycaster) ->
-    scene.hand.doMouseEvent(event, raycaster)
+    scene.minions.doMouseEvent(event, raycaster)

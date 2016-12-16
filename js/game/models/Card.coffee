@@ -38,7 +38,13 @@ class Card extends BoxedModel
 
   impersonate: (json) ->
     # TODO: check if it is a card
-    @front.material = @mkMaterial(json)
+    @front.material = @mkCardMaterial(json)
+    @
+
+  minion: (json) ->
+    # TODO: check if it is a card
+    @front.material = @mkMinionMaterial(json)
+    @
 
   dissolve: (r=0, g=0, b=0) ->
     dm = Helper.dissolveMaterial(@front.material.clone().map)
@@ -51,38 +57,50 @@ class Card extends BoxedModel
   cancelMove: ->
     @tween.stop() if @tween?
 
-  move: (position, rotation = {}, duration = 1000) ->
+  move: (options = {}, duration = 1000) ->
     @cancelMove()
-
-    @tween = Helper.tween(
-      mesh: @mesh
-      duration: duration
-      target:
-        x: position.x
-        y: position.y
-        z: position.z
-        rX: rotation.x
-        rY: rotation.y
-        rZ: rotation.z
-    )
+    options.mesh = @mesh
+    @tween = Helper.tween(options)
     @tween.start()
+    @tween
 
   dissolveTick: (tpf) ->
     return unless @dissolved
     return if @dm.uniforms.dissolve.value > 1.1
     @dm.uniforms.dissolve.value += tpf
 
-  mkMaterial: (json) ->
+  mkMinionMaterial: (json) ->
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
     @art.drawImage(key: 'card-template')
-    @art.drawImage(key: 'heart', x: @canvasWidth - 64, y: @canvasHeight - 64)
-    @art.drawImage(key: 'wood-sword', y: @canvasHeight - 64)
-    @art.drawImage(key: 'mana-crystal')
-    @art.drawText(text: '5', strokeStyle: 'black', x: 20, y: 50, font: '50px Pirata One')
-    @art.drawText(text: '4', strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
-    @art.drawText(text: '2', strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+
+    padding = 5
+    @art.ctx.drawImage(@art.canvas, 107, 25, 123, 168, padding, padding, @canvasWidth - padding * 2, @canvasHeight - padding * 2)
+    @art.drawImage(key: 'minion-template')
+    if json.defaults.attack
+      @art.drawImage(key: 'wood-sword', y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.attack, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
+    if json.defaults.health
+      @art.drawImage(key: 'heart', x: @canvasWidth - 64, y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.health, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+
+    Helper.materialFromCanvas(@art.canvas)
+
+  mkCardMaterial: (json) ->
+    @art.clear()
+    @art.drawImage(key: 'card-art-bg')
+    @art.drawImage(key: json.key)
+    @art.drawImage(key: 'card-template')
+    if json.defaults.cost
+      @art.drawImage(key: 'mana-crystal')
+      @art.drawText(text: json.defaults.cost, strokeStyle: 'black', x: 20, y: 50, font: '50px Pirata One')
+    if json.defaults.attack
+      @art.drawImage(key: 'wood-sword', y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.attack, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
+    if json.defaults.health
+      @art.drawImage(key: 'heart', x: @canvasWidth - 64, y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.health, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
     # @art.drawText(text: 'Charge', strokeStyle: 'black', x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: '40px Pirata One')
     @art.drawBezier(
       curve: '20,157.2,130.02,100.0,190.5,246.2,492,176.3'
