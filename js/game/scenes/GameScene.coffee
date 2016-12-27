@@ -15,13 +15,16 @@ class GameScene extends BaseScene
     @game.stopTicking() if @game?
 
   afterServerTick: (data) ->
-    @game.doIt(@scene, data)
+    @game.doIt(@scene, data) if @game?
 
   tick: (tpf) ->
 
   doKeyboardEvent: (event) ->
 
   doMouseEvent: (event, raycaster) ->
+
+  toJson: ->
+    @game.toJson()
 
   _isBotGame: ->
     @options.id == 'bot'

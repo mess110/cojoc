@@ -60,9 +60,30 @@ pod = new server.Pod(config.pod, gameServer)
 
 pod.app.get '/info', (req, res) ->
   hash =
-    pod: config.pod
-    keys: pod.keys()
+    pod:
+      id: config.pod.id
+      version: config.pod.version
+      port: config.pod.port
+    sockets:
+      count: pod.keys().length
+      keys: pod.keys()
+    queue:
+      count: gameServer.queue.queue.length
+      keys: gameServer.queue.queue.map (e) -> e.id
+    games:
+      count: gameServer.games.length
+      keys: gameServer.games.map (g) -> g.id
+      urls: gameServer.games.map (g) -> "/games/#{g.id}"
 
   res.send hash
+
+pod.app.get '/games/:id', (req, res) ->
+  hash = gameServer.getGame(req.params.id)
+  if hash?
+    # res.send hash.json
+    res.send hash.toJson()
+  else
+    res.status(404)
+    res.send { code: 404, message: 'game not found' }
 
 pod.listen()

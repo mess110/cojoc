@@ -2,9 +2,10 @@ Constants = require('../game/Constants.coffee').Constants unless Constants?
 Cards = require('../game/models/Cards.coffee').Cards unless Cards?
 
 class ArenaReferee
-  constructor: ->
+  constructor: (bot) ->
     @processing = false
     @json =
+      bot: bot
       gameType: Constants.GameType.Arena
       phase: Constants.Phase.Arena.HeroSelect
       cards: []
@@ -16,7 +17,7 @@ class ArenaReferee
       player2Hero: undefined
 
   # This is called by the ticker, before the ui calls doIt
-  # it is called on the server
+  # it is called on the server if not bot game
   # it is also called on the client if bot game
   tick: ->
     # process the first unprocessed input
@@ -26,6 +27,9 @@ class ArenaReferee
   gameInput: (data) ->
     data.processed = false
     @json.inputs.push data
+
+  toJson: ->
+    @json
 
   # ------------------------------- #
   # Methods used only on the client #
