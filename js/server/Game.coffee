@@ -1,12 +1,9 @@
 server = require('../../bower_components/coffee-engine/src/server/server.coffee')
 
-arenaRef = require('./ArenaReferee.coffee').ArenaReferee
-ArenaReferee = arenaRef if arenaRef?
+ArenaReferee = require('./ArenaReferee.coffee').ArenaReferee unless ArenaReferee?
+GameInstance = server.GameInstance unless GameInstance?
 
-gameInst = server.GameInstance
-gameInst = GameInstance unless gameInst?
-
-class Game extends gameInst
+class Game extends GameInstance
   constructor: (config, socket1, socket2) ->
     super(config)
     @socket1 = socket1
@@ -22,7 +19,8 @@ class Game extends gameInst
     @afterServerTick(data)
 
   afterServerTick: (data) ->
-    # send output to clients
+    @socket1.emit('serverTick', data)
+    @socket2.emit('serverTick', data)
 
   join: (socket, data) ->
     console.log "#{socket.id} joined #{data.id}"
@@ -30,5 +28,12 @@ class Game extends gameInst
   gameInput: (socket, data) ->
     console.log "game input from #{socket.id} for #{data.id}"
     @referee.gameInput(data)
+
+  # ------------------------------- #
+  # Methods used only on the client #
+  # ------------------------------- #
+
+  doIt: (scene, data) ->
+    @referee.doIt(scene, data)
 
 exports.Game = Game

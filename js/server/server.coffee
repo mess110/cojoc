@@ -11,6 +11,7 @@ config =
     version: 1
     port: process.env.COJOC_PORT || 1337
   gameServer:
+    autoStart: true
     ticksPerSecond: 10
     ioMethods: ['join', 'gameInput', 'leaveQueue', 'joinQueue']
 
@@ -41,7 +42,7 @@ class GameServer extends server.GameServer
     game.join(socket, data)
 
   joinQueue: (socket, data) ->
-    @queue.push(socket)
+    @queue.enter(socket)
 
   leaveQueue: (socket, data) ->
     @queue.leave(socket)

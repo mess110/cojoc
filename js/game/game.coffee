@@ -29,7 +29,8 @@ nm.on 'connected', (data) ->
   scope.start()
 
 afterServerTick = (data) ->
-  SceneManager.currentScene().afterServerTick(data)
+  currentScene = SceneManager.currentScene()
+  currentScene.afterServerTick(data) if currentScene.afterServerTick?
 
 nm.on 'serverTick', afterServerTick
 

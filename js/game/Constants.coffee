@@ -22,6 +22,13 @@ Constants =
     MINION: 'minion'
     SPELL: 'spell'
 
+  GameType:
+    Arena: 0
+
+  Phase:
+    Arena:
+      HeroSelect: 0
+
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
 exports.Constants = Constants

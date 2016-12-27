@@ -7,7 +7,7 @@ class PlayerQueue extends server.GameInstance
     @gameServer = gameServer
     @queue = []
 
-  push: (socket) ->
+  enter: (socket) ->
     @queue.push(socket)
     socket
 

@@ -1,3 +1,5 @@
+Constants = require('../Constants.coffee').Constants unless Constants?
+
 Cards = [
   {
     key: 'calulNazdravan'
@@ -73,3 +75,5 @@ Cards.randomHero = ->
 
 Cards.randomSpell = ->
   @spells().shuffle().first()
+
+exports.Cards = Cards
