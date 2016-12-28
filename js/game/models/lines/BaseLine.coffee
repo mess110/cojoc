@@ -173,3 +173,10 @@ class BaseLine extends BoxedModel
 
   _changeHovered: (newFound, oldFound)->
     @hoveredCard = newFound
+
+  _getExtraX: (card) ->
+    extraX = 0
+    if !(@cards.size() % 2 == 1 && parseInt(@cards.size() / 2) == card.indexInHand)
+      offset = (@cards.size() / 2 - 0.5)
+      extraX -= (card.indexInHand - offset) / 2
+    extraX

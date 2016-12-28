@@ -1,9 +1,15 @@
 class GameScene extends BaseScene
   init: (options) ->
+    engine.camera.position.set 0, 0, 15
     @options = options
     console.ce "#{@options.id} game"
 
     @game = new Game(autoStart: false)
+    @game.referee.uiAdd(@)
+
+    persist = Persist.sessionStorage()
+    @myId = persist.get(Constants.Storage.CURRENT_ID)
+
     if @_isBotGame()
       @game.afterServerTick = afterServerTick
       @game.startTicking()
@@ -15,22 +21,27 @@ class GameScene extends BaseScene
     @game.stopTicking() if @game?
 
   afterServerTick: (data) ->
-    @game.doIt(@scene, data) if @game?
+    @game.referee.uiServerTick(data) if @game?
 
   tick: (tpf) ->
+    @game.referee.uiTick(tpf) if @game?
 
   doKeyboardEvent: (event) ->
+    @game.referee.uiKeyboardEvent(event) if @game?
 
   doMouseEvent: (event, raycaster) ->
+    @game.referee.uiMouseEvent(event, raycaster) if @game?
 
   toJson: ->
     @game.toJson()
 
   _isBotGame: ->
-    @options.id == 'bot'
+    @options.id == Constants.Storage.BOT
 
   _emit: (data) ->
     throw new Error('type missing from data') unless data.type?
+    data.id = @options.id
+    data.owner = @myId
     if @_isBotGame()
       @game[data.type]({}, data)
     else

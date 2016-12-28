@@ -16,6 +16,7 @@ Constants =
     SOUND: 'sound'
     BOT: 'bot'
     VOLUME: 'volume'
+    CURRENT_ID: 'currentId'
 
   CardTypes:
     HERO: 'hero'

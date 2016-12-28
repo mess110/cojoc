@@ -93,6 +93,18 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
     if SceneManager.currentScene() == cardsScene
       cardsScene.next()
 
+  $scope.hidePrevNext = ->
+    document.getElementById('prev').style.display = 'none'
+    document.getElementById('next').style.display = 'none'
+    document.getElementById('prev').style.opacity = 0
+    document.getElementById('next').style.opacity = 0
+
+  $scope.showPrevNext = ->
+    document.getElementById('prev').style.display = 'block'
+    document.getElementById('next').style.display = 'block'
+    document.getElementById('prev').style.opacity = 1
+    document.getElementById('next').style.opacity = 1
+
   $scope.start = () ->
     return if !($scope.game.loaded && $scope.game.connected)
     path = $location.path()
@@ -101,7 +113,8 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
     if path == '/cards'
       scene = cardsScene
     else if path == '/waiting'
-      return
+      scene = menuScene
+      # return
     else if path.startsWith('/game')
       scene = gameScene
       options.id = $routeParams.id
@@ -111,29 +124,29 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
     engine.initScene(scene, options, false)
 
 app.controller 'LandingController', ($scope) ->
-  document.getElementById("back-button").style.opacity = 0
-  document.getElementById("prev").style.opacity = 0
-  document.getElementById("next").style.opacity = 0
+  document.getElementById('back-button').style.opacity = 0
+  $scope.hidePrevNext()
 
 app.controller 'CardsController', ($scope) ->
-  document.getElementById("back-button").style.opacity = 1
-  document.getElementById("prev").style.opacity = 1
-  document.getElementById("next").style.opacity = 1
+  document.getElementById('back-button').style.opacity = 1
+  $scope.showPrevNext()
 
 app.controller 'LeaderboardsController', ($scope) ->
 
 app.controller 'GamesController', ($scope) ->
+  $scope.hidePrevNext()
 
 app.controller 'WaitingController', ($scope, $interval, toastr) ->
-  document.getElementById("back-button").style.opacity = 1
+  document.getElementById('back-button').style.opacity = 1
   if Persist.get(Constants.Storage.BOT)
-    $scope.startGame(id: 'bot')
+    $scope.startGame(id: Constants.Storage.BOT)
   else
     $scope.toastr(message: 'You are queued')
     NetworkManager.emit(type: 'joinQueue')
 
 app.controller 'GameController', ($scope) ->
   document.getElementById("back-button").style.opacity = 1
+  $scope.hidePrevNext()
 
 app.controller 'NewGameController', ($scope) ->
 

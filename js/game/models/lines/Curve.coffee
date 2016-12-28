@@ -39,3 +39,11 @@ class MinionsCurve extends Curve
       new (THREE.Vector3)(5, 0, 0)
       new (THREE.Vector3)(15, 0, 0)
     ])
+
+class DiscoverCurve extends Curve
+  constructor: ->
+    super([
+      new (THREE.Vector3)(-11, 0, 0)
+      new (THREE.Vector3)(0, 0, 0)
+      new (THREE.Vector3)(11, 0, 0)
+    ])

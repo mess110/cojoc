@@ -63,10 +63,3 @@ class Minions extends BaseLine
         duration: 200
         kind: 'Cubic', direction: 'Out'
       )
-
-  _getExtraX: (card) ->
-    extraX = 0
-    if !(@cards.size() % 2 == 1 && parseInt(@cards.size() / 2) == card.indexInHand)
-      offset = (@cards.size() / 2 - 0.5)
-      extraX -= (card.indexInHand - offset) / 2
-    extraX

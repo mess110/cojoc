@@ -48,6 +48,7 @@ class GameServer extends server.GameServer
     @queue.leave(socket)
 
   gameInput: (socket, data) ->
+    console.log data
     game = @getGame(data.id)
     game.gameInput(socket, data)
 

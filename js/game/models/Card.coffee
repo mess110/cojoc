@@ -57,7 +57,7 @@ class Card extends BoxedModel
   cancelMove: ->
     @tween.stop() if @tween?
 
-  move: (options = {}, duration = 1000) ->
+  move: (options = {}) ->
     @cancelMove()
     options.mesh = @mesh
     @tween = Helper.tween(options)
@@ -112,3 +112,10 @@ class Card extends BoxedModel
     )
 
     Helper.materialFromCanvas(@art.canvas)
+
+  toJson: ->
+    {
+      id: @id
+      owner: @owner
+      status: @status
+    }

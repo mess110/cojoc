@@ -7,6 +7,9 @@ Persist.default(Constants.Storage.SOUND, false)
 Persist.default(Constants.Storage.BOT, false)
 Persist.default(Constants.Storage.VOLUME, 0.75)
 
+persist = Persist.sessionStorage()
+persist.default(Constants.Storage.CURRENT_ID, Utils.guid())
+
 config = Config.get()
 config.fillWindow()
 config.transparentBackground = true
