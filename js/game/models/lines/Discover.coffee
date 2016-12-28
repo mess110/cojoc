@@ -27,7 +27,6 @@ class Discover extends BaseLine
   _doMouseUp: (raycaster, pos) ->
     return unless @selectedCard?
     SceneManager.currentScene()._emit(type: 'gameInput', action: 'selectCard', cardId: @selectedCard.id)
-    console.log @selectedCard.id
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
 

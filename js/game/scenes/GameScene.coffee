@@ -8,6 +8,7 @@ class GameScene extends BaseScene
     @game.referee.uiAdd(@)
 
     persist = Persist.sessionStorage()
+    console.log NetworkManager.get().socket.socket.sessionid
     @myId = persist.get(Constants.Storage.CURRENT_ID)
 
     if @_isBotGame()
