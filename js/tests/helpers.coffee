@@ -9,7 +9,7 @@ assert = (condition, message) ->
 
 scenify = (funcName) ->
   Persist.set('lastTest', funcName)
-  if SceneManager.get().currentSceneIndex? && SceneManager.currentScene().clearTests?
+  if SceneManager.get().currentSceneIndex? and SceneManager.currentScene().clearTests?
     SceneManager.currentScene().clearTests()
   Engine3D.scenify(engine, eval(funcName))
 

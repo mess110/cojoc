@@ -61,14 +61,6 @@ class BaseLine extends BoxedModel
       @getPoints()[@cards.indexOf(i)]
 
   tick: (tpf) ->
-    amount = tpf
-    @direction.x = Helper.tendToZero(@direction.x, amount)
-    @direction.y = Helper.tendToZero(@direction.y, amount)
-
-    # TODO: maybe move this to hand
-    if @selectedCard? && @takenOut
-      @selectedCard.pivot.rotation.x = -@direction.y / 2
-      @selectedCard.pivot.rotation.y = @direction.x / 2
 
   doMouseEvent: (event, raycaster) ->
     @_updateMouseStatus(event)
@@ -80,18 +72,18 @@ class BaseLine extends BoxedModel
       @_changeHovered(found, @hoveredCard)
 
     # Selected card
-    if event.type == 'mousemove' && @mouseDown
-      if @hoveredCard? && found != @selectedCard && !@takenOut
+    if event.type == 'mousemove' and @mouseDown
+      if @hoveredCard? and found != @selectedCard and !@takenOut
         @_changeSelected(found, @selectedCard, raycaster)
 
-      if !@hoveredCard? && !@takenOut
+      if !@hoveredCard? and !@takenOut
         @_changeSelected(undefined, @selectedCard, raycaster)
 
     if event.type == 'mouseup'
       @_doMouseUp(raycaster, pos)
       @_changeSelected(undefined, @selectedCard, raycaster)
 
-    if event.type == 'mousedown' && @hoveredCard?
+    if event.type == 'mousedown' and @hoveredCard?
       @_changeSelected(found, @selectedCard, raycaster)
 
     @_doAfterMouseEvent(event, raycaster, pos)
@@ -123,7 +115,7 @@ class BaseLine extends BoxedModel
     @mouseDown = true if event.type == 'mousedown'
     @mouseDown = false if event.type == 'mouseup'
 
-    if event.type == 'mousemove' && @oldEvent?
+    if event.type == 'mousemove' and @oldEvent?
       if @oldEvent.pageX != event.pageX
         amount = if event.pageX < @oldEvent.pageX then -0.01 else 0.01
         @direction.x = Helper.addWithMinMax(@direction.x, amount, -@maxRotation, @maxRotation)
@@ -145,7 +137,7 @@ class BaseLine extends BoxedModel
       color: 'yellow', transparent: true, dashSize: 0.1, gapSize: 0.1
     )
     @line = new (THREE.Line)(@geometry, material)
-    @line.visible = oldVisible || false
+    @line.visible = oldVisible or false
 
     @mesh.add @line
 
@@ -176,7 +168,7 @@ class BaseLine extends BoxedModel
 
   _getExtraX: (card) ->
     extraX = 0
-    if !(@cards.size() % 2 == 1 && parseInt(@cards.size() / 2) == card.indexInHand)
+    if !(@cards.size() % 2 == 1 and parseInt(@cards.size() / 2) == card.indexInHand)
       offset = (@cards.size() / 2 - 0.5)
       extraX -= (card.indexInHand - offset) / 2
     extraX

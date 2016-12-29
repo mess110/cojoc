@@ -37,12 +37,12 @@ class Card extends BoxedModel
     @back.material.opacity = value if @back?
 
   impersonate: (json) ->
-    # TODO: check if it is a card
+    @_validateJsonCard(json)
     @front.material = @mkCardMaterial(json)
     @
 
   minion: (json) ->
-    # TODO: check if it is a card
+    @_validateJsonCard(json)
     @front.material = @mkMinionMaterial(json)
     @
 
@@ -119,3 +119,8 @@ class Card extends BoxedModel
       owner: @owner
       status: @status
     }
+
+  _validateJsonCard: (json) ->
+    throw 'key missing' unless json.key?
+    throw 'name missing' unless json.name?
+    throw 'defaults missing' unless json.defaults?

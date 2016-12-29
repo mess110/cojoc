@@ -21,7 +21,7 @@ nm.connect()
 nm.on 'error', (data) ->
   scope = getScope()
   scope.toastr(data)
-  if data? && data.code?
+  if data? and data.code?
     scope.home()
   else
     scope.game.connected = false

@@ -9,7 +9,7 @@ config =
     id: server.Utils.guid()
     dirname: __dirname
     version: 1
-    port: process.env.COJOC_PORT || 1337
+    port: process.env.COJOC_PORT or 1337
   gameServer:
     autoStart: true
     ticksPerSecond: 10
@@ -29,7 +29,7 @@ class GameServer extends server.GameServer
 
   join: (socket, data) ->
     console.log data
-    if !(data? && data.id?)
+    if !(data? and data.id?)
       console.log 'ERROR: data.id missing'
       socket.emit('error', code: Constants.Errors.MISSING_GAME_ID, message: 'Missing game id')
       return

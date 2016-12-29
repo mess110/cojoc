@@ -106,7 +106,7 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
     document.getElementById('next').style.opacity = 1
 
   $scope.start = () ->
-    return if !($scope.game.loaded && $scope.game.connected)
+    return if !($scope.game.loaded and $scope.game.connected)
     path = $location.path()
     options = {}
 

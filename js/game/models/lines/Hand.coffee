@@ -7,6 +7,15 @@ class Hand extends BaseLine
 
     @curve = new HandCurve()
 
+  tick: (tpf) ->
+    amount = tpf
+    @direction.x = Helper.tendToZero(@direction.x, amount)
+    @direction.y = Helper.tendToZero(@direction.y, amount)
+
+    if @selectedCard? and @takenOut
+      @selectedCard.pivot.rotation.x = -@direction.y / 2
+      @selectedCard.pivot.rotation.y = @direction.x / 2
+
   _doAfterMouseEvent: (event, raycaster, pos) ->
     if @selectedCard?
       if @takenOut

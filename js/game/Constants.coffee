@@ -30,6 +30,14 @@ Constants =
     Arena:
       HeroSelect: 0
 
+  Input:
+    START_GAME: 'startGame'
+    SELECT_CARD: 'selectCard'
+
+  Action:
+    DRAW_CARD: 'drawCard'
+    HOLD_CARD: 'holdCard'
+
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
 exports.Constants = Constants

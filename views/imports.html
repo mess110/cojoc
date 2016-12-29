@@ -9,7 +9,10 @@
 <script src="../bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
 
 <script type="text/javascript" charset="utf-8">
-    // TODO: explain why this is needed
+    // This is needed because certain js files are used both on the client and
+    // on the server. On the client, the require function is not defined and
+    // that is ok because the files are loaded though script tags.
+    // So we override with a method which does nothing
     require = function (s) {
         console.ce('in the browser ' + s);
         return {}

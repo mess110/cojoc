@@ -7,17 +7,18 @@ class ArenaReferee extends BaseReferee
     super()
     @lastProcessedAction = -1
     @uiCards = []
+    allCards = Cards.random(60)
     @json =
       bot: bot
       gameType: Constants.GameType.Arena
       phase: Constants.Phase.Arena.HeroSelect
       actions: []
-      player1Heroes: Cards.heroes().shuffle()
-      player2Heroes: Cards.heroes().shuffle()
-      player1Hero: undefined
-      player2Hero: undefined
+      player1: {}
+      player2: {}
+      cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
+
     @inputs = [
-      { type: 'gameInput', processed: false, action: 'startGame' }
+      { type: 'gameInput', processed: false, action: Constants.Input.START_GAME }
     ]
 
   tick: ->
@@ -25,28 +26,27 @@ class ArenaReferee extends BaseReferee
     input = @inputs.where(processed: false).first()
     return @json unless input?
 
-    console.log "Processing input:"
-    console.log input
+    console.log "Processing input: #{JSON.stringify(input)}"
 
     @processing = true
     input.processed = true
 
-    if input.action == 'startGame'
-      @_addAction { duration: 200, owner: 'player1', action: 'drawCard', cardId: 0 }
-      @_addAction { duration: 350, owner: 'player1', action: 'holdCard', cardId: 0, impersonate: @json.player1Heroes[0] }
-      @_addAction { duration: 200, owner: 'player2', action: 'drawCard', cardId: 3 }
-      @_addAction { duration: 350, owner: 'player2', action: 'holdCard', cardId: 3, impersonate: @json.player1Heroes[0] }
-      @_addAction { duration: 200, owner: 'player1', action: 'drawCard', cardId: 1 }
-      @_addAction { duration: 350, owner: 'player1', action: 'holdCard', cardId: 1, impersonate: @json.player1Heroes[1] }
-      @_addAction { duration: 200, owner: 'player2', action: 'drawCard', cardId: 4 }
-      @_addAction { duration: 350, owner: 'player2', action: 'holdCard', cardId: 4, impersonate: @json.player1Heroes[1] }
-      @_addAction { duration: 200, owner: 'player1', action: 'drawCard', cardId: 2 }
-      @_addAction { duration: 350, owner: 'player1', action: 'holdCard', cardId: 2, impersonate: @json.player1Heroes[2] }
-      @_addAction { duration: 200, owner: 'player2', action: 'drawCard', cardId: 5 }
-      @_addAction { duration: 350, owner: 'player2', action: 'holdCard', cardId: 5, impersonate: @json.player1Heroes[2] }
+    if input.action == Constants.Input.START_GAME
+      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
+      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 0 }
+      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
+      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 3 }
+      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
+      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 1 }
+      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
+      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 4 }
+      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
+      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 2 }
+      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
+      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
 
-    if input.action == 'selectCard'
-      card = @cards.where(id: input.cardId).first()
+    if input.action == Constants.Input.SELECT_CARD
+      card = @json.cards[input.cardId]
       # TODO: add action to selectCard
       console.log card
 
@@ -54,11 +54,17 @@ class ArenaReferee extends BaseReferee
     @json
 
   _addAction: (action) ->
-    if action.action == 'drawCard'
-      @cards.push { id: action.cardId, owner: action.owner }
+    if action.action == Constants.Action.DRAW_CARD
+      card = @json.cards[action.cardId]
+      card.playerIndex = action.playerIndex
 
     action.index = @json.actions.length
     @json.actions.push action
+
+  _getDiscoverFor: (playerIndex) ->
+    return @player1Discover if playerIndex == 'player1'
+    return @player2Discover if playerIndex == 'player2'
+    throw 'invalid player index'
 
   # ------------------------------- #
   # Methods used only on the client #
@@ -68,7 +74,7 @@ class ArenaReferee extends BaseReferee
     throw 'scene param missing' unless gameScene?
     @scene = gameScene
 
-    @deck = new Deck(66)
+    @deck = new Deck(@json.cards.length)
     @deck.mesh.position.set -10, 0, 0
     @scene.scene.add @deck.mesh
 
@@ -76,40 +82,37 @@ class ArenaReferee extends BaseReferee
     @endTurn.mesh.position.set 10, 0, 0
     @scene.scene.add @endTurn.mesh
 
-    @ownDiscover = new Discover()
-    @ownDiscover.mesh.position.set 0, 0, 8
-    @scene.scene.add @ownDiscover.mesh
+    @player1Discover = new Discover()
+    @player1Discover.mesh.position.set 0, 0, 8
+    @scene.scene.add @player1Discover.mesh
 
-    @enemyDiscover = new Discover()
-    @enemyDiscover.mesh.position.set 0, 6, 3
-    @enemyDiscover.mesh.rotation.set 0, Math.PI, 0
-    @scene.scene.add @enemyDiscover.mesh
+    @player2Discover = new Discover()
+    @player2Discover.mesh.position.set 0, 6, 3
+    @player2Discover.mesh.rotation.set 0, Math.PI, 0
+    @scene.scene.add @player2Discover.mesh
 
     @uiAdded = true
 
   uiServerTick: (data) ->
     @json = data
+
     return if @processing
     action = @json.actions.where(index: @lastProcessedAction + 1).first()
     return unless action?
     @lastProcessedAction = action.index
-    console.log 'Processing action:'
-    console.log action
+    console.log "Processing action: #{JSON.stringify(action)}"
     @processing = true
 
-    if action.action == 'drawCard'
+    if action.action == Constants.Action.DRAW_CARD
       card = @deck.drawCard(@scene.scene)
       card.id = action.cardId
-      card.owner = action.owner
+      card.playerIndex = action.playerIndex
       @uiCards.push card
 
-    if action.action == 'holdCard'
+    if action.action == Constants.Action.HOLD_CARD
       card = @uiCards.where(id: action.cardId).first()
-      card.impersonate(action.impersonate)
-      if card.owner == 'player1'
-        @ownDiscover.add card
-      else
-        @enemyDiscover.add card
+      card.impersonate(@json.cards[action.cardId])
+      @_getDiscoverFor(card.playerIndex).add card
 
     setTimeout ->
       SceneManager.currentScene().game.referee.processing = false
@@ -122,7 +125,7 @@ class ArenaReferee extends BaseReferee
   uiMouseEvent: (event, raycaster) ->
     @deck.doMouseEvent(event, raycaster)
     @endTurn.hover(event, raycaster)
-    @ownDiscover.doMouseEvent(event, raycaster)
-    @enemyDiscover.doMouseEvent(event, raycaster)
+    @player1Discover.doMouseEvent(event, raycaster)
+    @player2Discover.doMouseEvent(event, raycaster)
 
 exports.ArenaReferee = ArenaReferee

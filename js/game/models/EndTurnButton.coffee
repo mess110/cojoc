@@ -37,7 +37,7 @@ class EndTurnButton extends Card
     @hovered = @isHovered(raycaster)
     if !@hasActionsLeft
       @glow.green()
-      if event.type == 'mousedown' && @hovered
+      if event.type == 'mousedown' and @hovered
         if event.button == 0
           @click()
         else
@@ -57,9 +57,9 @@ class EndTurnButton extends Card
       @glow.none()
 
   setFaceUp: (faceUp) ->
-    if faceUp == true && @isFaceUp()
+    if faceUp == true and @isFaceUp()
       return
-    if faceUp == false && !@isFaceUp()
+    if faceUp == false and !@isFaceUp()
       return
 
     @click(true)

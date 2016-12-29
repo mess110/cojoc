@@ -7,8 +7,6 @@ class Minions extends BaseLine
 
     @curve = new MinionsCurve()
 
-  tick: (tpf) ->
-
   _moveInPosition: () ->
     for card in @cards
       point = @getPoint(card)

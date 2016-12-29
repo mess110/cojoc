@@ -1,7 +1,6 @@
 class BaseReferee
   constructor: () ->
     @inputs = []
-    @cards = []
     @json = {}
     @processing = false
     @uiAdded = false
@@ -11,7 +10,6 @@ class BaseReferee
     json.inputs = @inputs
     json.processing = @processing
     json.uiAdded = @uiAdded
-    json.cards = @cards
     json
 
   gameInput: (data) ->

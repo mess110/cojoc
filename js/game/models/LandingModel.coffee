@@ -3,22 +3,17 @@ class LandingModel extends BaseModel
     super()
 
     allModels = [
-      # {
-        # key: 'coloana-infinitului'
-        # position: new THREE.Vector3(2, -10, 0)
-        # rotation: new THREE.Vector3(-0.1, 0, -0.3)
-      # }
       {
         key: 'putinei'
         position: new THREE.Vector3(1.2, -1, 6)
-        rotation: new THREE.Vector3(0, 0, -0.2)
+        rotation: new THREE.Euler(0, 0, -0.2)
         scale: new THREE.Vector3(2, 2, 2)
         animate: 0
       }
       {
         key: 'chest'
         position: new THREE.Vector3(3, -2, 0)
-        rotation: new THREE.Vector3(0.3, 0, 0)
+        rotation: new THREE.Euler(0.3, 0, 0)
         animate: 0
       }
     ]
@@ -28,9 +23,8 @@ class LandingModel extends BaseModel
       selected = allModels.shuffle().first()
 
     @model = new THREE.Object3D()
-    @model.position.copy selected.position
-    # TODO: find out why rotation.copy doesn't work
-    @model.rotation.set selected.rotation.x, selected.rotation.y, selected.rotation.z
+    @model.position.copy selected.position if selected.position?
+    @model.rotation.copy selected.rotation if selected.rotation?
     @model.scale.copy selected.scale if selected.scale?
     @mesh = JsonModelManager.get().clone(selected.key)
     @model.add @mesh

@@ -35,7 +35,9 @@ class Game extends GameInstance
 
   gameInput: (socket, data) ->
     console.ce "game input from #{socket.id} for #{data.id}"
-    @referee.gameInput(data)
+    @_setPlayerIndex(data)
+    if data.owner? and data.playerIndex?
+      @referee.gameInput(data)
 
   toJson: ->
     {
@@ -45,5 +47,12 @@ class Game extends GameInstance
       player2: @player2
       referee: @referee.toJson()
     }
+
+  _setPlayerIndex: (data) ->
+    if data.owner?
+      if @player1.id == data.owner
+        data.playerIndex = 'player1'
+      if @player2.id == data.owner
+        data.playerIndex = 'player2'
 
 exports.Game = Game

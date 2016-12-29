@@ -58,6 +58,12 @@ Cards = [
   }
 ]
 
+Cards.random = (count = 1) ->
+  array = []
+  for i in [0...count]
+    array.push Cards.randomMinion()
+  array
+
 Cards.minions = ->
   Cards.where(type: Constants.CardTypes.MINION)
 
