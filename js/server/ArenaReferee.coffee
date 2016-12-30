@@ -19,8 +19,8 @@ class ArenaReferee extends BaseReferee
     super()
     allCards = Cards.random(60)
     @json =
-      gameType: Constants.GameType.Arena
-      phase: Constants.Phase.Arena.HeroSelect
+      gameType: Constants.GameType.ARENA
+      phase: Constants.Phase.Arena.HERO_SELECT
       actions: []
       player1: {}
       player2: {}
@@ -73,6 +73,9 @@ class ArenaReferee extends BaseReferee
     super(action)
 
   addInput: (input) ->
-    super(input)
+    if @isPhase(Constants.Phase.Arena.HERO_SELECT)
+      card = @findCard(input.cardId)
+      if card.playerIndex == input.playerIndex
+        super(input)
 
 exports.ArenaReferee = ArenaReferee

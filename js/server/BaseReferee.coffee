@@ -10,6 +10,9 @@ class BaseReferee
     json.processing = @processing
     json
 
+  isPhase: (phase) ->
+    @json.phase == phase
+
   addAction: (action) ->
     action.index = @json.actions.length
     @json.actions.push action

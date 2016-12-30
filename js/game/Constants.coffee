@@ -24,11 +24,11 @@ Constants =
     SPELL: 'spell'
 
   GameType:
-    Arena: 0
+    ARENA: 0
 
   Phase:
     Arena:
-      HeroSelect: 0
+      HERO_SELECT: 0
 
   Input:
     START_GAME: 'startGame'

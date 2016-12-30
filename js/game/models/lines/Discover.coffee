@@ -15,7 +15,7 @@ class Discover extends BaseLine
       @mesh.rotation.set 0, 0, 0
     else
       @mesh.position.set 0, 3, 3
-      # @mesh.rotation.set 0, Math.PI , 0
+      @mesh.rotation.set 0, Math.PI , 0
 
   _moveInPosition: () ->
     for card in @cards
