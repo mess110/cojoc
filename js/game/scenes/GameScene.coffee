@@ -12,8 +12,10 @@ class GameScene extends BaseScene
     @game = new Game(id: @options.id, autoStart: false)
     @mover = new ArenaMover(@)
 
-    persist = Persist.sessionStorage()
-    @myId = persist.get(Constants.Storage.CURRENT_ID)
+    if Persist.get(Constants.Storage.TMP_USER)?
+      @myId = Persist.get(Constants.Storage.TMP_USER)
+    else
+      @myId = Persist.sessionStorage().get(Constants.Storage.CURRENT_ID)
 
     if @game.isBotGame()
       @game.afterServerTick = afterServerTick
@@ -37,9 +39,6 @@ class GameScene extends BaseScene
   doMouseEvent: (event, raycaster) ->
     @mover.uiMouseEvent(event, raycaster) if @mover?
 
-  toJson: ->
-    @game.toJson()
-
   _emit: (data) ->
     throw new Error('type missing from data') unless data.type?
     data.id = @options.id
@@ -48,3 +47,14 @@ class GameScene extends BaseScene
       @game[data.type]({}, NetworkManager.fake(data))
     else
       NetworkManager.emit(data)
+
+  toJson: ->
+    @game.toJson()
+
+  # This is used to test the client reconnect feature.
+  # Call it from DevConsole
+  saveTmpUser: ->
+    Persist.set(Constants.Storage.TMP_USER, @myId)
+
+  clearTmpUser: ->
+    Persist.rm(Constants.Storage.TMP_USER)

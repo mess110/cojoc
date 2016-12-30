@@ -17,6 +17,7 @@ Constants =
     BOT: 'bot'
     VOLUME: 'volume'
     CURRENT_ID: 'currentId'
+    TMP_USER: 'tmpUser'
 
   CardType:
     HERO: 'hero'

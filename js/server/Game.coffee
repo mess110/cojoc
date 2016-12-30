@@ -10,11 +10,11 @@ class Game extends GameInstance
     @referee = new ArenaReferee(@isBotGame())
 
     if socket1? && socket2?
-      @player1 = { socketId: socket1.id, owner: 'dummy' }
+      @player1 = { socketId: socket1.id }
       @socket1 = socket1
       socket1.emit('startGame', @toJson())
 
-      @player2 = { socketId: socket2.id, owner: 'dummy' }
+      @player2 = { socketId: socket2.id }
       @socket2 = socket2
       socket2.emit('startGame', @toJson())
 
@@ -38,6 +38,7 @@ class Game extends GameInstance
     else
       @_setPlayerIndex(data)
       if data.playerIndex?
+        @_reinitSocket(socket, data)
         @[data.playerIndex].owner = data.owner
       else
         joined = false
@@ -68,20 +69,37 @@ class Game extends GameInstance
   isBotGame: ->
     @id == Constants.Storage.BOT
 
-
   # Sets the playerIndex on the input data
+  # If the code is running on the server, we first check if the user joined
+  # the game previously because that means he wants to reconnect and we need to
+  # ignore the socket.id
   _setPlayerIndex: (data) ->
     if @player1.socketId?
-      if @player1.socketId == data.ownerId
-        data.playerIndex = 'player1'
-      if @player2.socketId == data.ownerId
-        data.playerIndex = 'player2'
+      # running on the server
+      if @player1.owner?
+        data.playerIndex = 'player1' if @player1.owner == data.owner
+      else
+        data.playerIndex = 'player1' if @player1.socketId == data.ownerId
+
+      if @player2.owner?
+        data.playerIndex = 'player2' if @player2.owner == data.owner
+      else
+        data.playerIndex = 'player2' if @player2.socketId == data.ownerId
     else
-      if @player1.owner == data.owner
-        data.playerIndex = 'player1'
-      if @player2.owner == data.owner
-        data.playerIndex = 'player2'
+      # running on the client
+      data.playerIndex = 'player1' if @player1.owner == data.owner
+      data.playerIndex = 'player2' if @player2.owner == data.owner
 
     data
+
+  # if the user reconnects with a different socket, we need to override the
+  # used socket
+  _reinitSocket: (socket, data) ->
+    return if @[data.playerIndex].socketId == socket.id
+    @[data.playerIndex].socketId = socket.id
+    if data.playerIndex == 'player1'
+      @socket1 = socket
+    else
+      @socket2 = socket
 
 exports.Game = Game
