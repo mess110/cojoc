@@ -4,14 +4,15 @@
 # Think of it has responsible for what is visible and happening on the player's
 # screen
 class ArenaMover
-  constructor: (referee, scene) ->
-    throw 'referee missing' unless referee?
+  constructor: (scene) ->
     throw 'scene missing' unless scene?
 
     @scene = scene
-    @referee = referee
+    @referee = scene.game.referee
     @lastProcessedAction = -1
     @uiCards = []
+    @processing = false
+    @mirroredUI = false
 
     @deck = new Deck(@referee.json.cards.length)
     @deck.mesh.position.set -10, 0, 0
@@ -33,29 +34,29 @@ class ArenaMover
     @setData(data)
 
     return if @processing
-    action = @referee.json.actions.where(index: @lastProcessedAction + 1).first()
+    action = @referee.findAction(@lastProcessedAction + 1)
     return unless action?
 
-    console.log @_getMyPlayerIndex()
-
-    @lastProcessedAction = action.index
     console.ce "Processing action: #{JSON.stringify(action)}"
-    @processing = true
+    @lastProcessedAction = action.index
+    @setProcessing(true)
 
-    if action.action == Constants.Action.DRAW_CARD
-      card = @deck.drawCard(@scene.scene)
-      card.id = action.cardId
-      card.playerIndex = action.playerIndex
-      @uiCards.push card
-
-    if action.action == Constants.Action.HOLD_CARD
-      card = @uiCards.where(id: action.cardId).first()
-      if card.playerIndex == @_getMyPlayerIndex()
-        card.impersonate(@referee.json.cards[action.cardId])
-      @_getDiscoverFor(card.playerIndex).add card
+    switch action.action
+      when Constants.Action.DRAW_CARD
+        card = @deck.drawCard(@scene.scene)
+        card.id = action.cardId
+        card.playerIndex = action.playerIndex
+        @uiCards.push card
+      when Constants.Action.HOLD_CARD
+        card = @uiCards.where(id: action.cardId).first()
+        if card.playerIndex == @_getMyPlayerIndex()
+          card.impersonate(@referee.findCard(action.cardId))
+        @_getDiscoverFor(card.playerIndex).add card
+      else
+        console.ce "Unknown action #{action.action}"
 
     setTimeout ->
-      SceneManager.currentScene().mover.processing = false
+      SceneManager.currentScene().mover.setProcessing(false)
     , action.duration
 
   uiTick: (tpf) ->
@@ -78,7 +79,8 @@ class ArenaMover
 
     # switch board position from player2's perspective
     # all ids remain unchanged, only the mesh positions change
-    if data.player2.owner == @scene.myId
+    if data.player2.owner == @scene.myId && !@mirroredUI
+      @mirroredUI = true
       @player1Discover.customPosition(1)
       @player2Discover.customPosition(0)
 
@@ -91,5 +93,8 @@ class ArenaMover
     return @player1Discover if playerIndex == 'player1'
     return @player2Discover if playerIndex == 'player2'
     throw 'invalid player index'
+
+  setProcessing: (bool) ->
+    @processing = bool
 
 exports.ArenaMover = ArenaMover

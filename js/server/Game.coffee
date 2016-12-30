@@ -51,7 +51,7 @@ class Game extends GameInstance
     @_setPlayerIndex(data)
     if data.owner? and data.playerIndex?
       console.ce "game input from #{socket.id} for #{data.id}"
-      @referee.gameInput(data)
+      @referee.addInput(data)
     else
       console.ce "missing owner or playerIndex"
       console.ce data

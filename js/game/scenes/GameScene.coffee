@@ -10,7 +10,7 @@ class GameScene extends BaseScene
     console.ce "#{@options.id} game"
 
     @game = new Game(id: @options.id, autoStart: false)
-    @mover = new ArenaMover(@game.referee, @)
+    @mover = new ArenaMover(@)
 
     persist = Persist.sessionStorage()
     @myId = persist.get(Constants.Storage.CURRENT_ID)

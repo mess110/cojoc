@@ -30,9 +30,11 @@ class ArenaReferee extends BaseReferee
       { type: 'gameInput', processed: false, action: Constants.Input.START_GAME }
     ]
 
+  # processes one input per tick
+  # only valid inputs are processed
   tick: ->
     return if @processing
-    input = @inputs.where(processed: false).first()
+    input = @findInput()
     return unless input?
 
     console.ce "Processing input: #{JSON.stringify(input)}"
@@ -40,33 +42,37 @@ class ArenaReferee extends BaseReferee
     @processing = true
     input.processed = true
 
-    if input.action == Constants.Input.START_GAME
-      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
-      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 0 }
-      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
-      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 3 }
-      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
-      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 1 }
-      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
-      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 4 }
-      @_addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
-      @_addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 2 }
-      @_addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
-      @_addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
-
-    if input.action == Constants.Input.SELECT_CARD
-      card = @json.cards[input.cardId]
-      @json[input.playerIndex].hero = input.cardId
-      console.log card
+    switch input.action
+      when Constants.Input.START_GAME
+        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
+        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 0 }
+        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
+        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 3 }
+        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
+        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 1 }
+        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
+        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 4 }
+        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
+        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 2 }
+        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
+        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
+      when Constants.Input.SELECT_CARD
+        card = @findCard(input.cardId)
+        @json[input.playerIndex].hero = input.cardId
+        console.log input
+        console.log card
+      else
+        console.ce "Unknown input action #{input.action}"
 
     @processing = false
 
-  _addAction: (action) ->
+  addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
-      card = @json.cards[action.cardId]
+      card = @findCard(action.cardId)
       card.playerIndex = action.playerIndex
+    super(action)
 
-    action.index = @json.actions.length
-    @json.actions.push action
+  addInput: (input) ->
+    super(input)
 
 exports.ArenaReferee = ArenaReferee
