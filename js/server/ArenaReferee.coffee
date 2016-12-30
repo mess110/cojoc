@@ -15,8 +15,12 @@ BaseReferee = require('./BaseReferee.coffee').BaseReferee unless BaseReferee?
 # The referee should not know any information about who the player is, instead
 # it should rely on the playerIndex
 class ArenaReferee extends BaseReferee
-  constructor: () ->
-    super()
+  DRAW_CARD_DURATION = 200
+  HOLD_CARD_DURATION = 500
+  SELECT_CARD_DURATION = 100
+
+  constructor: (bot) ->
+    super(bot)
     allCards = Cards.random(60)
     @json =
       gameType: Constants.GameType.ARENA
@@ -26,11 +30,7 @@ class ArenaReferee extends BaseReferee
       player2: {}
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
 
-    i = 0
-    for card in @json.cards
-      card.cardId = i
-      i += 1
-
+    @_assignCardIdToCards()
     @inputs = [
       { type: 'gameInput', processed: false, action: Constants.Input.START_GAME }
     ]
@@ -49,20 +49,20 @@ class ArenaReferee extends BaseReferee
 
     switch input.action
       when Constants.Input.START_GAME
-        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
-        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 0 }
-        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
-        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 3 }
-        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
-        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 1 }
-        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
-        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 4 }
-        @addAction { duration: 200, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
-        @addAction { duration: 350, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 2 }
-        @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
-        @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 0 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 3 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 1 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 4 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.HOLD_CARD, cardId: 2 }
+        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
+        @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
       when Constants.Input.SELECT_CARD
-        action = { duration: 350, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
+        action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
 
         card = @findCard(input.cardId)
         @json[input.playerIndex].hero = input.cardId
@@ -97,5 +97,11 @@ class ArenaReferee extends BaseReferee
 
   isHeroChosen: (playerIndex) ->
     @json[playerIndex].hero?
+
+  _assignCardIdToCards: ->
+    i = 0
+    for card in @json.cards
+      card.cardId = i
+      i += 1
 
 exports.ArenaReferee = ArenaReferee

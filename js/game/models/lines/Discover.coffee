@@ -9,14 +9,6 @@ class Discover extends BaseLine
 
   tick: (tpf) ->
 
-  customPosition: (i = 0) ->
-    if i == 0
-      @mesh.position.set 0, 0, 8
-      @mesh.rotation.set 0, 0, 0
-    else
-      @mesh.position.set 0, 3, 3
-      @mesh.rotation.set 0, Math.PI , 0
-
   _moveInPosition: () ->
     for card in @cards
       point = @getPoint(card)

@@ -7,7 +7,7 @@ GameInstance = server.GameInstance unless GameInstance?
 class Game extends GameInstance
   constructor: (config, socket1, socket2) ->
     super(config)
-    @referee = new ArenaReferee()
+    @referee = new ArenaReferee(@isBotGame())
 
     if socket1? && socket2?
       @player1 = { socketId: socket1.id, owner: 'dummy' }

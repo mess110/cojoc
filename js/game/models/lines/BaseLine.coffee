@@ -95,6 +95,22 @@ class BaseLine extends BoxedModel
 
     return
 
+  customDiscoverPosition: (i = 0) ->
+    if i == 0
+      @mesh.position.set 0, 0, 8
+      @mesh.rotation.set 0, 0, 0
+    else
+      @mesh.position.set 0, 5, 3
+      @mesh.rotation.set 0, Math.PI , 0
+
+  customHeroPosition: (i = 0) ->
+    if i == 0
+      @mesh.position.set 0, -4, 0
+      @mesh.rotation.set 0, 0, 0
+    else
+      @mesh.position.set 0, 4, 0
+      @mesh.rotation.set 0, 0, 0
+
   _updateGlow: (newFound, oldFound) ->
     if newFound?
       newFound.glow.green()
