@@ -65,13 +65,13 @@ Cards.random = (count = 1) ->
   array
 
 Cards.minions = ->
-  Cards.where(type: Constants.CardTypes.MINION)
+  Cards.where(type: Constants.CardTypes.MINION).shallowClone()
 
 Cards.heroes = ->
-  Cards.where(type: Constants.CardTypes.HERO)
+  Cards.where(type: Constants.CardTypes.HERO).shallowClone()
 
 Cards.spells = ->
-  Cards.where(type: Constants.CardTypes.SPELL)
+  Cards.where(type: Constants.CardTypes.SPELL).shallowClone()
 
 Cards.randomMinion = ->
   @minions().shuffle().first()

@@ -3,13 +3,11 @@ class BaseReferee
     @inputs = []
     @json = {}
     @processing = false
-    @uiAdded = false
 
   toJson: ->
     json = JSON.parse(JSON.stringify(@json))
     json.inputs = @inputs
     json.processing = @processing
-    json.uiAdded = @uiAdded
     json
 
   gameInput: (data) ->
@@ -49,8 +47,5 @@ class BaseReferee
 
   uiMouseEvent: (event, raycaster) ->
     throw 'not implemented'
-
-  _isUiAdded: ->
-    @uiAdded
 
 exports.BaseReferee = BaseReferee

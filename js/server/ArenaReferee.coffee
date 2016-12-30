@@ -2,14 +2,23 @@ Constants = require('../game/Constants.coffee').Constants unless Constants?
 Cards = require('../game/models/Cards.coffee').Cards unless Cards?
 BaseReferee = require('./BaseReferee.coffee').BaseReferee unless BaseReferee?
 
+# The referee class has 2 main responsabilities. Even writing this screams
+# split in 2 classes.
+#
+# The class stores the game state. Each input in the state is processed by
+# the tick method, one by one. Each input can generate one or more actions
+# which are in turn processed one by one.
+#
+# The actions are processed on the client while the inputs are only processed
+# on the server. They can also be processed on the client if it is a bot game
+#
+# The referee should not know any information about who the player is, instead
+# it should rely on the playerIndex
 class ArenaReferee extends BaseReferee
-  constructor: (bot) ->
+  constructor: () ->
     super()
-    @lastProcessedAction = -1
-    @uiCards = []
     allCards = Cards.random(60)
     @json =
-      bot: bot
       gameType: Constants.GameType.Arena
       phase: Constants.Phase.Arena.HeroSelect
       actions: []
@@ -22,11 +31,11 @@ class ArenaReferee extends BaseReferee
     ]
 
   tick: ->
-    return @json if @processing
+    return if @processing
     input = @inputs.where(processed: false).first()
-    return @json unless input?
+    return unless input?
 
-    console.log "Processing input: #{JSON.stringify(input)}"
+    console.ce "Processing input: #{JSON.stringify(input)}"
 
     @processing = true
     input.processed = true
@@ -47,11 +56,10 @@ class ArenaReferee extends BaseReferee
 
     if input.action == Constants.Input.SELECT_CARD
       card = @json.cards[input.cardId]
-      # TODO: add action to selectCard
+      @json[input.playerIndex].hero = input.cardId
       console.log card
 
     @processing = false
-    @json
 
   _addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
@@ -60,72 +68,5 @@ class ArenaReferee extends BaseReferee
 
     action.index = @json.actions.length
     @json.actions.push action
-
-  _getDiscoverFor: (playerIndex) ->
-    return @player1Discover if playerIndex == 'player1'
-    return @player2Discover if playerIndex == 'player2'
-    throw 'invalid player index'
-
-  # ------------------------------- #
-  # Methods used only on the client #
-  # ------------------------------- #
-
-  uiAdd: (gameScene) ->
-    throw 'scene param missing' unless gameScene?
-    @scene = gameScene
-
-    @deck = new Deck(@json.cards.length)
-    @deck.mesh.position.set -10, 0, 0
-    @scene.scene.add @deck.mesh
-
-    @endTurn = new EndTurnButton()
-    @endTurn.mesh.position.set 10, 0, 0
-    @scene.scene.add @endTurn.mesh
-
-    @player1Discover = new Discover()
-    @player1Discover.mesh.position.set 0, 0, 8
-    @scene.scene.add @player1Discover.mesh
-
-    @player2Discover = new Discover()
-    @player2Discover.mesh.position.set 0, 6, 3
-    @player2Discover.mesh.rotation.set 0, Math.PI, 0
-    @scene.scene.add @player2Discover.mesh
-
-    @uiAdded = true
-
-  uiServerTick: (data) ->
-    @json = data
-
-    return if @processing
-    action = @json.actions.where(index: @lastProcessedAction + 1).first()
-    return unless action?
-    @lastProcessedAction = action.index
-    console.log "Processing action: #{JSON.stringify(action)}"
-    @processing = true
-
-    if action.action == Constants.Action.DRAW_CARD
-      card = @deck.drawCard(@scene.scene)
-      card.id = action.cardId
-      card.playerIndex = action.playerIndex
-      @uiCards.push card
-
-    if action.action == Constants.Action.HOLD_CARD
-      card = @uiCards.where(id: action.cardId).first()
-      card.impersonate(@json.cards[action.cardId])
-      @_getDiscoverFor(card.playerIndex).add card
-
-    setTimeout ->
-      SceneManager.currentScene().game.referee.processing = false
-    , action.duration
-
-  uiTick: (tpf) ->
-
-  uiKeyboardEvent: (event) ->
-
-  uiMouseEvent: (event, raycaster) ->
-    @deck.doMouseEvent(event, raycaster)
-    @endTurn.hover(event, raycaster)
-    @player1Discover.doMouseEvent(event, raycaster)
-    @player2Discover.doMouseEvent(event, raycaster)
 
 exports.ArenaReferee = ArenaReferee

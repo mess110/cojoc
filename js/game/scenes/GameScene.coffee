@@ -1,17 +1,21 @@
+# Each game scene has a game and a mover.
+#
+# The mover needs to correspond to the game.referee because a certain game type
+# can only be handled by a certain mover. Example: ArenaReferee is compatible
+# with ArenaMover
 class GameScene extends BaseScene
   init: (options) ->
     engine.camera.position.set 0, 0, 15
     @options = options
     console.ce "#{@options.id} game"
 
-    @game = new Game(autoStart: false)
-    @game.referee.uiAdd(@)
+    @game = new Game(id: @options.id, autoStart: false)
+    @mover = new ArenaMover(@game.referee, @)
 
     persist = Persist.sessionStorage()
-    console.log NetworkManager.get().socket.socket.sessionid
     @myId = persist.get(Constants.Storage.CURRENT_ID)
 
-    if @_isBotGame()
+    if @game.isBotGame()
       @game.afterServerTick = afterServerTick
       @game.startTicking()
 
@@ -22,28 +26,25 @@ class GameScene extends BaseScene
     @game.stopTicking() if @game?
 
   afterServerTick: (data) ->
-    @game.referee.uiServerTick(data) if @game?
+    @mover.uiServerTick(data) if @mover?
 
   tick: (tpf) ->
-    @game.referee.uiTick(tpf) if @game?
+    @mover.uiTick(tpf) if @mover?
 
   doKeyboardEvent: (event) ->
-    @game.referee.uiKeyboardEvent(event) if @game?
+    @mover.uiKeyboardEvent(event) if @mover?
 
   doMouseEvent: (event, raycaster) ->
-    @game.referee.uiMouseEvent(event, raycaster) if @game?
+    @mover.uiMouseEvent(event, raycaster) if @mover?
 
   toJson: ->
     @game.toJson()
-
-  _isBotGame: ->
-    @options.id == Constants.Storage.BOT
 
   _emit: (data) ->
     throw new Error('type missing from data') unless data.type?
     data.id = @options.id
     data.owner = @myId
-    if @_isBotGame()
+    if @game.isBotGame()
       @game[data.type]({}, data)
     else
       NetworkManager.emit(data)

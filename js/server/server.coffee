@@ -28,7 +28,6 @@ class GameServer extends server.GameServer
     @queue.leave(socket)
 
   join: (socket, data) ->
-    console.log data
     if !(data? and data.id?)
       console.log 'ERROR: data.id missing'
       socket.emit('error', code: Constants.Errors.MISSING_GAME_ID, message: 'Missing game id')
@@ -48,7 +47,6 @@ class GameServer extends server.GameServer
     @queue.leave(socket)
 
   gameInput: (socket, data) ->
-    console.log data
     game = @getGame(data.id)
     game.gameInput(socket, data)
 

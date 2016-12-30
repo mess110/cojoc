@@ -33,7 +33,9 @@ nm.on 'connected', (data) ->
 
 afterServerTick = (data) ->
   currentScene = SceneManager.currentScene()
-  currentScene.afterServerTick(data) if currentScene.afterServerTick?
+  if currentScene.afterServerTick?
+    if currentScene.game.id == data.id
+      currentScene.afterServerTick(data)
 
 nm.on 'serverTick', afterServerTick
 
