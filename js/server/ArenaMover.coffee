@@ -37,7 +37,7 @@ class ArenaMover
     action = @referee.findAction(@lastProcessedAction + 1)
     return unless action?
 
-    console.ce "Processing action: #{JSON.stringify(action)}"
+    console.log "Processing action: #{JSON.stringify(action)}"
     @lastProcessedAction = action.index
     @setProcessing(true)
 
@@ -48,18 +48,34 @@ class ArenaMover
         card.playerIndex = action.playerIndex
         @uiCards.push card
       when Constants.Action.HOLD_CARD
-        card = @uiCards.where(id: action.cardId).first()
+        card = @_findCard(action.cardId)
         if card.playerIndex == @_getMyPlayerIndex()
           card.impersonate(@referee.findCard(action.cardId))
-        @_getDiscoverFor(card.playerIndex).add card
+        @_findDiscoverFor(card.playerIndex).add card
+      when Constants.Action.DISCARD_CARD
+        card = @_findCard(action.cardId)
+        @_findDiscoverFor(card.playerIndex).remove card
+        card.dissolve()
+      when Constants.Action.SELECT_HERO
+        toRemove = []
+        card = @_findCard(action.cardId)
+        toRemove.push card
+        for discardId in action.discardIds
+          card = @_findCard(discardId)
+          toRemove.push card
+          card.dissolve()
+
+        @_findDiscoverFor(card.playerIndex).remove toRemove
       else
-        console.ce "Unknown action #{action.action}"
+        console.log "Unknown action #{action.action}"
 
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
     , action.duration
 
   uiTick: (tpf) ->
+    for card in @uiCards
+      card.dissolveTick(tpf)
 
   uiKeyboardEvent: (event) ->
 
@@ -89,10 +105,16 @@ class ArenaMover
     return 'player2' if @scene.game.player2.owner == @scene.myId
     throw "unknown playerIndex for #{@scene.myId}"
 
-  _getDiscoverFor: (playerIndex) ->
+  _findDiscoverFor: (playerIndex) ->
     return @player1Discover if playerIndex == 'player1'
     return @player2Discover if playerIndex == 'player2'
     throw 'invalid player index'
+
+  _findCard: (cardId) ->
+    @uiCards.where(id: cardId).first()
+
+  _findCards: (hash) ->
+    @uiCards.where(hash)
 
   setProcessing: (bool) ->
     @processing = bool

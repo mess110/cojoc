@@ -12,26 +12,31 @@ class BaseLine extends BoxedModel
       x: 0
       y: 0
 
-  add: (card) ->
-    @cards.push card
-    card.indexInHand = @cards.indexOf(card)
-    @update()
-    card
+  add: (toAddArray = []) ->
+    toAddArray = [].concat(toAddArray)
 
-  remove: (toRemove) ->
-    return unless toRemove?
-
-    @cards.remove toRemove
-    toRemove.indexInHand = undefined
-
-    @selectedCard == undefined if @selectedCard == @toRemove
-    @hoveredCard == undefined if @hoveredCard == @toRemove
-
-    for card in @cards
-      card.indexInHand = @cards.indexOf(card)
+    for toAdd in toAddArray
+      @cards.push toAdd
+      toAdd.indexInHand = @cards.indexOf(toAdd)
 
     @update()
-    toRemove
+    toAddArray
+
+  remove: (toRemoveArray = []) ->
+    toRemoveArray = [].concat(toRemoveArray)
+
+    for toRemove in toRemoveArray
+      @cards.remove toRemove
+      toRemove.indexInHand = undefined
+
+      @selectedCard == undefined if @selectedCard == toRemove
+      @hoveredCard == undefined if @hoveredCard == toRemove
+
+      for card in @cards
+        card.indexInHand = @cards.indexOf(card)
+
+    @update()
+    toRemoveArray
 
   update: ->
     @curve.scale(@cards.size() / 10)

@@ -26,6 +26,11 @@ class ArenaReferee extends BaseReferee
       player2: {}
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
 
+    i = 0
+    for card in @json.cards
+      card.cardId = i
+      i += 1
+
     @inputs = [
       { type: 'gameInput', processed: false, action: Constants.Input.START_GAME }
     ]
@@ -57,10 +62,21 @@ class ArenaReferee extends BaseReferee
         @addAction { duration: 200, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
         @addAction { duration: 350, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
       when Constants.Input.SELECT_CARD
+        action = { duration: 350, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
+
         card = @findCard(input.cardId)
         @json[input.playerIndex].hero = input.cardId
-        console.log input
-        console.log card
+        card.status = Constants.CardStatus.HERO
+
+        action.cardId = card.cardId
+        action.discardIds = []
+
+        for dCard in @findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.DISCOVERED)
+          if dCard.cardId != card.cardId
+            dCard.status = Constants.CardStatus.DISCARDED
+            action.discardIds.push dCard.cardId
+
+        @addAction action
       else
         console.ce "Unknown input action #{input.action}"
 
@@ -70,12 +86,16 @@ class ArenaReferee extends BaseReferee
     if action.action == Constants.Action.DRAW_CARD
       card = @findCard(action.cardId)
       card.playerIndex = action.playerIndex
+      card.status = Constants.CardStatus.DISCOVERED
     super(action)
 
   addInput: (input) ->
     if @isPhase(Constants.Phase.Arena.HERO_SELECT)
       card = @findCard(input.cardId)
-      if card.playerIndex == input.playerIndex
+      if card.playerIndex == input.playerIndex and !@isHeroChosen(input.playerIndex)
         super(input)
+
+  isHeroChosen: (playerIndex) ->
+    @json[playerIndex].hero?
 
 exports.ArenaReferee = ArenaReferee

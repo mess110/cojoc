@@ -47,10 +47,12 @@ class Card extends BoxedModel
     @
 
   dissolve: (r=0, g=0, b=0) ->
-    dm = Helper.dissolveMaterial(@front.material.clone().map)
-    @dm = Helper.setDissolveMaterialColor(dm, r, g, b)
-    # @dm = Helper.dissolveMaterial(TextureManager.get().items['card-bg'])
-    @front.material = @dm
+    fdm = Helper.dissolveMaterial(@front.material.clone().map)
+    @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
+    bdm = Helper.dissolveMaterial(@front.material.clone().map)
+    @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
+    @front.material = @fdm
+    @back.material = @bdm
     @dissolved = true
     return
 
@@ -66,8 +68,9 @@ class Card extends BoxedModel
 
   dissolveTick: (tpf) ->
     return unless @dissolved
-    return if @dm.uniforms.dissolve.value > 1.1
-    @dm.uniforms.dissolve.value += tpf
+    return if @fdm.uniforms.dissolve.value > 1.1
+    @fdm.uniforms.dissolve.value += tpf
+    @bdm.uniforms.dissolve.value += tpf
 
   mkMinionMaterial: (json) ->
     @art.clear()

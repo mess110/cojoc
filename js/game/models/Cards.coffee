@@ -4,7 +4,7 @@ Cards = [
   {
     key: 'calulNazdravan'
     name: 'Calul Năzdrăvan'
-    type: Constants.CardTypes.MINION
+    type: Constants.CardType.MINION
     defaults:
       cost: 4
       attack: 6
@@ -13,7 +13,7 @@ Cards = [
   {
     key: 'corb'
     name: 'Corb'
-    type: Constants.CardTypes.MINION
+    type: Constants.CardType.MINION
     defaults:
       cost: 1
       attack: 2
@@ -22,7 +22,7 @@ Cards = [
   {
     key: 'muma'
     name: 'Muma Pădurii'
-    type: Constants.CardTypes.MINION
+    type: Constants.CardType.MINION
     defaults:
       cost: 3
       attack: 3
@@ -31,28 +31,28 @@ Cards = [
   {
     key: 'sanziene'
     name: 'Sânziene'
-    type: Constants.CardTypes.MINION
+    type: Constants.CardType.MINION
     defaults:
       health: 30
   }
   {
     key: 'babaDochia'
     name: 'Baba Dochia'
-    type: Constants.CardTypes.HERO
+    type: Constants.CardType.HERO
     defaults:
       health: 30
   }
   {
     key: 'ileanaCosanzeana'
     name: 'Ileana Cosânzeana'
-    type: Constants.CardTypes.HERO
+    type: Constants.CardType.HERO
     defaults:
       health: 30
   }
   {
     key: 'zalmoxis'
     name: 'Zalmoxis'
-    type: Constants.CardTypes.HERO
+    type: Constants.CardType.HERO
     defaults:
       health: 30
   }
@@ -65,13 +65,13 @@ Cards.random = (count = 1) ->
   array
 
 Cards.minions = ->
-  Cards.where(type: Constants.CardTypes.MINION).shallowClone()
+  Cards.where(type: Constants.CardType.MINION).shallowClone()
 
 Cards.heroes = ->
-  Cards.where(type: Constants.CardTypes.HERO).shallowClone()
+  Cards.where(type: Constants.CardType.HERO).shallowClone()
 
 Cards.spells = ->
-  Cards.where(type: Constants.CardTypes.SPELL).shallowClone()
+  Cards.where(type: Constants.CardType.SPELL).shallowClone()
 
 Cards.randomMinion = ->
   @minions().shuffle().first()

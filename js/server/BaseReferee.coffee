@@ -30,6 +30,9 @@ class BaseReferee
   findCard: (index) ->
     @json.cards[index]
 
+  findCards: (hash) ->
+    @json.cards.where(hash)
+
   tick: ->
     throw 'not implemented'
 

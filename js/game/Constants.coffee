@@ -18,10 +18,15 @@ Constants =
     VOLUME: 'volume'
     CURRENT_ID: 'currentId'
 
-  CardTypes:
+  CardType:
     HERO: 'hero'
     MINION: 'minion'
     SPELL: 'spell'
+
+  CardStatus:
+    DISCOVERED: 'discover'
+    DISCARDED: 'discarded'
+    HERO: 'hero'
 
   GameType:
     ARENA: 0
@@ -37,6 +42,8 @@ Constants =
   Action:
     DRAW_CARD: 'drawCard'
     HOLD_CARD: 'holdCard'
+    DISCARD_CARD: 'discardCard'
+    SELECT_HERO: 'selectHero'
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

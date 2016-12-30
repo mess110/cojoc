@@ -45,6 +45,6 @@ class GameScene extends BaseScene
     data.id = @options.id
     data.owner = @myId
     if @game.isBotGame()
-      @game[data.type]({}, data)
+      @game[data.type]({}, NetworkManager.fake(data))
     else
       NetworkManager.emit(data)
