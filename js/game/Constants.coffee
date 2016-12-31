@@ -46,6 +46,7 @@ Constants =
     HOLD_CARD: 'holdCard'
     DISCARD_CARD: 'discardCard'
     SELECT_HERO: 'selectHero'
+    UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

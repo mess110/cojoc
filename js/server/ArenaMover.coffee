@@ -80,6 +80,9 @@ class ArenaMover
         @_findDiscoverFor(card.playerIndex).remove toRemove
         heroCard.minion(@referee.findCard(action.cardId))
         @_findHeroFor(card.playerIndex).add heroCard
+      when Constants.Action.UPDATE_END_TURN_BUTTON
+        isMe = @_isMe(action.playerIndex)
+        @endTurn.setFaceUp(isMe)
       else
         console.log "Unknown action #{action.action}"
 
@@ -118,6 +121,9 @@ class ArenaMover
       @player2Discover.customDiscoverPosition(0)
       @player1Hero.customHeroPosition(1)
       @player2Hero.customHeroPosition(0)
+
+  _isMe: (playerIndex) ->
+    @_getMyPlayerIndex() == playerIndex
 
   _getMyPlayerIndex: ->
     return 'player1' if @scene.game.player1.owner == @scene.myId

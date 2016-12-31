@@ -29,6 +29,7 @@ class ArenaReferee extends BaseReferee
       player1: {}
       player2: {}
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
+      turn: 'player1'
 
     @_assignCardIdToCards()
     @inputs = [
@@ -76,7 +77,8 @@ class ArenaReferee extends BaseReferee
 
           if @isHeroChosen('player1') and @isHeroChosen('player2')
             @json.phase = Constants.Phase.Arena.BATTLE
-            # TODO: turn the button of player1 face up and show 3 discover cards
+            @addAction { duration: 300, playerIndex: 'player1', action: Constants.Action.UPDATE_END_TURN_BUTTON }
+            # TODO: discover 2 cards
       else
         console.ce "Unknown input action #{input.action}"
 

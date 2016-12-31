@@ -76,7 +76,7 @@ class EndTurnButton extends Card
       mesh: @pivot
       target:
         x: @original.x
-        y: @original.y
+        y: @original.y + 1
         z: @original.z + 2
         rY: if @faceUp then 0 else -Math.PI
       duration: ANIMATION_DURATION / 3
