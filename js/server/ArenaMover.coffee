@@ -15,11 +15,11 @@ class ArenaMover
     @mirroredUI = false
 
     @deck = new Deck(@referee.json.cards.length)
-    @deck.mesh.position.set -10, 0, 0
+    @deck.mesh.position.set -12, 0, 0
     @scene.scene.add @deck.mesh
 
     @endTurn = new EndTurnButton()
-    @endTurn.mesh.position.set 10, 0, 0
+    @endTurn.mesh.position.set 12, 0, 0
     @endTurn.setFaceUp(false)
     @scene.scene.add @endTurn.mesh
 
@@ -46,7 +46,7 @@ class ArenaMover
     action = @referee.findAction(@lastProcessedAction + 1)
     return unless action?
 
-    console.log "Processing action: #{JSON.stringify(action)}"
+    console.ce "Processing action: #{JSON.stringify(action)}"
     @lastProcessedAction = action.index
     @setProcessing(true)
 
@@ -88,6 +88,7 @@ class ArenaMover
     , duration
 
   uiTick: (tpf) ->
+    @endTurn.tick(tpf)
     for card in @uiCards
       card.dissolveTick(tpf)
 
@@ -95,7 +96,7 @@ class ArenaMover
 
   uiMouseEvent: (event, raycaster) ->
     @deck.doMouseEvent(event, raycaster)
-    @endTurn.hover(event, raycaster)
+    @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
     @player1Hero.doMouseEvent(event, raycaster)

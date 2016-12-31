@@ -5,7 +5,7 @@
 # with ArenaMover
 class GameScene extends BaseScene
   init: (options) ->
-    engine.camera.position.set 0, 0, 15
+    engine.camera.position.set 0, 0, 20
     @options = options
     console.ce "#{@options.id} game"
 
@@ -28,6 +28,8 @@ class GameScene extends BaseScene
     @game.stopTicking() if @game?
 
   afterServerTick: (data) ->
+    # TODO: if @game/@mover is not defined, create it according to the
+    # game type
     @mover.uiServerTick(data) if @mover?
 
   tick: (tpf) ->

@@ -10,12 +10,20 @@ class EndTurnButton extends Card
     @mesh.rotation.z = Math.PI / 2
     @animating = false
     @hasActionsLeft = true
+    @clickOnlyOnFaceUp = true
     @hovered = false
     @original = { x: 0, y: 0, z: 0 }
     @faceUp = true
 
   isFaceUp: ->
     @faceUp
+
+  setFaceUp: (faceUp) ->
+    if faceUp == true and @isFaceUp()
+      return
+    if faceUp == false and !@isFaceUp()
+      return
+    @click(true)
 
   setOriginalPosition: (x, y, z) ->
     @original.x = x
@@ -25,46 +33,26 @@ class EndTurnButton extends Card
 
   setActionsLeft: (value) ->
     @hasActionsLeft = value
-    if value
-      if @hovered
+
+  tick: (tpf) ->
+    if @hovered
+      if @hasActionsLeft
         @glow.yellow()
       else
+        @glow.green()
+    else
+      if @hasActionsLeft
         @glow.none()
-    else
-      @glow.green()
+      else
+        @glow.green()
 
-  hover: (event, raycaster) ->
+  doMouseEvent: (event, raycaster) ->
     @hovered = @isHovered(raycaster)
-    if !@hasActionsLeft
-      @glow.green()
-      if event.type == 'mousedown' and @hovered
-        if event.button == 0
-          @click()
-        else
-          @click(true)
-      return
-
-    if @hovered
-      if event.type == 'mousedown'
-        @glow.yellow()
-        if event.button == 0
-          @click()
-        else
-          @click(true)
-      if event.type == 'mousemove'
-        @glow.yellow()
-    else
-      @glow.none()
-
-  setFaceUp: (faceUp) ->
-    if faceUp == true and @isFaceUp()
-      return
-    if faceUp == false and !@isFaceUp()
-      return
-
-    @click(true)
+    if @hovered and event.type == 'mouseup'
+      @click()
 
   click: (override = false)->
+    return if !@faceUp and !override and @clickOnlyOnFaceUp
     if override
       @stop()
     else if @animating
@@ -72,7 +60,18 @@ class EndTurnButton extends Card
 
     @faceUp = !@faceUp
     @animating = true
+    @_upTween()
+    @upTimeout = setTimeout (=> @_downTween()), ANIMATION_DURATION / 3 * 2
+    @downTimeout = setTimeout (=> @animating = false), ANIMATION_DURATION
+    return
 
+  stop: ->
+    clearTimeout(@upTimeout)
+    clearTimeout(@downTimeout)
+    @up.stop() if @up?
+    @down.stop() if @down?
+
+  _upTween: ->
     @up = Helper.tween(
       mesh: @pivot
       target:
@@ -84,26 +83,15 @@ class EndTurnButton extends Card
       kind: 'Exponential'
       direction: 'Out'
     ).start()
-    @downTimeout = setTimeout =>
-      @down = Helper.tween(
-        mesh: @pivot
-        target:
-          x: @original.x
-          y: @original.y
-          z: @original.z
-        duration: ANIMATION_DURATION / 3
-        kind: 'Exponential'
-        direction: 'Out'
-      ).start()
-    , ANIMATION_DURATION / 3 * 2
 
-    @endTimeout = setTimeout =>
-      @animating = false
-    , ANIMATION_DURATION
-    return
-
-  stop: ->
-    clearTimeout(@downTimeout)
-    clearTimeout(@endTimeout)
-    @up.stop() if @up?
-    @down.stop() if @down?
+  _downTween: ->
+    @down = Helper.tween(
+      mesh: @pivot
+      target:
+        x: @original.x
+        y: @original.y
+        z: @original.z
+      duration: ANIMATION_DURATION / 3
+      kind: 'Exponential'
+      direction: 'Out'
+    ).start()

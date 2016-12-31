@@ -35,6 +35,7 @@ Constants =
   Phase:
     Arena:
       HERO_SELECT: 0
+      BATTLE: 1
 
   Input:
     START_GAME: 'startGame'

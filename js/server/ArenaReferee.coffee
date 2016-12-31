@@ -62,21 +62,21 @@ class ArenaReferee extends BaseReferee
         @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
         @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
       when Constants.Input.SELECT_CARD
-        action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
+        if @isPhase(Constants.Phase.Arena.HERO_SELECT)
+          action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
+          action.cardId = input.cardId
+          @addAction action
 
-        card = @findCard(input.cardId)
-        @json[input.playerIndex].hero = input.cardId
-        card.status = Constants.CardStatus.HERO
+          if @bot
+            otherIndex = @_getOtherPlayerIndex(input.playerIndex)
+            botAction = JSON.parse(JSON.stringify(action))
+            botAction.playerIndex = otherIndex
+            botAction.cardId = @findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
+            @addAction botAction
 
-        action.cardId = card.cardId
-        action.discardIds = []
-
-        for dCard in @findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.DISCOVERED)
-          if dCard.cardId != card.cardId
-            dCard.status = Constants.CardStatus.DISCARDED
-            action.discardIds.push dCard.cardId
-
-        @addAction action
+          if @isHeroChosen('player1') and @isHeroChosen('player2')
+            @json.phase = Constants.Phase.Arena.BATTLE
+            # TODO: turn the button of player1 face up and show 3 discover cards
       else
         console.ce "Unknown input action #{input.action}"
 
@@ -87,6 +87,15 @@ class ArenaReferee extends BaseReferee
       card = @findCard(action.cardId)
       card.playerIndex = action.playerIndex
       card.status = Constants.CardStatus.DISCOVERED
+    if action.action == Constants.Action.SELECT_HERO
+      card = @findCard(action.cardId)
+      @json[action.playerIndex].hero = action.cardId
+      card.status = Constants.CardStatus.HERO
+      action.discardIds = []
+      for dCard in @findCards(playerIndex: action.playerIndex, status: Constants.CardStatus.DISCOVERED)
+        if dCard.cardId != card.cardId
+          dCard.status = Constants.CardStatus.DISCARDED
+          action.discardIds.push dCard.cardId
     super(action)
 
   addInput: (input) ->
@@ -97,6 +106,11 @@ class ArenaReferee extends BaseReferee
 
   isHeroChosen: (playerIndex) ->
     @json[playerIndex].hero?
+
+  _getOtherPlayerIndex: (playerIndex) ->
+    return 'player2' if playerIndex == 'player1'
+    return 'player1' if playerIndex == 'player2'
+    throw "unknown playerIndex #{playerIndex}"
 
   _assignCardIdToCards: ->
     i = 0
