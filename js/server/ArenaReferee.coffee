@@ -63,22 +63,34 @@ class ArenaReferee extends BaseReferee
         @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
         @addAction { duration: HOLD_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.HOLD_CARD, cardId: 5 }
       when Constants.Input.SELECT_CARD
-        if @isPhase(Constants.Phase.Arena.HERO_SELECT)
-          action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: Constants.Action.SELECT_HERO }
-          action.cardId = input.cardId
-          @addAction action
+        console.log input
+        # TODO: bug - invalid input reaches here if the player double clicks on the hero select card.
+        actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
 
-          if @bot
+        action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: actionName }
+        action.cardId = input.cardId
+        @addAction action
+
+        if @bot
+          if @json.turn == otherIndex || @isPhase(Constants.Phase.Arena.HERO_SELECT)
             otherIndex = @_getOtherPlayerIndex(input.playerIndex)
             botAction = JSON.parse(JSON.stringify(action))
             botAction.playerIndex = otherIndex
             botAction.cardId = @findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
             @addAction botAction
 
+        if @isPhase(Constants.Phase.Arena.HERO_SELECT)
           if @isHeroChosen('player1') and @isHeroChosen('player2')
             @json.phase = Constants.Phase.Arena.BATTLE
-            @addAction { duration: 300, playerIndex: 'player1', action: Constants.Action.UPDATE_END_TURN_BUTTON }
-            # TODO: discover 2 cards
+            @addAction { duration: 300, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+
+            cards = @findCards(status: undefined)
+            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
+            @addAction { duration: HOLD_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.HOLD_CARD, cardId: cards[0].cardId }
+            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
+            @addAction { duration: HOLD_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.HOLD_CARD, cardId: cards[1].cardId }
+            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
+            @addAction { duration: HOLD_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.HOLD_CARD, cardId: cards[2].cardId }
       else
         console.ce "Unknown input action #{input.action}"
 
@@ -98,12 +110,26 @@ class ArenaReferee extends BaseReferee
         if dCard.cardId != card.cardId
           dCard.status = Constants.CardStatus.DISCARDED
           action.discardIds.push dCard.cardId
+    if action.action == Constants.Action.SELECT_CARD
+      card = @findCard(action.cardId)
+      card.status = Constants.CardStatus.HELD
+      action.discardIds = []
+      for dCard in @findCards(playerIndex: action.playerIndex, status: Constants.CardStatus.DISCOVERED)
+        if dCard.cardId != card.cardId
+          dCard.status = Constants.CardStatus.DISCARDED
+          action.discardIds.push dCard.cardId
     super(action)
 
   addInput: (input) ->
     if @isPhase(Constants.Phase.Arena.HERO_SELECT)
       card = @findCard(input.cardId)
       if card.playerIndex == input.playerIndex and !@isHeroChosen(input.playerIndex)
+        super(input)
+
+    if @isPhase(Constants.Phase.Arena.BATTLE)
+      card = @findCard(input.cardId)
+      return if card.status == Constants.CardStatus.HERO && input.action == Constants.Action.SELECT_CARD
+      if card.playerIndex == input.playerIndex
         super(input)
 
   isHeroChosen: (playerIndex) ->

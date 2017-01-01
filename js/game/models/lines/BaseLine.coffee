@@ -95,21 +95,8 @@ class BaseLine extends BoxedModel
 
     return
 
-  customDiscoverPosition: (i = 0) ->
-    if i == 0
-      @mesh.position.set 0, 0, 11
-      @mesh.rotation.set 0, 0, 0
-    else
-      @mesh.position.set 0, 4, 6
-      @mesh.rotation.set 0, Math.PI , 0
-
-  customHeroPosition: (i = 0) ->
-    if i == 0
-      @mesh.position.set 0, -6, 0
-      @mesh.rotation.set 0, 0, 0
-    else
-      @mesh.position.set 0, 6, 0
-      @mesh.rotation.set 0, 0, 0
+  customPosition: ->
+    throw 'not implemented'
 
   _updateGlow: (newFound, oldFound) ->
     if newFound?
@@ -193,3 +180,12 @@ class BaseLine extends BoxedModel
       offset = (@cards.size() / 2 - 0.5)
       extraX -= (card.indexInHand - offset) / 2
     extraX
+
+  hasSelected: ->
+    @selectedCard?
+
+  hasHovered: ->
+    @hoveredCard?
+
+  hasInteraction: ->
+    @hasSelected() || @hasHovered()

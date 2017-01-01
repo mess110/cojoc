@@ -1,4 +1,6 @@
 class Hand extends BaseLine
+  PLANE_Z = 10
+
   constructor: () ->
     super()
 
@@ -6,6 +8,7 @@ class Hand extends BaseLine
     @mesh.add @box
 
     @curve = new HandCurve()
+    @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), PLANE_Z * -1 - 1)
 
   tick: (tpf) ->
     amount = tpf
@@ -31,7 +34,7 @@ class Hand extends BaseLine
         @_moveWithDiff(@selectedCard, pos)
 
   _doMouseUp: (raycaster, pos) ->
-    if @_isInPlayArea(pos)
+    if @_isInPlayArea(pos) and @selectedCard?
       @remove(@selectedCard)
       @selectedCard.dissolve()
 
@@ -70,3 +73,11 @@ class Hand extends BaseLine
             y: point.y + 0.2
           kind: 'Cubic', direction: 'Out'
         )
+
+  customPosition: (i = 0) ->
+    if i == 0
+      @mesh.position.set 0, -3.5, PLANE_Z
+      @mesh.rotation.set 0, 0, 0
+    else
+      @mesh.position.set 0, 3.5, PLANE_Z
+      @mesh.rotation.set 0, Math.PI , 0

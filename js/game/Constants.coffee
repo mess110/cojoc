@@ -28,6 +28,7 @@ Constants =
     DISCOVERED: 'discover'
     DISCARDED: 'discarded'
     HERO: 'hero'
+    HELD: 'held'
 
   GameType:
     ARENA: 0
@@ -46,6 +47,7 @@ Constants =
     HOLD_CARD: 'holdCard'
     DISCARD_CARD: 'discardCard'
     SELECT_HERO: 'selectHero'
+    SELECT_CARD: 'selectCard'
     UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
 
   PlayerPositionStrategy:

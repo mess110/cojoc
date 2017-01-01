@@ -24,19 +24,27 @@ class ArenaMover
     @scene.scene.add @endTurn.mesh
 
     @player1Discover = new Discover()
-    @player1Discover.customDiscoverPosition(0)
+    @player1Discover.customPosition(0)
     @scene.scene.add @player1Discover.mesh
 
     @player2Discover = new Discover()
-    @player2Discover.customDiscoverPosition(1)
+    @player2Discover.customPosition(1)
     @scene.scene.add @player2Discover.mesh
 
-    @player1Hero = new Discover()
-    @player1Hero.customHeroPosition(0)
+    @player1Hero = new Hero()
+    @player1Hero.customPosition(0)
     @scene.scene.add @player1Hero.mesh
 
-    @player2Hero = new Discover()
-    @player2Hero.customHeroPosition(1)
+    @player2Hero = new Hero()
+    @player2Hero.customPosition(1)
+    @scene.scene.add @player2Hero.mesh
+
+    @player1Hand = new Hand()
+    @player1Hand.customPosition(0)
+    @scene.scene.add @player1Hero.mesh
+
+    @player2Hand = new Hand()
+    @player2Hand.customPosition(1)
     @scene.scene.add @player2Hero.mesh
 
   uiServerTick: (data) ->
@@ -77,9 +85,20 @@ class ArenaMover
           toRemove.push card
           card.dissolve()
 
-        @_findDiscoverFor(card.playerIndex).remove toRemove
+        @_findDiscoverFor(action.playerIndex).remove toRemove
         heroCard.minion(@referee.findCard(action.cardId))
-        @_findHeroFor(card.playerIndex).add heroCard
+        @_findHeroFor(action.playerIndex).add heroCard
+      when Constants.Action.SELECT_CARD
+        toRemove = []
+        selectCard = @_findCard(action.cardId)
+        toRemove.push selectCard
+        for discardId in action.discardIds
+          card = @_findCard(discardId)
+          toRemove.push card
+          card.dissolve()
+
+        @_findDiscoverFor(action.playerIndex).remove toRemove
+        @_findHandFor(action.playerIndex).add selectCard
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
         @endTurn.setFaceUp(isMe)
@@ -92,6 +111,8 @@ class ArenaMover
 
   uiTick: (tpf) ->
     @endTurn.tick(tpf)
+    @player1Hand.tick(tpf)
+    @player2Hand.tick(tpf)
     for card in @uiCards
       card.dissolveTick(tpf)
 
@@ -102,8 +123,11 @@ class ArenaMover
     @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
-    @player1Hero.doMouseEvent(event, raycaster)
-    @player2Hero.doMouseEvent(event, raycaster)
+    @player1Hand.doMouseEvent(event, raycaster)
+    @player2Hand.doMouseEvent(event, raycaster)
+    if !@player1Hand.hasInteraction() and !@player1Discover.hasInteraction()
+      @player1Hero.doMouseEvent(event, raycaster)
+      @player2Hero.doMouseEvent(event, raycaster)
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -117,10 +141,12 @@ class ArenaMover
     # all ids remain unchanged, only the mesh positions change
     if data.player2.owner == @scene.myId && !@mirroredUI
       @mirroredUI = true
-      @player1Discover.customDiscoverPosition(1)
-      @player2Discover.customDiscoverPosition(0)
-      @player1Hero.customHeroPosition(1)
-      @player2Hero.customHeroPosition(0)
+      @player1Discover.customPosition(1)
+      @player2Discover.customPosition(0)
+      @player1Hero.customPosition(1)
+      @player2Hero.customPosition(0)
+      @player1Hand.customPosition(1)
+      @player2Hand.customPosition(0)
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex
@@ -133,6 +159,11 @@ class ArenaMover
   _findDiscoverFor: (playerIndex) ->
     return @player1Discover if playerIndex == 'player1'
     return @player2Discover if playerIndex == 'player2'
+    throw 'invalid player index'
+
+  _findHandFor: (playerIndex) ->
+    return @player1Hand if playerIndex == 'player1'
+    return @player2Hand if playerIndex == 'player2'
     throw 'invalid player index'
 
   _findHeroFor: (playerIndex) ->

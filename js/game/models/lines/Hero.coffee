@@ -1,4 +1,4 @@
-class Discover extends BaseLine
+class Hero extends BaseLine
   constructor: ->
     super()
 
@@ -26,11 +26,6 @@ class Discover extends BaseLine
 
   _doMouseUp: (raycaster, pos) ->
     return unless @selectedCard?
-    SceneManager.currentScene()._emit(
-      type: 'gameInput'
-      action: Constants.Input.SELECT_CARD
-      cardId: @selectedCard.id
-    )
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
 
@@ -38,8 +33,8 @@ class Discover extends BaseLine
 
   customPosition: (i = 0) ->
     if i == 0
-      @mesh.position.set 0, 0, 11
+      @mesh.position.set 0, -6, 0
       @mesh.rotation.set 0, 0, 0
     else
-      @mesh.position.set 0, 4, 6
-      @mesh.rotation.set 0, Math.PI , 0
+      @mesh.position.set 0, 6, 0
+      @mesh.rotation.set 0, 0, 0
