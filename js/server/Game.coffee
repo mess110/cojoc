@@ -7,7 +7,7 @@ GameInstance = server.GameInstance unless GameInstance?
 class Game extends GameInstance
   constructor: (config, socket1, socket2) ->
     super(config)
-    @playerPositionStrategy = Constants.PlayerPositionStrategy.STACK
+    @playerPositionStrategy = Constants.Position.Strategy.STACK
     @referee = new ArenaReferee(@isBotGame())
 
     if socket1? && socket2?
@@ -115,11 +115,11 @@ class Game extends GameInstance
     tmp = [first, last]
     strategy = @playerPositionStrategy
     switch strategy
-      when Constants.PlayerPositionStrategy.RANDOM
+      when Constants.Position.Strategy.RANDOM
         tmp.shuffle()
-      when Constants.PlayerPositionStrategy.STACK
+      when Constants.Position.Strategy.STACK
         tmp.reverse()
-      when Constants.PlayerPositionStrategy.QUEUE
+      when Constants.Position.Strategy.QUEUE
         tmp
       else
         throw "unknown strategy #{strategy}"

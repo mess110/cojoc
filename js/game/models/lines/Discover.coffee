@@ -36,10 +36,13 @@ class Discover extends BaseLine
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
 
-  customPosition: (i = 0) ->
-    if i == 0
-      @mesh.position.set 0, 0, 11
-      @mesh.rotation.set 0, 0, 0
-    else
-      @mesh.position.set 0, 4, 6
-      @mesh.rotation.set 0, Math.PI , 0
+  customPosition: (i) ->
+    switch i
+      when Constants.Position.Player.SELF
+        @mesh.position.set 0, 0, 11
+        @mesh.rotation.set 0, 0, 0
+      when Constants.Position.Player.OPPONENT
+        @mesh.position.set 0, 4, 6
+        @mesh.rotation.set 0, Math.PI , 0
+      else
+        throw "invalid customPosition #{i}"

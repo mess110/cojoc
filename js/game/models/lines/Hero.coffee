@@ -31,10 +31,13 @@ class Hero extends BaseLine
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
 
-  customPosition: (i = 0) ->
-    if i == 0
-      @mesh.position.set 0, -6, 0
-      @mesh.rotation.set 0, 0, 0
-    else
-      @mesh.position.set 0, 6, 0
-      @mesh.rotation.set 0, 0, 0
+  customPosition: (i) ->
+    switch i
+      when Constants.Position.Player.SELF
+        @mesh.position.set 0, -6, 0
+        @mesh.rotation.set 0, 0, 0
+      when Constants.Position.Player.OPPONENT
+        @mesh.position.set 0, 6, 0
+        @mesh.rotation.set 0, 0, 0
+      else
+        throw "invalid customPosition #{i}"

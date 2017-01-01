@@ -52,10 +52,14 @@ Constants =
     SELECT_CARD: 'selectCard'
     UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
 
-  PlayerPositionStrategy:
-    RANDOM: 'random'
-    QUEUE: 'queue'
-    STACK: 'stack'
+  Position:
+    Strategy:
+      RANDOM: 'random'
+      QUEUE: 'queue'
+      STACK: 'stack'
+    Player:
+      SELF: 0
+      OPPONENT: 1
 
   Duration:
     DRAW_CARD: 200

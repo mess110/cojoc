@@ -24,27 +24,27 @@ class ArenaMover
     @scene.scene.add @endTurn.mesh
 
     @player1Discover = new Discover()
-    @player1Discover.customPosition(0)
+    @player1Discover.customPosition(Constants.Position.Player.SELF)
     @scene.scene.add @player1Discover.mesh
 
     @player2Discover = new Discover()
-    @player2Discover.customPosition(1)
+    @player2Discover.customPosition(Constants.Position.Player.OPPONENT)
     @scene.scene.add @player2Discover.mesh
 
     @player1Hero = new Hero()
-    @player1Hero.customPosition(0)
+    @player1Hero.customPosition(Constants.Position.Player.SELF)
     @scene.scene.add @player1Hero.mesh
 
     @player2Hero = new Hero()
-    @player2Hero.customPosition(1)
+    @player2Hero.customPosition(Constants.Position.Player.OPPONENT)
     @scene.scene.add @player2Hero.mesh
 
     @player1Hand = new Hand()
-    @player1Hand.customPosition(0)
+    @player1Hand.customPosition(Constants.Position.Player.SELF)
     @scene.scene.add @player1Hero.mesh
 
     @player2Hand = new Hand()
-    @player2Hand.customPosition(1)
+    @player2Hand.customPosition(Constants.Position.Player.OPPONENT)
     @scene.scene.add @player2Hero.mesh
 
   uiServerTick: (data) ->
@@ -142,12 +142,12 @@ class ArenaMover
     # all ids remain unchanged, only the mesh positions change
     if data.player2.owner == @scene.myId && !@mirroredUI
       @mirroredUI = true
-      @player1Discover.customPosition(1)
-      @player2Discover.customPosition(0)
-      @player1Hero.customPosition(1)
-      @player2Hero.customPosition(0)
-      @player1Hand.customPosition(1)
-      @player2Hand.customPosition(0)
+      @player1Discover.customPosition(Constants.Position.Player.OPPONENT)
+      @player2Discover.customPosition(Constants.Position.Player.SELF)
+      @player1Hero.customPosition(Constants.Position.Player.OPPONENT)
+      @player2Hero.customPosition(Constants.Position.Player.SELF)
+      @player1Hand.customPosition(Constants.Position.Player.OPPONENT)
+      @player2Hand.customPosition(Constants.Position.Player.SELF)
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex

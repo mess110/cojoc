@@ -74,14 +74,17 @@ class Hand extends BaseLine
           kind: 'Cubic', direction: 'Out'
         )
 
-  customPosition: (i = 0) ->
-    if i == 0
-      @curve = new HandCurve()
-      @rotMod = 1
-      @mesh.position.set 0, -3.5, PLANE_Z
-      @mesh.rotation.set 0, 0, 0
-    else
-      @curve = new EnemyHandCurve()
-      @rotMod = -1
-      @mesh.position.set 0, 3.5, PLANE_Z
-      @mesh.rotation.set 0, Math.PI, 0
+  customPosition: (i) ->
+    switch i
+      when Constants.Position.Player.SELF
+        @curve = new HandCurve()
+        @rotMod = 1
+        @mesh.position.set 0, -3.5, PLANE_Z
+        @mesh.rotation.set 0, 0, 0
+      when Constants.Position.Player.OPPONENT
+        @curve = new EnemyHandCurve()
+        @rotMod = -1
+        @mesh.position.set 0, 3.5, PLANE_Z
+        @mesh.rotation.set 0, Math.PI, 0
+      else
+        throw "invalid customPosition #{i}"

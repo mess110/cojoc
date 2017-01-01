@@ -32,7 +32,7 @@ handTest = ->
     )
 
   scene.hand = new Hand()
-  scene.hand.customPosition(1)
+  scene.hand.customPosition(Constants.Position.Player.OPPONENT)
   scene.scene.add scene.hand.mesh
   scene.addCard()
   setTimeout =>
