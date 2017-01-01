@@ -7,16 +7,13 @@ GameInstance = server.GameInstance unless GameInstance?
 class Game extends GameInstance
   constructor: (config, socket1, socket2) ->
     super(config)
+    @playerPositionStrategy = Constants.PlayerPositionStrategy.RANDOM
     @referee = new ArenaReferee(@isBotGame())
 
     if socket1? && socket2?
-      @player1 = { socketId: socket1.id }
-      @socket1 = socket1
-      socket1.emit('startGame', @toJson())
-
-      @player2 = { socketId: socket2.id }
-      @socket2 = socket2
-      socket2.emit('startGame', @toJson())
+      @_setRealPlayers(socket1, socket2)
+      @socket1.emit('startGame', @toJson())
+      @socket2.emit('startGame', @toJson())
 
   tick: =>
     @referee.tick()
@@ -32,9 +29,7 @@ class Game extends GameInstance
   join: (socket, data) ->
     joined = true
     if @isBotGame()
-      @player1 = { owner: Constants.Storage.BOT }
-      @player2 = { owner: data.owner }
-      data.playerIndex = if @player1.owner == Constants.Storage.bot then 'player2' else 'player1'
+      @_setBotPlayers(data)
     else
       @_setPlayerIndex(data)
       if data.playerIndex?
@@ -101,5 +96,32 @@ class Game extends GameInstance
       @socket1 = socket
     else
       @socket2 = socket
+
+  _setBotPlayers: (data) ->
+    randSockets = @_randomStrategy(Constants.Storage.BOT, data.owner)
+    @player1 = { owner: randSockets[0] }
+    @player2 = { owner: randSockets[1] }
+    data.playerIndex = if @player1.owner == Constants.Storage.bot then 'player2' else 'player1'
+
+  _setRealPlayers: (socket1, socket2)->
+    randSockets = @_randomStrategy(socket1, socket2)
+    @player1 = { socketId: randSockets[0].id }
+    @socket1 = randSockets[0]
+
+    @player2 = { socketId: randSockets[1].id }
+    @socket2 = randSockets[1]
+
+  _randomStrategy: (first, last)->
+    tmp = [first, last]
+    strategy = @playerPositionStrategy
+    switch strategy
+      when Constants.PlayerPositionStrategy.RANDOM
+        tmp.shuffle()
+      when Constants.PlayerPositionStrategy.STACK
+        tmp.reverse()
+      when Constants.PlayerPositionStrategy.QUEUE
+        tmp
+      else
+        throw "unknown strategy #{strategy}"
 
 exports.Game = Game

@@ -48,6 +48,11 @@ Constants =
     SELECT_HERO: 'selectHero'
     UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
 
+  PlayerPositionStrategy:
+    RANDOM: 'random'
+    QUEUE: 'queue'
+    STACK: 'stack'
+
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
 exports.Constants = Constants
