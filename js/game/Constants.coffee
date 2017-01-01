@@ -41,10 +41,12 @@ Constants =
   Input:
     START_GAME: 'startGame'
     SELECT_CARD: 'selectCard'
+    END_TURN: 'endTurn'
 
   Action:
     DRAW_CARD: 'drawCard'
     HOLD_CARD: 'holdCard'
+    DISCOVER_CARD: 'discoverCard'
     DISCARD_CARD: 'discardCard'
     SELECT_HERO: 'selectHero'
     SELECT_CARD: 'selectCard'

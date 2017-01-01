@@ -66,7 +66,7 @@ class ArenaMover
         card.playerIndex = action.playerIndex
         @uiCards.push card
         duration /= 3
-      when Constants.Action.HOLD_CARD
+      when Constants.Action.DISCOVER_CARD
         card = @_findCard(action.cardId)
         if card.playerIndex == @_getMyPlayerIndex()
           card.impersonate(@referee.findCard(action.cardId))
@@ -120,11 +120,12 @@ class ArenaMover
 
   uiMouseEvent: (event, raycaster) ->
     @deck.doMouseEvent(event, raycaster)
-    @endTurn.doMouseEvent(event, raycaster)
+    if !@player1Discover.hasCards()
+      @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
     @player1Hand.doMouseEvent(event, raycaster)
-    @player2Hand.doMouseEvent(event, raycaster)
+    # @player2Hand.doMouseEvent(event, raycaster)
     if !@player1Hand.hasInteraction() and !@player1Discover.hasInteraction()
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)

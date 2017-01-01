@@ -50,6 +50,10 @@ class EndTurnButton extends Card
     @hovered = @isHovered(raycaster)
     if @hovered and event.type == 'mouseup'
       @click()
+      SceneManager.currentScene()._emit(
+        type: 'gameInput'
+        action: Constants.Input.END_TURN
+      )
 
   click: (override = false)->
     return if !@faceUp and !override and @clickOnlyOnFaceUp

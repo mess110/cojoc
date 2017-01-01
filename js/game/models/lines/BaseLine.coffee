@@ -181,6 +181,9 @@ class BaseLine extends BoxedModel
       extraX -= (card.indexInHand - offset) / 2
     extraX
 
+  hasCards: ->
+    @cards.any()
+
   hasSelected: ->
     @selectedCard?
 

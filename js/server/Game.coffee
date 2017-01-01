@@ -1,7 +1,7 @@
 server = require('../../bower_components/coffee-engine/src/server/server.coffee')
 
 Constants = require('../game/Constants.coffee').Constants unless Constants?
-ArenaReferee = require('./ArenaReferee.coffee').ArenaReferee unless ArenaReferee?
+ArenaReferee = require('./arena/ArenaReferee.coffee').ArenaReferee unless ArenaReferee?
 GameInstance = server.GameInstance unless GameInstance?
 
 class Game extends GameInstance
