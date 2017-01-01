@@ -1,6 +1,6 @@
 class BaseReferee
-  constructor: (bot) ->
-    @bot = bot
+  constructor: (botEnabled) ->
+    @botEnabled = botEnabled
     @inputs = []
     @json = {}
     @processing = false

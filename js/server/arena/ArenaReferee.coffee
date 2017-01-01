@@ -1,6 +1,7 @@
 Constants = require('../../game/Constants.coffee').Constants unless Constants?
 Cards = require('../../game/models/Cards.coffee').Cards unless Cards?
 BaseReferee = require('../BaseReferee.coffee').BaseReferee unless BaseReferee?
+ArenaBot = require('./ArenaBot.coffee').ArenaBot unless ArenaBot?
 
 # The referee class has 2 main responsabilities. Even writing this screams
 # split in 2 classes.
@@ -15,12 +16,9 @@ BaseReferee = require('../BaseReferee.coffee').BaseReferee unless BaseReferee?
 # The referee should not know any information about who the player is, instead
 # it should rely on the playerIndex
 class ArenaReferee extends BaseReferee
-  DRAW_CARD_DURATION = 200
-  DISCOVER_CARD_DURATION = 500
-  SELECT_CARD_DURATION = 100
-
-  constructor: (bot) ->
-    super(bot)
+  constructor: (botEnabled) ->
+    super(botEnabled)
+    @bot = new ArenaBot(@)
     allCards = Cards.random(60)
     @json =
       gameType: Constants.GameType.ARENA
@@ -50,71 +48,59 @@ class ArenaReferee extends BaseReferee
 
     switch input.action
       when Constants.Input.START_GAME
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 0 }
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 3 }
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 1 }
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 4 }
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 2 }
-        @addAction { duration: DRAW_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
-        @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 5 }
+        @_addStartGameActions()
       when Constants.Input.SELECT_CARD
-        actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
-
-        action = { duration: SELECT_CARD_DURATION, playerIndex: input.playerIndex, action: actionName }
-        action.cardId = input.cardId
-        @addAction action
-
-        if @bot
-          if @json.turn == otherIndex || @isPhase(Constants.Phase.Arena.HERO_SELECT)
-            otherIndex = @_getOtherPlayerIndex(input.playerIndex)
-            botAction = JSON.parse(JSON.stringify(action))
-            botAction.playerIndex = otherIndex
-            botAction.cardId = @findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
-            @addAction botAction
-
-        if @isPhase(Constants.Phase.Arena.HERO_SELECT)
-          if @isHeroChosen('player1') and @isHeroChosen('player2')
-            @json.phase = Constants.Phase.Arena.BATTLE
-            @addAction { duration: 300, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
-
-            cards = @findCards(status: undefined)
-            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
-            @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
-            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
-            @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
-            @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
-            @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+        @addSelectCardAction(input)
+        @bot.addSelectCardAction(input)
+        @_addBothHeroesChosenActions()
       when Constants.Input.END_TURN
-        @_addEndTurnAction()
-
-        if @bot
-          otherIndex = @_getOtherPlayerIndex(input.playerIndex)
-          botAction = { duration: SELECT_CARD_DURATION, action: Constants.Action.SELECT_CARD }
-          botAction.playerIndex = otherIndex
-          botAction.cardId = @findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
-          @addAction botAction
-          @_addEndTurnAction()
+        @addEndTurnAction()
+        @bot.addEndTurnAction(input)
       else
         console.log "Unknown input action #{input.action}"
 
     @processing = false
 
-  _addEndTurnAction: ->
-    @json.turn = @_getOtherPlayerIndex(@json.turn)
-    @addAction { duration: 300, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+  addSelectCardAction: (input) ->
+    actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
+    action = { duration: Constants.Duration.SELECT_CARD, playerIndex: input.playerIndex, action: actionName }
+    action.cardId = input.cardId
+    @addAction action
 
+  _addBothHeroesChosenActions: ->
+    return unless @isPhase(Constants.Phase.Arena.HERO_SELECT)
+    if @isHeroChosen('player1') and @isHeroChosen('player2')
+      @json.phase = Constants.Phase.Arena.BATTLE
+      @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+      @_addDiscoverActions()
+
+  _addStartGameActions: ->
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 0 }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 3 }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 1 }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 4 }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 2 }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 5 }
+
+  addEndTurnAction: ->
+    @json.turn = @_getOtherPlayerIndex(@json.turn)
+    @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+    @_addDiscoverActions()
+
+  _addDiscoverActions: ->
     cards = @findCards(status: undefined)
-    @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
-    @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
-    @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
-    @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
-    @addAction { duration: DRAW_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
-    @addAction { duration: DISCOVER_CARD_DURATION, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
+    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
+    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
 
   addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
@@ -149,7 +135,6 @@ class ArenaReferee extends BaseReferee
     if @isPhase(Constants.Phase.Arena.BATTLE)
       if input.action == Constants.Input.END_TURN
         if input.playerIndex == @json.turn
-          console.log input
           super(input)
       else
         card = @findCard(input.cardId)

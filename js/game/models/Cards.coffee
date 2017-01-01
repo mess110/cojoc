@@ -33,7 +33,9 @@ Cards = [
     name: 'Sânziene'
     type: Constants.CardType.MINION
     defaults:
-      health: 30
+      cost: 1
+      attack: 1
+      health: 1
   }
   {
     key: 'babaDochia'

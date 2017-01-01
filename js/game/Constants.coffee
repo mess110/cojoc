@@ -57,6 +57,12 @@ Constants =
     QUEUE: 'queue'
     STACK: 'stack'
 
+  Duration:
+    DRAW_CARD: 200
+    DISCOVER_CARD: 500
+    SELECT_CARD: 100
+    UPDATE_END_TURN: 300
+
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
 exports.Constants = Constants
