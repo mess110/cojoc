@@ -8,7 +8,7 @@ class Hand extends BaseLine
     @mesh.add @box
 
     @curve = new HandCurve()
-    @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), PLANE_Z * -1 - 1)
+    @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -PLANE_Z - 1)
 
   tick: (tpf) ->
     amount = tpf
@@ -76,8 +76,12 @@ class Hand extends BaseLine
 
   customPosition: (i = 0) ->
     if i == 0
+      @curve = new HandCurve()
+      @rotMod = 1
       @mesh.position.set 0, -3.5, PLANE_Z
       @mesh.rotation.set 0, 0, 0
     else
+      @curve = new EnemyHandCurve()
+      @rotMod = -1
       @mesh.position.set 0, 3.5, PLANE_Z
-      @mesh.rotation.set 0, Math.PI , 0
+      @mesh.rotation.set 0, Math.PI, 0

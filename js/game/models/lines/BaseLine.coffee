@@ -3,6 +3,7 @@ class BaseLine extends BoxedModel
     super()
 
     @maxRotation = 1
+    @rotMod = 1
     @mouseDown = false
     @cards = []
     @mesh = new THREE.Object3D()
@@ -158,9 +159,9 @@ class BaseLine extends BoxedModel
         target:
           x: point.x
           y: point.y
-          z: point.z + card.indexInHand * 0.1
-          rX: 0
-          rY: 0
+          z: point.z + card.indexInHand * 0.1 * @rotMod
+          rX: @mesh.rotation.x
+          rY: @mesh.rotation.y
           rZ: -point.x / 20
       )
 

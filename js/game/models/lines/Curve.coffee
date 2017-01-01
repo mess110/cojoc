@@ -31,6 +31,15 @@ class HandCurve extends Curve
       new (THREE.Vector3)(6, 0, 0)
     ])
 
+class EnemyHandCurve extends Curve
+  constructor: ->
+    super([
+      new (THREE.Vector3)(-6, 0, 0)
+      new (THREE.Vector3)(-2, -1, 0)
+      new (THREE.Vector3)(2, -1, 0)
+      new (THREE.Vector3)(6, 0, 0)
+    ])
+
 class MinionsCurve extends Curve
   constructor: ->
     super([

@@ -1,5 +1,7 @@
 handTest = ->
   # Helper.orbitControls(engine)
+  engine.camera.position.set 0, 0, 20
+
   scene = SceneManager.currentScene()
   allCards = []
 
@@ -30,7 +32,7 @@ handTest = ->
     )
 
   scene.hand = new Hand()
-  scene.hand.mesh.position.y = -3
+  scene.hand.customPosition(1)
   scene.scene.add scene.hand.mesh
   scene.addCard()
   setTimeout =>
