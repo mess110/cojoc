@@ -39,14 +39,18 @@ class ArenaReferee extends BaseReferee
   # only valid inputs are processed
   tick: ->
     return if @processing
-    input = @findInput()
-    return unless input?
 
-    console.ce "Processing input: #{JSON.stringify(input)}"
+    loop
+      input = @findInput()
+      break unless input?
+      @processOne(input)
 
+    @processing = false
+
+  processOne: (input) ->
     @processing = true
+    console.ce "Processing input: #{JSON.stringify(input)}"
     input.processed = true
-
     switch input.action
       when Constants.Input.START_GAME
         @_addStartGameActions()
@@ -60,8 +64,8 @@ class ArenaReferee extends BaseReferee
         @bot.addEndTurnAction(input)
       else
         console.log "Unknown input action #{input.action}"
+    input
 
-    @processing = false
 
   addSelectCardAction: (input) ->
     actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
@@ -154,7 +158,7 @@ class ArenaReferee extends BaseReferee
 
     if @isPhase(Constants.Phase.Arena.BATTLE)
       if input.action == Constants.Input.END_TURN
-        if input.playerIndex == @json.turn
+        if input.playerIndex == @json.turn and !@isDiscovering(input.playerIndex)
           super(input)
       else
         card = @findCard(input.cardId)

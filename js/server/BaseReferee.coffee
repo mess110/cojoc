@@ -18,6 +18,9 @@ class BaseReferee
     cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
     cards.size() == @json.maxCardsInHand
 
+  isDiscovering: (playerIndex) ->
+    @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
+
   addAction: (action) ->
     action.index = @json.actions.length
     @json.actions.push action

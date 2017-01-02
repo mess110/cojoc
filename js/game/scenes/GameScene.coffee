@@ -5,7 +5,7 @@
 # with ArenaMover
 class GameScene extends BaseScene
   init: (options) ->
-    Helper.orbitControls(engine)
+    # Helper.orbitControls(engine)
     engine.camera.position.set 0, 0, 20
     @options = options
     console.ce "#{@options.id} game"
