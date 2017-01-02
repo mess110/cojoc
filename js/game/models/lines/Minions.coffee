@@ -5,6 +5,8 @@ class Minions extends BaseLine
     @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
     @mesh.add @box
 
+    @minionScale = 0.8
+
     @curve = new MinionsCurve()
 
   _moveInPosition: (duration = 1000) ->
@@ -24,6 +26,9 @@ class Minions extends BaseLine
           rX: 0
           rY: 0
           rZ: 0
+          sX: @minionScale
+          sY: @minionScale
+          sZ: @minionScale
       )
 
   _doMouseUp: (raycaster, pos) ->
@@ -67,10 +72,10 @@ class Minions extends BaseLine
   customPosition: (i) ->
     switch i
       when Constants.Position.Player.SELF
-        @mesh.position.set 0, -1.5, 0
+        @mesh.position.set 0, -1.75, 0
         @mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
-        @mesh.position.set 0, 1.5, 0
+        @mesh.position.set 0, 1.75, 0
         @mesh.rotation.set 0, 0, 0
       else
         throw "invalid customPosition #{i}"

@@ -68,12 +68,14 @@ class ArenaReferee extends BaseReferee
         @addEndTurnAction()
         @bot.addEndTurnAction(input)
       when Constants.Input.PLAY_CARD
-        @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MANA, cardId: input.cardId }
-        @addAction { playerIndex: @json.turn, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
+        @addPlayCardAction(input)
       else
         console.log "Unknown input action #{input.action}"
     input
 
+  addPlayCardAction: (input) ->
+    @addAction { playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
+    @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
 
   addSelectCardAction: (input) ->
     actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD

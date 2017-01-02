@@ -121,6 +121,7 @@ class ArenaMover
       when Constants.Action.SUMMON_MINION
         card = @_findCard(action.cardId)
         card.minion(@referee.findCard(action.cardId))
+        @_findHandFor(action.playerIndex).remove card
         @_findMinionsFor(action.playerIndex).add card
       else
         console.log "Unknown action #{action.action}"

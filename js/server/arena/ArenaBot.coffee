@@ -12,6 +12,10 @@ class ArenaBot
     return if otherIndex != @referee.json.turn
     if !@referee.hasMaxCardsInHand(otherIndex)
       @_selectCard(input)
+
+    for card in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.HELD)
+      if @referee.hasManaFor(otherIndex, card.cardId)
+        @_playMinion(input, card)
     @referee.addEndTurnAction()
 
   addSelectHeroAction: (input) ->
@@ -25,6 +29,13 @@ class ArenaBot
     inputCopy.playerIndex = otherIndex
     inputCopy.cardId = @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
     @referee.addSelectCardAction(inputCopy)
+
+  _playMinion: (input, card) ->
+    inputCopy = JSON.parse(JSON.stringify(input))
+    otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
+    inputCopy.playerIndex = otherIndex
+    inputCopy.cardId = card.cardId
+    @referee.addPlayCardAction(inputCopy)
 
   isEnabled: ->
     @enabled
