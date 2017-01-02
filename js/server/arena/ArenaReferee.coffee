@@ -203,7 +203,7 @@ class ArenaReferee extends BaseReferee
     if @isPhase(Constants.Phase.Arena.BATTLE)
       switch input.action
         when Constants.Input.END_TURN
-          if input.playerIndex == @json.turn and !@isDiscovering(input.playerIndex)
+          if @isTurn(input.playerIndex) and !@isDiscovering(input.playerIndex)
             super(input)
         when Constants.Input.SELECT_CARD
           card = @findCard(input.cardId)
@@ -216,6 +216,7 @@ class ArenaReferee extends BaseReferee
           return if card.status == Constants.CardStatus.HERO
           return if card.status == Constants.CardStatus.DISCARDED
           return if card.playerIndex != input.playerIndex
+          return unless @isTurn(input.playerIndex)
           return unless @hasManaFor(input.playerIndex, input.cardId)
           return unless @hasMinionSpace(input.playerIndex)
           super(input)

@@ -15,7 +15,7 @@ class BaseReferee
     @json.phase == phase
 
   hasActionsLeft: (playerIndex) ->
-    return false if @json.turn != playerIndex
+    return false unless @isTurn(playerIndex)
     canPlayACard = false
     canDiscover = @findCards(status: Constants.CardStatus.DISCOVERED, playerIndex: playerIndex).any()
     for card in @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
@@ -35,6 +35,9 @@ class BaseReferee
 
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
+
+  isTurn: (playerIndex) ->
+    @json.turn == playerIndex
 
   getMana: (playerIndex) ->
     @json[playerIndex].mana

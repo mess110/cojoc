@@ -247,7 +247,7 @@ class ArenaMover
   glowHeldCards: (cards) ->
     myIndex = @_getMyPlayerIndex()
     for card in cards
-      if @referee.hasManaFor(myIndex, card.id)
+      if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex)
         card.glow.blue()
       else
         card.glow.none()
