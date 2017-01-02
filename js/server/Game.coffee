@@ -10,7 +10,7 @@ class Game extends GameInstance
     @playerPositionStrategy = Constants.Position.Strategy.STACK
     @referee = new ArenaReferee(@isBotGame())
 
-    if socket1? && socket2?
+    if socket1? and socket2?
       @_setRealPlayers(socket1, socket2)
       @socket1.emit('startGame', @toJson())
       @socket2.emit('startGame', @toJson())

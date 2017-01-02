@@ -26,6 +26,7 @@ class BaseLine extends BoxedModel
       @cards.push toAdd
       toAdd.indexInHand = @cards.indexOf(toAdd)
 
+    @_changeCount()
     @update()
     toAddArray
 
@@ -42,8 +43,11 @@ class BaseLine extends BoxedModel
       for card in @cards
         card.indexInHand = @cards.indexOf(card)
 
+    @_changeCount()
     @update()
     toRemoveArray
+
+  _changeCount: ->
 
   update: (duration) ->
     @curve.scale(@cards.size() / if @holstered then 50 else 10)
@@ -89,6 +93,7 @@ class BaseLine extends BoxedModel
     false
 
   doMouseEvent: (event, raycaster) ->
+    @boxIsHovered = @isHovered(raycaster)
     return unless @enabled
 
     @_updateMouseStatus(event)

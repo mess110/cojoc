@@ -49,7 +49,7 @@ class Card extends BoxedModel
   dissolve: (r=0, g=0, b=0) ->
     fdm = Helper.dissolveMaterial(@front.material.clone().map)
     @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
-    bdm = Helper.dissolveMaterial(@front.material.clone().map)
+    bdm = Helper.dissolveMaterial(@back.material.clone().map)
     @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
     @front.material = @fdm
     @back.material = @bdm

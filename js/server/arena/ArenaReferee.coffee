@@ -19,7 +19,7 @@ class ArenaReferee extends BaseReferee
   constructor: (botEnabled) ->
     super(botEnabled)
     @bot = new ArenaBot(@)
-    allCards = Cards.random(60)
+    allCards = Cards.random(30 * 3 * 2)
     @json =
       maxCardsInHand: 10
       gameType: Constants.GameType.ARENA

@@ -32,7 +32,8 @@ handTest = ->
     )
 
   scene.hand = new Hand()
-  scene.hand.customPosition(Constants.Position.Player.SELF)
+  scene.hand.defaultHolsterAmount = 0
+  scene.hand.customPosition(Constants.Position.Player.OPPONENT)
   scene.hand.holster(true)
   scene.scene.add scene.hand.mesh
   console.log scene.hand.box.parent.parent

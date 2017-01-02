@@ -50,6 +50,8 @@ class ArenaMover
     @player2Hand.enabled = false
     @scene.scene.add @player2Hand.mesh
 
+    # TODO: add mana bars
+
   uiServerTick: (data) ->
     @setData(data)
 
@@ -148,7 +150,7 @@ class ArenaMover
 
     # switch board position from player2's perspective
     # all ids remain unchanged, only the mesh positions change
-    if data.player2.owner == @scene.myId && !@mirroredUI
+    if data.player2.owner == @scene.myId and !@mirroredUI
       @mirroredUI = true
       @player1Discover.customPosition(Constants.Position.Player.OPPONENT)
       @player2Discover.customPosition(Constants.Position.Player.SELF)

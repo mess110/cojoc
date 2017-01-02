@@ -12,6 +12,10 @@ class Hand extends BaseLine
     @curve = new HandCurve()
     @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -PLANE_Z - 1)
 
+    @text = new CojocText()
+    @text.setText(@toString())
+    @mesh.add @text.mesh
+
   tick: (tpf) ->
     amount = tpf
     @direction.x = Helper.tendToZero(@direction.x, amount)
@@ -21,6 +25,11 @@ class Hand extends BaseLine
     if @selectedCard? and @takenOut
       @selectedCard.pivot.rotation.x = -@direction.y / 2
       @selectedCard.pivot.rotation.y = @direction.x / 2
+
+    if @holstered and @boxIsHovered
+      @text.setVisible(true)
+    else
+      @text.setVisible(false)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
     if @selectedCard?
@@ -36,11 +45,14 @@ class Hand extends BaseLine
         @selectedCard.cancelMove()
         @_moveWithDiff(@selectedCard, pos)
 
+  _changeCount: ->
+    @text.setText(@toString())
+
   _doMouseUp: (raycaster, pos) ->
     if @_isInPlayArea(pos) and @selectedCard?
       @remove(@selectedCard)
       @selectedCard.dissolve()
-      # TODO: playing a card
+      # TODO: send play card command to server
       @holster(true)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
@@ -96,11 +108,20 @@ class Hand extends BaseLine
         @rotMod = 1
         @mesh.position.set 0, -3.5, PLANE_Z
         @mesh.rotation.set 0, 0, 0
+        @text.mesh.position.set 0, -0.3, 0.3
+        @text.mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
         @curve = new EnemyHandCurve()
         @holsterAmount = -@defaultHolsterAmount
         @rotMod = -1
         @mesh.position.set 0, 3.5, PLANE_Z
         @mesh.rotation.set 0, Math.PI, 0
+        @text.mesh.position.set 0, -0.5, -0.3
+        @text.mesh.rotation.set Math.PI, 0, Math.PI
       else
         throw "invalid customPosition #{i}"
+
+  toString: ->
+    s = "#{@cards.size()} card"
+    s += 's' if @cards.size() != 1
+    s
