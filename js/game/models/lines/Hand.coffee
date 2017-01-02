@@ -105,7 +105,7 @@ class Hand extends BaseLine
         @rotMod = 1
         @mesh.position.set 0, -3.5, PLANE_Z
         @mesh.rotation.set 0, 0, 0
-        @text.mesh.position.set 0, -0.3, 0.3
+        @text.mesh.position.set 0, 0.5, 0.3
         @text.mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
         @curve = new EnemyHandCurve()
@@ -113,12 +113,12 @@ class Hand extends BaseLine
         @rotMod = -1
         @mesh.position.set 0, 3.5, PLANE_Z
         @mesh.rotation.set 0, Math.PI, 0
-        @text.mesh.position.set 0, -0.5, -0.3
+        @text.mesh.position.set -0.3, -1.4, -0.3
         @text.mesh.rotation.set Math.PI, 0, Math.PI
       else
         throw "invalid customPosition #{i}"
 
   toString: ->
-    s = "#{@cards.size()} card"
-    s += 's' if @cards.size() != 1
-    s
+    return '' if @cards.isEmpty()
+    return '1 carte' if @cards.size() == 1
+    "#{@cards.size} cărți"

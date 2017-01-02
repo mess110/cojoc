@@ -72,7 +72,7 @@ class ArenaMover
 
     @turnNotification = new TurnNotification()
     @turnNotification.setOpacity(0)
-    @turnNotification.mesh.position.set 0, 0, 13
+    @turnNotification.mesh.position.set 0, 0.5, 13
     @scene.scene.add @turnNotification.mesh
 
   uiServerTick: (data) ->
