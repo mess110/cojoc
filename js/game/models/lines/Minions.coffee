@@ -55,7 +55,7 @@ class Minions extends BaseLine
           kind: 'Cubic', direction: 'In'
         )
 
-    if newSelected? && !@lock
+    if newSelected? and !@lock
       @takenOut = true if @mine
       point = @getPoint(@selectedCard)
 

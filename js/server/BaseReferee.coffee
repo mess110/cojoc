@@ -1,3 +1,5 @@
+Constants = require('../game/Constants.coffee').Constants unless Constants?
+
 class BaseReferee
   constructor: (botEnabled) ->
     @botEnabled = botEnabled
@@ -20,7 +22,7 @@ class BaseReferee
     canDiscover = @findCards(status: Constants.CardStatus.DISCOVERED, playerIndex: playerIndex).any()
     for card in @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
       canPlayACard = true if @hasManaFor(playerIndex, card.cardId)
-    canPlayACard || canDiscover
+    canPlayACard or canDiscover
 
   hasMaxCardsInHand: (playerIndex) ->
     cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)

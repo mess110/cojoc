@@ -183,14 +183,14 @@ class ArenaMover
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
 
-    if !@player1Discover.hasInteraction() && !@player1Discover.hasCards()
+    if !@player1Discover.hasInteraction() and !@player1Discover.hasCards()
       @player1Mana.doMouseEvent(event, raycaster)
-    if !@player2Discover.hasInteraction() && !@player2Discover.hasCards()
+    if !@player2Discover.hasInteraction() and !@player2Discover.hasCards()
       @player2Mana.doMouseEvent(event, raycaster)
 
-    @player1Minions.lock = myDiscover.hasInteraction() || myHand.hasInteraction()
+    @player1Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction()
     @player1Minions.doMouseEvent(event, raycaster)
-    @player2Minions.lock = myDiscover.hasInteraction() || myHand.hasInteraction()
+    @player2Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction()
     @player2Minions.doMouseEvent(event, raycaster)
     @multiSelect = []
 
@@ -253,6 +253,10 @@ class ArenaMover
     )
 
   glowHeldCards: (cards) ->
+    return unless @scene.game.player1?
+    return unless @scene.game.player1.owner?
+    return unless @scene.game.player2?
+    return unless @scene.game.player2.owner?
     myIndex = @_getMyPlayerIndex()
     for card in cards
       if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex)

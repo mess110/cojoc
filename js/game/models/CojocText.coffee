@@ -14,12 +14,13 @@ class CojocText extends BaseText
     super(options)
 
 class BigText extends BaseText
-  constructor: () ->
+  constructor: (align = undefined) ->
     options =
       font: 'bolder 50px Pirata One'
       strokeStyle: 'black'
       strokeLineWidth: 10
       fillStyle: 'white'
+      align: align
       text: 'hello'
       w: 4
       h: 4

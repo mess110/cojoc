@@ -247,4 +247,4 @@ class BaseLine extends BoxedModel
     @hoveredCard?
 
   hasInteraction: ->
-    @hasSelected() || @hasHovered()
+    @hasSelected() or @hasHovered()

@@ -31,7 +31,7 @@ class Hand extends BaseLine
     else
       @text.setVisible(false)
 
-    if @mine
+    if @mine and SceneManager.currentScene().mover?
       SceneManager.currentScene().mover.glowHeldCards(@cards)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
