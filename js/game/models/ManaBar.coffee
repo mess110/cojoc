@@ -59,10 +59,19 @@ class ManaBar extends BoxedModel
 
     for i in [0...@maxManaAllowed] by 1
       cube = new ManaCrystal()
-      cube.mesh.position.set i * @distanceBetweenCrystals, 0, 0
-
       @cubes.push cube
       @mesh.add cube.mesh
+
+    @setGrowDirection()
+
+  setGrowDirection: (left = true) ->
+    for i in [0...@maxManaAllowed] by 1
+      cube = @cubes[i]
+      x = i * @distanceBetweenCrystals
+      unless left
+        x *= -1
+        x += (@maxManaAllowed - 1) * @distanceBetweenCrystals
+      cube.mesh.position.set x, 0, 0
 
   update: (currentMana, maxMana) ->
     return if maxMana == @maxMana and currentMana == @currentMana
@@ -99,12 +108,14 @@ class ManaBar extends BoxedModel
   customPosition: (i) ->
     switch i
       when Constants.Position.Player.SELF
-        @mesh.position.set 2.25, -7.5, 0
+        @mesh.position.set -9.1, -7.5, 0
         @mesh.rotation.set 0, 0, 0
-        @manaText.mesh.position.set 1.4, -0.75, -0.01
+        @manaText.mesh.position.set 7.65, -0.5, -0.01
+        @setGrowDirection(false)
       when Constants.Position.Player.OPPONENT
         @mesh.position.set 2.25, 7.5, 0
         @mesh.rotation.set 0, 0, 0
         @manaText.mesh.position.set 1.4, -2.5, -0.01
+        @setGrowDirection(true)
       else
         throw "invalid customPosition #{i}"

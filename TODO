@@ -1,10 +1,16 @@
 - helper text for noobs
 - fix card count text when many cards
+- when missdragging a card don't end turn
 - better summon minion animation
 - hover card glow should be red when hovering enemy
 - monitor enemy hovered
 - win condition
 - fatigue
 - minions attacking selection
+- add spells
 - implement attack
 - sounds
+- add more minions
+- fix minion text
+- fix overlapping mana bar
+- readable text

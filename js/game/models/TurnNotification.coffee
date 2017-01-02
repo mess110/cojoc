@@ -5,7 +5,7 @@ class TurnNotification extends BaseModel
     super()
     @animating = false
 
-    geom = new THREE.PlaneBufferGeometry(6.71, 5.64)
+    geom = new THREE.PlaneBufferGeometry(6.71 * 0.8, 5.64 * 0.8)
     material = new THREE.MeshBasicMaterial(
       map: TextureManager.get().items['turn-notification']
       side: THREE.DoubleSide
