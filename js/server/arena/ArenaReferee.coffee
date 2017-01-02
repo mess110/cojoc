@@ -187,6 +187,7 @@ class ArenaReferee extends BaseReferee
       action.maxMana = @json[action.playerIndex].maxMana
 
     if action.action == Constants.Action.SUMMON_MINION
+      action.duration = Constants.Duration.SUMMON_MINION
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.PLAYED
 

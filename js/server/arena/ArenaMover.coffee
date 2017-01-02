@@ -70,6 +70,11 @@ class ArenaMover
     @cardPreview.mesh.position.set -3, 1, 12.5
     @scene.scene.add @cardPreview.mesh
 
+    @turnNotification = new TurnNotification()
+    @turnNotification.setOpacity(0)
+    @turnNotification.mesh.position.set 0, 0, 13
+    @scene.scene.add @turnNotification.mesh
+
   uiServerTick: (data) ->
     @setData(data)
 
@@ -117,6 +122,8 @@ class ArenaMover
         @_findHandFor(action.playerIndex).add selectCard
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
+        if isMe
+          @turnNotification.animate()
         @endTurn.setFaceUp(isMe)
       when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA, Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)

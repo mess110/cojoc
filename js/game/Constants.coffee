@@ -73,7 +73,8 @@ Constants =
     DISCOVER_CARD: 200
     DISCARD_CARD: 300
     SELECT_CARD: 100
-    UPDATE_END_TURN: 300
+    UPDATE_END_TURN: 600
+    SUMMON_MINION: 1000
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

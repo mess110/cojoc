@@ -20,6 +20,10 @@ class TurnNotification extends BaseModel
     @mesh.add @text.mesh
     @setText('Rândul tău')
 
+  setOpacity: (i) ->
+    super(i)
+    @text.setOpacity(i)
+
   setText: (text) ->
     @text.setText(text)
 
