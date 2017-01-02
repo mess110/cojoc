@@ -39,9 +39,11 @@ class Discover extends BaseLine
   customPosition: (i) ->
     switch i
       when Constants.Position.Player.SELF
+        @mine = true
         @mesh.position.set 0, 0, 12
         @mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
+        @mine = false
         @mesh.position.set 0, 4, 6
         @mesh.rotation.set 0, Math.PI , 0
       else

@@ -29,7 +29,7 @@ minionsTest = ->
     )
 
   scene.minions = new Minions()
-  scene.minions.mesh.position.z = -20
+  scene.minions.customPosition(Constants.Position.Player.OPPONENT)
   scene.scene.add scene.minions.mesh
   scene.addCard()
   scene.addCard()

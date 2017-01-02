@@ -31,7 +31,11 @@ class Hand extends BaseLine
     else
       @text.setVisible(false)
 
+    if @mine
+      SceneManager.currentScene().mover.glowHeldCards(@cards)
+
   _doAfterMouseEvent: (event, raycaster, pos) ->
+    return unless @mine
     if @selectedCard?
       if @takenOut
         @_moveWithDiff(@selectedCard, pos)
@@ -45,6 +49,8 @@ class Hand extends BaseLine
         @selectedCard.cancelMove()
         @_moveWithDiff(@selectedCard, pos)
 
+  _updateGlow: (newFound, oldFound) ->
+
   _changeCount: ->
     @text.setText(@toString())
 
@@ -53,6 +59,7 @@ class Hand extends BaseLine
       SceneManager.currentScene().mover.playCard(@selectedCard, @)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
+    return unless @mine
     if oldSelected?
       point = @getPoint(oldSelected)
       if point?
@@ -100,6 +107,7 @@ class Hand extends BaseLine
   customPosition: (i) ->
     switch i
       when Constants.Position.Player.SELF
+        @mine = true
         @curve = new HandCurve()
         @holsterAmount = @defaultHolsterAmount
         @rotMod = 1
@@ -108,6 +116,7 @@ class Hand extends BaseLine
         @text.mesh.position.set 0, 0.5, 0.3
         @text.mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
+        @mine = false
         @curve = new EnemyHandCurve()
         @holsterAmount = -@defaultHolsterAmount
         @rotMod = -1

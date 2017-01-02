@@ -14,6 +14,7 @@ class BaseLine extends BoxedModel
     @defaultHolsterAmount = 5.8
     @holsterAmount = @defaultHolsterAmount
     @holsterLock = false
+    @mine = true
 
     @direction =
       x: 0
@@ -85,7 +86,7 @@ class BaseLine extends BoxedModel
       @holster(true)
       return true
 
-    if @holstered
+    if @holstered and @mine
       if @isHovered(raycaster) and event.type == 'mouseup' and !@holsterLock
         @holster(false)
       return true
@@ -130,7 +131,7 @@ class BaseLine extends BoxedModel
 
   _updateGlow: (newFound, oldFound) ->
     if newFound?
-      if SceneManager.currentScene().mover._getMyPlayerIndex() == newFound.playerIndex
+      if @mine
         newFound.glow.green()
       else
         newFound.glow.red()

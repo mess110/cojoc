@@ -177,16 +177,20 @@ class ArenaMover
     @player1Hand.doMouseEvent(event, raycaster)
     @player2Hand.holsterLock = @player2Discover.hasCards()
     @player2Hand.doMouseEvent(event, raycaster)
+
     if !myDiscover.hasInteraction() and !myHand.hasInteraction()
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
+
     if !@player1Discover.hasInteraction() && !@player1Discover.hasCards()
       @player1Mana.doMouseEvent(event, raycaster)
     if !@player2Discover.hasInteraction() && !@player2Discover.hasCards()
       @player2Mana.doMouseEvent(event, raycaster)
-    if !myDiscover.hasInteraction() and !myHand.hasInteraction()
-      @player1Minions.doMouseEvent(event, raycaster)
-      @player2Minions.doMouseEvent(event, raycaster)
+
+    @player1Minions.lock = myDiscover.hasInteraction() || myHand.hasInteraction()
+    @player1Minions.doMouseEvent(event, raycaster)
+    @player2Minions.lock = myDiscover.hasInteraction() || myHand.hasInteraction()
+    @player2Minions.doMouseEvent(event, raycaster)
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -230,6 +234,7 @@ class ArenaMover
 
     memCard = @referee.findCard(card.id)
     hand.remove(card)
+    card.glow.none()
     card.dissolve()
     hand.holster(true)
     @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
@@ -238,6 +243,14 @@ class ArenaMover
       action: Constants.Input.PLAY_CARD
       cardId: card.id
     )
+
+  glowHeldCards: (cards) ->
+    myIndex = @_getMyPlayerIndex()
+    for card in cards
+      if @referee.hasManaFor(myIndex, card.id)
+        card.glow.blue()
+      else
+        card.glow.none()
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex

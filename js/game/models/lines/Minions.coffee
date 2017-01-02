@@ -6,6 +6,7 @@ class Minions extends BaseLine
     @mesh.add @box
 
     @minionScale = 0.8
+    @lock = false
 
     @curve = new MinionsCurve()
 
@@ -32,7 +33,6 @@ class Minions extends BaseLine
       )
 
   _doMouseUp: (raycaster, pos) ->
-    # console.log @selectedCard
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
 
@@ -53,8 +53,8 @@ class Minions extends BaseLine
           kind: 'Cubic', direction: 'In'
         )
 
-    if newSelected?
-      @takenOut = true
+    if newSelected? && !@lock
+      @takenOut = true if @mine
       point = @getPoint(@selectedCard)
 
       @selectedCard.move(
@@ -72,9 +72,11 @@ class Minions extends BaseLine
   customPosition: (i) ->
     switch i
       when Constants.Position.Player.SELF
+        @mine = true
         @mesh.position.set 0, -1.75, 0
         @mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
+        @mine = false
         @mesh.position.set 0, 1.75, 0
         @mesh.rotation.set 0, 0, 0
       else

@@ -1,9 +1,7 @@
+- minions attacking selection
 - helper text for noobs
-- when missdragging a card don't end turn
-- monitor enemy hovered
 - win condition
 - fatigue
-- minions attacking selection
 - add spells
 - implement attack
 - sounds
@@ -11,4 +9,6 @@
 - fix minion text
 - fix overlapping mana bar
 - readable text
+- when missdragging a card don't end turn
 - better summon minion animation
+- monitor enemy hovered

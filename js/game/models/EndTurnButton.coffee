@@ -36,16 +36,10 @@ class EndTurnButton extends Card
     @hasActionsLeft = value
 
   tick: (tpf) ->
-    if @hovered
-      if @hasActionsLeft
-        @glow.yellow()
-      else
-        @glow.green()
+    if @hasActionsLeft
+      @glow.yellow()
     else
-      if @hasActionsLeft
-        @glow.none()
-      else
-        @glow.green()
+      @glow.green()
 
   doMouseEvent: (event, raycaster) ->
     @hovered = @isHovered(raycaster)
