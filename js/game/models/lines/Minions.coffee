@@ -33,6 +33,8 @@ class Minions extends BaseLine
       )
 
   _doMouseUp: (raycaster, pos) ->
+    return unless @selectedCard?
+    SceneManager.currentScene().mover.doMultiSelect(@selectedCard.id)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
 

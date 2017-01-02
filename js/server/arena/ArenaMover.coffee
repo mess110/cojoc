@@ -13,6 +13,7 @@ class ArenaMover
     @uiCards = []
     @processing = false
     @mirroredUI = false
+    @multiSelect = []
 
     @deck = new Deck(@referee.json.cards.length)
     @deck.mesh.position.set -12, 0, 0
@@ -191,6 +192,7 @@ class ArenaMover
     @player1Minions.doMouseEvent(event, raycaster)
     @player2Minions.lock = myDiscover.hasInteraction() || myHand.hasInteraction()
     @player2Minions.doMouseEvent(event, raycaster)
+    @multiSelect = []
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -219,6 +221,12 @@ class ArenaMover
       @player1Minions.customPosition(Constants.Position.Player.OPPONENT)
       @player2Minions.customPosition(Constants.Position.Player.SELF)
     return
+
+  doMultiSelect: (cardId) ->
+    @multiSelect.push cardId
+    if @multiSelect.size() == 2
+      # TODO: attack
+      console.log @multiSelect
 
   playCard: (card, hand) ->
     throw "card does not have playerIndex" unless card.playerIndex?
