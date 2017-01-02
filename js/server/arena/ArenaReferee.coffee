@@ -206,10 +206,11 @@ class ArenaReferee extends BaseReferee
           if @isTurn(input.playerIndex) and !@isDiscovering(input.playerIndex)
             super(input)
         when Constants.Input.SELECT_CARD
+          # TODO: find out if we need double select protection
           card = @findCard(input.cardId)
-          return if card.status == Constants.CardStatus.HERO
-          return if card.status == Constants.CardStatus.DISCARDED
+          return if card.status != Constants.CardStatus.DISCOVERED
           return if card.playerIndex != input.playerIndex
+          return unless @isTurn(input.playerIndex)
           super(input)
         when Constants.Input.PLAY_CARD
           card = @findCard(input.cardId)
