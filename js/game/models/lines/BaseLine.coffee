@@ -8,6 +8,12 @@ class BaseLine extends BoxedModel
     @cards = []
     @mesh = new THREE.Object3D()
     @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1)
+    @enabled = true
+    @holstered = false
+    @holsterEnabled = false
+    @defaultHolsterAmount = 5.8
+    @holsterAmount = @defaultHolsterAmount
+    @holsterLock = false
 
     @direction =
       x: 0
@@ -39,10 +45,10 @@ class BaseLine extends BoxedModel
     @update()
     toRemoveArray
 
-  update: ->
-    @curve.scale(@cards.size() / 10)
+  update: (duration) ->
+    @curve.scale(@cards.size() / if @holstered then 50 else 10)
     @_drawLine()
-    @_moveInPosition()
+    @_moveInPosition(duration)
     @cards.size()
 
   toggleWireframe: ->
@@ -68,7 +74,23 @@ class BaseLine extends BoxedModel
 
   tick: (tpf) ->
 
+  # Override this where no holstering happnes
+  _doHolster: (found, raycaster, pos) ->
+    return false unless @holsterEnabled
+    if !@holstered and !found? and @_isInPlayArea(pos) and !@takenOut
+      @holster(true)
+      return true
+
+    if @holstered
+      if @isHovered(raycaster) and event.type == 'mouseup' and !@holsterLock
+        @holster(false)
+      return true
+
+    false
+
   doMouseEvent: (event, raycaster) ->
+    return unless @enabled
+
     @_updateMouseStatus(event)
     pos = raycaster.ray.intersectPlane(@plane)
 
@@ -76,6 +98,8 @@ class BaseLine extends BoxedModel
     found = @_findHoveredCard(raycaster)
     if found != @hoveredCard
       @_changeHovered(found, @hoveredCard)
+
+    return if @_doHolster(found, raycaster, pos)
 
     # Selected card
     if event.type == 'mousemove' and @mouseDown
@@ -150,19 +174,25 @@ class BaseLine extends BoxedModel
 
     @mesh.add @line
 
-  _moveInPosition: () ->
+  _moveInPosition: (duration = 1000) ->
     for card in @cards
-      if card == @selectedCard
+      if card == @selectedCard and !@holstered
         continue
       point = @getPoint(card)
       card.move(
+        duration: duration
         target:
           x: point.x
           y: point.y
           z: point.z + card.indexInHand * 0.1 * @rotMod
           rX: @mesh.rotation.x
           rY: @mesh.rotation.y
-          rZ: -point.x / 20
+          # rZ depends on the position and extracts the holsteredAmount so the
+          # rotation doesn't change when the object is holstered
+          rZ: -(point.x - @_getHolsterAmount()) / 20
+          sX: @_getHolsterScale()
+          sY: @_getHolsterScale()
+          sZ: @_getHolsterScale()
       )
 
   _findHoveredCard: (raycaster) ->
@@ -181,6 +211,22 @@ class BaseLine extends BoxedModel
       offset = (@cards.size() / 2 - 0.5)
       extraX -= (card.indexInHand - offset) / 2
     extraX
+
+  _getHolsterAmount: ->
+    if @holstered then @holsterAmount else 0
+
+  _getHolsterScale: ->
+    if @holstered then 0.3 else 1
+
+  holster: (value) ->
+    return unless @holsterEnabled
+    @_changeHovered(undefined, @hoveredCard)
+    @takenOut = false
+    @_doChangeSelected(undefined, @selectedCard)
+    @_updateGlow(undefined, @selectedCard)
+    @holstered = value
+    @mesh.position.x = @_getHolsterAmount()
+    @update(200)
 
   hasCards: ->
     @cards.any()

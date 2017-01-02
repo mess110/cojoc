@@ -4,6 +4,8 @@ class Hand extends BaseLine
   constructor: () ->
     super()
 
+    @holsterEnabled = true
+
     @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
     @mesh.add @box
 
@@ -15,6 +17,7 @@ class Hand extends BaseLine
     @direction.x = Helper.tendToZero(@direction.x, amount)
     @direction.y = Helper.tendToZero(@direction.y, amount)
 
+    # rotate the card according to the direction the mouse is going
     if @selectedCard? and @takenOut
       @selectedCard.pivot.rotation.x = -@direction.y / 2
       @selectedCard.pivot.rotation.y = @direction.x / 2
@@ -37,6 +40,8 @@ class Hand extends BaseLine
     if @_isInPlayArea(pos) and @selectedCard?
       @remove(@selectedCard)
       @selectedCard.dissolve()
+      # TODO: playing a card
+      @holster(true)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
     if oldSelected?
@@ -50,20 +55,29 @@ class Hand extends BaseLine
             rX: 0
             rY: 0
             rZ: -point.x / 20
+            sX: @_getHolsterScale()
+            sY: @_getHolsterScale()
+            sZ: @_getHolsterScale()
           duration: 200
           kind: 'Cubic', direction: 'In'
         )
         Helper.tween(
           mesh: oldSelected.pivot
           duration: 100
-          target: { rX: 0, rY: 0, rZ: 0 }
+          target:
+            rX: 0
+            rY: 0
+            rZ: 0
+            sX: @_getHolsterScale()
+            sY: @_getHolsterScale()
+            sZ: @_getHolsterScale()
         ).start()
 
     if newSelected?
       point = @getPoint(@selectedCard)
       if !@_isInPlayArea(pos)
         point.z += 1
-        point.y += 1.6
+        point.y = -1.9
         @selectedCard.mesh.position.x = point.x
         @selectedCard.mesh.position.y = point.y
         @selectedCard.mesh.position.z = point.z
@@ -78,11 +92,13 @@ class Hand extends BaseLine
     switch i
       when Constants.Position.Player.SELF
         @curve = new HandCurve()
+        @holsterAmount = @defaultHolsterAmount
         @rotMod = 1
         @mesh.position.set 0, -3.5, PLANE_Z
         @mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
         @curve = new EnemyHandCurve()
+        @holsterAmount = -@defaultHolsterAmount
         @rotMod = -1
         @mesh.position.set 0, 3.5, PLANE_Z
         @mesh.rotation.set 0, Math.PI, 0

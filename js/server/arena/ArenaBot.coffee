@@ -7,10 +7,13 @@ class ArenaBot
 
   addEndTurnAction: (input) ->
     return unless @isEnabled()
-    @_selectCard(input)
-    @referee.addEndTurnAction()
+    otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
+    # only do it on bot turn
+    if otherIndex == @referee.json.turn
+      @_selectCard(input)
+      @referee.addEndTurnAction()
 
-  addSelectCardAction: (input) ->
+  addSelectHeroAction: (input) ->
     return unless @isEnabled()
     return unless @referee.isPhase(Constants.Phase.Arena.HERO_SELECT)
     @_selectCard(input)

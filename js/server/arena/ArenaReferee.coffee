@@ -51,8 +51,9 @@ class ArenaReferee extends BaseReferee
         @_addStartGameActions()
       when Constants.Input.SELECT_CARD
         @addSelectCardAction(input)
-        @bot.addSelectCardAction(input)
+        @bot.addSelectHeroAction(input)
         @_addBothHeroesChosenActions()
+        @bot.addEndTurnAction(input)
       when Constants.Input.END_TURN
         @addEndTurnAction()
         @bot.addEndTurnAction(input)

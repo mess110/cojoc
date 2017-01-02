@@ -32,8 +32,10 @@ handTest = ->
     )
 
   scene.hand = new Hand()
-  scene.hand.customPosition(Constants.Position.Player.OPPONENT)
+  scene.hand.customPosition(Constants.Position.Player.SELF)
+  scene.hand.holster(true)
   scene.scene.add scene.hand.mesh
+  console.log scene.hand.box.parent.parent
   scene.addCard()
   setTimeout =>
     scene.addCard()
@@ -49,3 +51,10 @@ handTest = ->
 
   scene.doMouseEvent = (event, raycaster) ->
     scene.hand.doMouseEvent(event, raycaster)
+
+  scene.doKeyboardEvent = (event) ->
+    if event.type == 'keyup'
+      if event.which == 32 # space
+        scene.addCard()
+      if event.which == 72 # h
+        scene.hand.holster(!scene.hand.holstered)

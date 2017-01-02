@@ -41,11 +41,14 @@ class ArenaMover
 
     @player1Hand = new Hand()
     @player1Hand.customPosition(Constants.Position.Player.SELF)
-    @scene.scene.add @player1Hero.mesh
+    @player1Hand.holster(true)
+    @scene.scene.add @player1Hand.mesh
 
     @player2Hand = new Hand()
     @player2Hand.customPosition(Constants.Position.Player.OPPONENT)
-    @scene.scene.add @player2Hero.mesh
+    @player2Hand.holster(true)
+    @player2Hand.enabled = false
+    @scene.scene.add @player2Hand.mesh
 
   uiServerTick: (data) ->
     @setData(data)
@@ -70,6 +73,7 @@ class ArenaMover
         card = @_findCard(action.cardId)
         if card.playerIndex == @_getMyPlayerIndex()
           card.impersonate(@referee.findCard(action.cardId))
+          @_findHandFor(card.playerIndex).holster(true)
         @_findDiscoverFor(card.playerIndex).add card
         duration /= 5
       when Constants.Action.DISCARD_CARD
@@ -124,8 +128,9 @@ class ArenaMover
       @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
+    @player1Hand.holsterLock = @player1Discover.hasCards()
     @player1Hand.doMouseEvent(event, raycaster)
-    # @player2Hand.doMouseEvent(event, raycaster)
+    @player2Hand.doMouseEvent(event, raycaster)
     if !@player1Hand.hasInteraction() and !@player1Discover.hasInteraction()
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
@@ -147,7 +152,12 @@ class ArenaMover
       @player1Hero.customPosition(Constants.Position.Player.OPPONENT)
       @player2Hero.customPosition(Constants.Position.Player.SELF)
       @player1Hand.customPosition(Constants.Position.Player.OPPONENT)
+      @player1Hand.enabled = false
+      # if player1 is opponent, move the holder left
+      @player1Hand.mesh.position.x -= @player1Hand.defaultHolsterAmount
       @player2Hand.customPosition(Constants.Position.Player.SELF)
+      @player2Hand.enabled = true
+    return
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex
