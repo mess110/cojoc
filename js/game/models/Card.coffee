@@ -36,6 +36,9 @@ class Card extends BoxedModel
     @front.material.opacity = value if @front?
     @back.material.opacity = value if @back?
 
+  getOpacity: ->
+    @front.material.opacity
+
   impersonate: (json) ->
     @_validateJsonCard(json)
     @front.material = @mkCardMaterial(json)

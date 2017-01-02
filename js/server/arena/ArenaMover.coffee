@@ -66,6 +66,10 @@ class ArenaMover
     @player2Minions.customPosition(Constants.Position.Player.OPPONENT)
     @scene.scene.add @player2Minions.mesh
 
+    @cardPreview = new CardPreview()
+    @cardPreview.mesh.position.set -3, 1, 12.5
+    @scene.scene.add @cardPreview.mesh
+
   uiServerTick: (data) ->
     @setData(data)
 
@@ -117,8 +121,11 @@ class ArenaMover
       when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA, Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
       when Constants.Action.SUMMON_MINION
+        cardData = @referee.findCard(action.cardId)
+        if !@_isMe(action.playerIndex)
+          @cardPreview.animate(cardData)
         card = @_findCard(action.cardId)
-        card.minion(@referee.findCard(action.cardId))
+        card.minion(cardData)
         @_findHandFor(action.playerIndex).remove card
         @_findMinionsFor(action.playerIndex).add card
       else
