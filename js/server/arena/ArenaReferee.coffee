@@ -22,11 +22,16 @@ class ArenaReferee extends BaseReferee
     allCards = Cards.random(30 * 3 * 2)
     @json =
       maxCardsInHand: 10
+      maxMana: 10
       gameType: Constants.GameType.ARENA
       phase: Constants.Phase.Arena.HERO_SELECT
       actions: []
-      player1: {}
-      player2: {}
+      player1:
+        mana: 0
+        maxMana: 0
+      player2:
+        mana: 0
+        maxMana: 0
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
       turn: 'player1'
 
@@ -78,6 +83,8 @@ class ArenaReferee extends BaseReferee
     if @isHeroChosen('player1') and @isHeroChosen('player2')
       @json.phase = Constants.Phase.Arena.BATTLE
       @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+      @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
+      @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
       @_addDiscoverActions()
 
   _addStartGameActions: ->
@@ -97,6 +104,8 @@ class ArenaReferee extends BaseReferee
   addEndTurnAction: ->
     @json.turn = @_getOtherPlayerIndex(@json.turn)
     @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
+    @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
+    @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
     @_addDiscoverActions()
 
   _addDiscoverActions: ->
@@ -146,6 +155,18 @@ class ArenaReferee extends BaseReferee
       for discardId in action.cardIds
         card = @findCard(discardId)
         card.status = Constants.CardStatus.DISCARDED
+
+    if action.action == Constants.Action.SET_MAX_MANA
+      throw 'to param missing' unless action.to?
+      action.to = if action.to > @json.maxMana then @json.maxMana else action.to
+      @json[action.playerIndex].maxMana = action.to
+      action.mana = @json[action.playerIndex].mana
+      action.maxMana = @json[action.playerIndex].maxMana
+
+    if action.action == Constants.Action.REPLENISH_MANA
+      @json[action.playerIndex].mana = @getMaxMana(action.playerIndex)
+      action.mana = @json[action.playerIndex].mana
+      action.maxMana = @json[action.playerIndex].maxMana
 
     super(action)
 

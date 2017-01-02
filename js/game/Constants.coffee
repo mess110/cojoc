@@ -51,6 +51,8 @@ Constants =
     SELECT_HERO: 'selectHero'
     SELECT_CARD: 'selectCard'
     UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
+    SET_MAX_MANA: 'setMaxMana'
+    REPLENISH_MANA: 'replenishMana'
 
   Position:
     Strategy:
@@ -62,6 +64,7 @@ Constants =
       OPPONENT: 1
 
   Duration:
+    DEFAULT: 200
     DRAW_CARD: 200
     DISCOVER_CARD: 200
     DISCARD_CARD: 300

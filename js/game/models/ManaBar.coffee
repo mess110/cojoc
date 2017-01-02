@@ -3,7 +3,7 @@ class ManaCrystal extends BaseModel
 
   constructor: ->
     super()
-    size = 0.5
+    size = 0.75
     @material = new (THREE.MeshBasicMaterial)(
       map: TextureManager.get().items['mana-crystal']
       side: THREE.DoubleSide
@@ -38,7 +38,7 @@ class ManaBar extends BoxedModel
     @maxManaAllowed = 10
     @maxMana = 0
     @currentMana = 0
-    @distanceBetweenCrystals = 0.5
+    @distanceBetweenCrystals = 0.75
 
     @mesh = new THREE.Object3D()
 
@@ -47,13 +47,14 @@ class ManaBar extends BoxedModel
       @_boxMaterial()
     )
     @box.position.x = @distanceBetweenCrystals * @maxManaAllowed / 2 - @distanceBetweenCrystals / 2
-    @box.position.y = 0.2
+    @box.position.y = 0
     # @box.position.z = -0.1
     @mesh.add @box
 
-    @manaText = new CojocText()
-    @manaText.mesh.position.set 0.3, 0, -0.01
+    @manaText = new BigText()
+    @manaText.mesh.position.set 1.4, -0.75, -0.01
     @manaText.setText(@toString())
+    @manaText.setVisible(false)
     @mesh.add @manaText.mesh
 
     for i in [0...@maxManaAllowed] by 1
@@ -88,3 +89,22 @@ class ManaBar extends BoxedModel
 
   toString: ->
     @currentMana.toString() + " / " + @maxMana.toString()
+
+  doMouseEvent: (event, raycaster) ->
+    hovered = @isHovered(raycaster)
+    if hovered != @hovered
+      @hovered = hovered
+      @manaText.setVisible(@hovered)
+
+  customPosition: (i) ->
+    switch i
+      when Constants.Position.Player.SELF
+        @mesh.position.set 2.25, -7.5, 0
+        @mesh.rotation.set 0, 0, 0
+        @manaText.mesh.position.set 1.4, -0.75, -0.01
+      when Constants.Position.Player.OPPONENT
+        @mesh.position.set 2.25, 7.5, 0
+        @mesh.rotation.set 0, 0, 0
+        @manaText.mesh.position.set 1.4, -2.5, -0.01
+      else
+        throw "invalid customPosition #{i}"

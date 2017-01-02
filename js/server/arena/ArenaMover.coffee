@@ -50,7 +50,13 @@ class ArenaMover
     @player2Hand.enabled = false
     @scene.scene.add @player2Hand.mesh
 
-    # TODO: add mana bars
+    @player1Mana = new ManaBar()
+    @player1Mana.customPosition(Constants.Position.Player.SELF)
+    @scene.scene.add @player1Mana.mesh
+
+    @player2Mana = new ManaBar()
+    @player2Mana.customPosition(Constants.Position.Player.OPPONENT)
+    @scene.scene.add @player2Mana.mesh
 
   uiServerTick: (data) ->
     @setData(data)
@@ -100,6 +106,8 @@ class ArenaMover
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
         @endTurn.setFaceUp(isMe)
+      when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA
+        @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
       else
         console.log "Unknown action #{action.action}"
 
@@ -128,17 +136,22 @@ class ArenaMover
   uiKeyboardEvent: (event) ->
 
   uiMouseEvent: (event, raycaster) ->
+    myDiscover = @_findDiscoverFor(@_getMyPlayerIndex())
+    myHand = @_findHandFor(@_getMyPlayerIndex())
+
     @deck.doMouseEvent(event, raycaster)
-    if !@player1Discover.hasCards()
+    if !myDiscover.hasCards() and !myHand.hasSelected()
       @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
     @player1Hand.holsterLock = @player1Discover.hasCards()
     @player1Hand.doMouseEvent(event, raycaster)
     @player2Hand.doMouseEvent(event, raycaster)
-    if !@player1Hand.hasInteraction() and !@player1Discover.hasInteraction()
+    if!myDiscover.hasInteraction() and !myHand.hasInteraction()
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
+    @player1Mana.doMouseEvent(event, raycaster)
+    @player2Mana.doMouseEvent(event, raycaster)
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -162,6 +175,8 @@ class ArenaMover
       @player1Hand.mesh.position.x -= @player1Hand.defaultHolsterAmount
       @player2Hand.customPosition(Constants.Position.Player.SELF)
       @player2Hand.enabled = true
+      @player1Mana.customPosition(Constants.Position.Player.OPPONENT)
+      @player2Mana.customPosition(Constants.Position.Player.SELF)
     return
 
   _isMe: (playerIndex) ->
@@ -188,6 +203,11 @@ class ArenaMover
   _findHeroFor: (playerIndex) ->
     return @player1Hero if playerIndex == 'player1'
     return @player2Hero if playerIndex == 'player2'
+    throw 'invalid player index'
+
+  _findManaFor: (playerIndex) ->
+    return @player1Mana if playerIndex == 'player1'
+    return @player2Mana if playerIndex == 'player2'
     throw 'invalid player index'
 
   _findCard: (cardId) ->

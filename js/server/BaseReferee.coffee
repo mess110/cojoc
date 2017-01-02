@@ -21,6 +21,9 @@ class BaseReferee
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
 
+  getMaxMana: (playerIndex) ->
+    @json[playerIndex].maxMana
+
   addAction: (action) ->
     action.index = @json.actions.length
     @json.actions.push action
