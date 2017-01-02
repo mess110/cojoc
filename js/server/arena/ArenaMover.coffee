@@ -74,14 +74,20 @@ class ArenaMover
           card.impersonate(@referee.findCard(action.cardId))
           @_findHandFor(card.playerIndex).holster(true)
         @_findDiscoverFor(card.playerIndex).add card
-        if @_isBot(action.playerIndex) and @_findDiscoverFor(action.playerIndex).cards.size() == 3 and @referee.isPhase(Constants.Phase.Arena.BATTLE)
+
+        # delay if bot is choosing or max cards in hand reached
+        if (@_isBot(action.playerIndex) or @referee.hasMaxCardsInHand(action.playerIndex)) and
+            @_findDiscoverFor(action.playerIndex).cards.size() == 3 and @referee.isPhase(Constants.Phase.Arena.BATTLE)
           duration += 500
         else
           duration /= 5
       when Constants.Action.DISCARD_CARD
-        card = @_findCard(action.cardId)
-        @_findDiscoverFor(card.playerIndex).remove card
-        card.dissolve()
+        toDiscard = []
+        for cardId in action.cardIds
+          card = @_findCard(cardId)
+          toDiscard.push card
+          card.dissolve()
+        @_findDiscoverFor(card.playerIndex).remove toDiscard
       when Constants.Action.SELECT_HERO
         selectCard = @_uiSelectCard(action)
         selectCard.minion(@referee.findCard(action.cardId))

@@ -9,9 +9,10 @@ class ArenaBot
     return unless @isEnabled()
     otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
     # only do it on bot turn
-    if otherIndex == @referee.json.turn
+    return if otherIndex != @referee.json.turn
+    if !@referee.hasMaxCardsInHand(otherIndex)
       @_selectCard(input)
-      @referee.addEndTurnAction()
+    @referee.addEndTurnAction()
 
   addSelectHeroAction: (input) ->
     return unless @isEnabled()

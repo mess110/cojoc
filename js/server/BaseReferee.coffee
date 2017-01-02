@@ -14,6 +14,10 @@ class BaseReferee
   isPhase: (phase) ->
     @json.phase == phase
 
+  hasMaxCardsInHand: (playerIndex) ->
+    cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
+    cards.size() == @json.maxCardsInHand
+
   addAction: (action) ->
     action.index = @json.actions.length
     @json.actions.push action

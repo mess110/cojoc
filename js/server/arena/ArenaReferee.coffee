@@ -21,6 +21,7 @@ class ArenaReferee extends BaseReferee
     @bot = new ArenaBot(@)
     allCards = Cards.random(60)
     @json =
+      maxCardsInHand: 10
       gameType: Constants.GameType.ARENA
       phase: Constants.Phase.Arena.HERO_SELECT
       actions: []
@@ -103,11 +104,21 @@ class ArenaReferee extends BaseReferee
     @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
     @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
 
+    # Discard discover cards if the player has max cards in hand
+    if @hasMaxCardsInHand(@json.turn)
+      @addAction {
+        duration: Constants.Duration.DISCARD_CARD
+        playerIndex: @json.turn
+        action: Constants.Action.DISCARD_CARD
+        cardIds: [cards[0].cardId, cards[1].cardId, cards[2].cardId]
+      }
+
   addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
       card = @findCard(action.cardId)
       card.playerIndex = action.playerIndex
       card.status = Constants.CardStatus.DISCOVERED
+
     if action.action == Constants.Action.SELECT_HERO
       card = @findCard(action.cardId)
       @json[action.playerIndex].hero = action.cardId
@@ -117,6 +128,7 @@ class ArenaReferee extends BaseReferee
         if dCard.cardId != card.cardId
           dCard.status = Constants.CardStatus.DISCARDED
           action.discardIds.push dCard.cardId
+
     if action.action == Constants.Action.SELECT_CARD
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.HELD
@@ -125,12 +137,19 @@ class ArenaReferee extends BaseReferee
         if dCard.cardId != card.cardId
           dCard.status = Constants.CardStatus.DISCARDED
           action.discardIds.push dCard.cardId
+
+    if action.action == Constants.Action.DISCARD_CARD
+      for discardId in action.cardIds
+        card = @findCard(discardId)
+        card.status = Constants.CardStatus.DISCARDED
+
     super(action)
 
   addInput: (input) ->
     if @isPhase(Constants.Phase.Arena.HERO_SELECT)
       card = @findCard(input.cardId)
       if card.playerIndex == input.playerIndex and !@isHeroChosen(input.playerIndex)
+        return if card.status == Constants.CardStatus.DISCARDED
         super(input)
 
     if @isPhase(Constants.Phase.Arena.BATTLE)
@@ -139,7 +158,8 @@ class ArenaReferee extends BaseReferee
           super(input)
       else
         card = @findCard(input.cardId)
-        return if card.status == Constants.CardStatus.HERO && input.action == Constants.Action.SELECT_CARD
+        return if card.status == Constants.CardStatus.HERO and input.action == Constants.Action.SELECT_CARD
+        return if card.status == Constants.CardStatus.DISCARDED
         if card.playerIndex == input.playerIndex
           super(input)
 
