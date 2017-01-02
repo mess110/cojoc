@@ -68,40 +68,26 @@ class ArenaMover
         card.id = action.cardId
         card.playerIndex = action.playerIndex
         @uiCards.push card
-        duration /= 3
       when Constants.Action.DISCOVER_CARD
         card = @_findCard(action.cardId)
         if card.playerIndex == @_getMyPlayerIndex()
           card.impersonate(@referee.findCard(action.cardId))
           @_findHandFor(card.playerIndex).holster(true)
         @_findDiscoverFor(card.playerIndex).add card
-        duration /= 5
+        if @_isBot(action.playerIndex) and @_findDiscoverFor(action.playerIndex).cards.size() == 3 and @referee.isPhase(Constants.Phase.Arena.BATTLE)
+          duration += 500
+        else
+          duration /= 5
       when Constants.Action.DISCARD_CARD
         card = @_findCard(action.cardId)
         @_findDiscoverFor(card.playerIndex).remove card
         card.dissolve()
       when Constants.Action.SELECT_HERO
-        toRemove = []
-        heroCard = @_findCard(action.cardId)
-        toRemove.push heroCard
-        for discardId in action.discardIds
-          card = @_findCard(discardId)
-          toRemove.push card
-          card.dissolve()
-
-        @_findDiscoverFor(action.playerIndex).remove toRemove
-        heroCard.minion(@referee.findCard(action.cardId))
-        @_findHeroFor(action.playerIndex).add heroCard
+        selectCard = @_uiSelectCard(action)
+        selectCard.minion(@referee.findCard(action.cardId))
+        @_findHeroFor(action.playerIndex).add selectCard
       when Constants.Action.SELECT_CARD
-        toRemove = []
-        selectCard = @_findCard(action.cardId)
-        toRemove.push selectCard
-        for discardId in action.discardIds
-          card = @_findCard(discardId)
-          toRemove.push card
-          card.dissolve()
-
-        @_findDiscoverFor(action.playerIndex).remove toRemove
+        selectCard = @_uiSelectCard(action)
         @_findHandFor(action.playerIndex).add selectCard
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
@@ -112,6 +98,17 @@ class ArenaMover
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
     , duration
+
+  _uiSelectCard: (action) ->
+    toRemove = []
+    selectCard = @_findCard(action.cardId)
+    toRemove.push selectCard
+    for discardId in action.discardIds
+      card = @_findCard(discardId)
+      toRemove.push card
+      card.dissolve()
+    @_findDiscoverFor(action.playerIndex).remove toRemove
+    selectCard
 
   uiTick: (tpf) ->
     @endTurn.tick(tpf)
@@ -161,6 +158,9 @@ class ArenaMover
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex
+
+  _isBot: (playerIndex) ->
+    @scene.game[playerIndex].owner == Constants.Storage.BOT
 
   _getMyPlayerIndex: ->
     return 'player1' if @scene.game.player1.owner == @scene.myId

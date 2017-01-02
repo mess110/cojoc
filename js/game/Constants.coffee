@@ -63,7 +63,7 @@ Constants =
 
   Duration:
     DRAW_CARD: 200
-    DISCOVER_CARD: 500
+    DISCOVER_CARD: 200
     SELECT_CARD: 100
     UPDATE_END_TURN: 300
 
