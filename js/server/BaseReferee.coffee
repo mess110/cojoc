@@ -46,9 +46,8 @@ class BaseReferee
   findInput: ->
     @inputs.where(processed: false).first()
 
-  # TODO: should not find by index, instead by id
-  findCard: (index) ->
-    @json.cards[index]
+  findCard: (cardId) ->
+    @findCards(cardId: cardId).first()
 
   findCards: (hash) ->
     @json.cards.where(hash)
