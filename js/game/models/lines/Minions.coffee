@@ -7,14 +7,16 @@ class Minions extends BaseLine
 
     @curve = new MinionsCurve()
 
-  _moveInPosition: () ->
+  _moveInPosition: (duration = 1000) ->
     for card in @cards
       point = @getPoint(card)
       if card == @selectedCard
         point.x += @_getExtraX(card)
         point.z += 4
 
+      card.pivot.rotation.set 0, 0, 0
       card.move(
+        duration: duration
         target:
           x: point.x
           y: point.y
@@ -61,3 +63,14 @@ class Minions extends BaseLine
         duration: 200
         kind: 'Cubic', direction: 'Out'
       )
+
+  customPosition: (i) ->
+    switch i
+      when Constants.Position.Player.SELF
+        @mesh.position.set 0, -1.5, 0
+        @mesh.rotation.set 0, 0, 0
+      when Constants.Position.Player.OPPONENT
+        @mesh.position.set 0, 1.5, 0
+        @mesh.rotation.set 0, 0, 0
+      else
+        throw "invalid customPosition #{i}"

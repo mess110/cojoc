@@ -32,6 +32,7 @@ class BaseReferee
     @json[playerIndex].maxMana
 
   addAction: (action) ->
+    action.duration ?= Constants.Duration.DEFAULT
     action.index = @json.actions.length
     @json.actions.push action
 

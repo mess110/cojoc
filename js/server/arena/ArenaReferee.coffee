@@ -68,10 +68,8 @@ class ArenaReferee extends BaseReferee
         @addEndTurnAction()
         @bot.addEndTurnAction(input)
       when Constants.Input.PLAY_CARD
-        # TODO
-        # add action summon minion
-        # substract mana
-        # add action update current mana
+        @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MANA, cardId: input.cardId }
+        @addAction { playerIndex: @json.turn, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
       else
         console.log "Unknown input action #{input.action}"
     input
@@ -88,39 +86,39 @@ class ArenaReferee extends BaseReferee
     if @isHeroChosen('player1') and @isHeroChosen('player2')
       @json.phase = Constants.Phase.Arena.BATTLE
       @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
-      @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
-      @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
       @_addDiscoverActions()
 
   _addStartGameActions: ->
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 0 }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 3 }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 1 }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 4 }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 2 }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 5 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 0 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 0 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 3 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 3 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 1 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 1 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 4 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 4 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DRAW_CARD, cardId: 2 }
+    @addAction { playerIndex: 'player1', action: Constants.Action.DISCOVER_CARD, cardId: 2 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DRAW_CARD, cardId: 5 }
+    @addAction { playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 5 }
 
   addEndTurnAction: ->
     @json.turn = @_getOtherPlayerIndex(@json.turn)
     @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
-    @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
-    @addAction { duration: Constants.Duration.DEFAULT, playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
     @_addDiscoverActions()
 
   _addDiscoverActions: ->
     cards = @findCards(status: undefined)
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
-    @addAction { duration: Constants.Duration.DRAW_CARD, playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
-    @addAction { duration: Constants.Duration.DISCOVER_CARD, playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
+    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
 
     # Discard discover cards if the player has max cards in hand
     if @hasMaxCardsInHand(@json.turn)
@@ -133,9 +131,13 @@ class ArenaReferee extends BaseReferee
 
   addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
+      action.duration ?= Constants.Duration.DRAW_CARD
       card = @findCard(action.cardId)
       card.playerIndex = action.playerIndex
       card.status = Constants.CardStatus.DISCOVERED
+
+    if action.action == Constants.Action.DISCOVER_CARD
+      action.duration ?= Constants.Duration.DISCOVER_CARD
 
     if action.action == Constants.Action.SELECT_HERO
       card = @findCard(action.cardId)
@@ -161,6 +163,11 @@ class ArenaReferee extends BaseReferee
         card = @findCard(discardId)
         card.status = Constants.CardStatus.DISCARDED
 
+    if action.action == Constants.Action.SET_MANA
+      card = @findCard(action.cardId)
+      @json[action.playerIndex].mana -= card.defaults.cost
+      action.mana = @json[action.playerIndex].mana
+
     if action.action == Constants.Action.SET_MAX_MANA
       throw 'to param missing' unless action.to?
       action.to = if action.to > @json.maxMana then @json.maxMana else action.to
@@ -172,6 +179,10 @@ class ArenaReferee extends BaseReferee
       @json[action.playerIndex].mana = @getMaxMana(action.playerIndex)
       action.mana = @json[action.playerIndex].mana
       action.maxMana = @json[action.playerIndex].maxMana
+
+    if action.action == Constants.Action.SUMMON_MINION
+      card = @findCard(action.cardId)
+      card.status = Constants.CardStatus.PLAYED
 
     super(action)
 

@@ -58,6 +58,16 @@ class ArenaMover
     @player2Mana.customPosition(Constants.Position.Player.OPPONENT)
     @scene.scene.add @player2Mana.mesh
 
+    @player1Minions = new Minions()
+    @player1Minions.customPosition(Constants.Position.Player.SELF)
+    @player1Minions.toggleWireframe()
+    @scene.scene.add @player1Minions.mesh
+
+    @player2Minions = new Minions()
+    @player2Minions.customPosition(Constants.Position.Player.OPPONENT)
+    @player2Minions.toggleWireframe()
+    @scene.scene.add @player2Minions.mesh
+
   uiServerTick: (data) ->
     @setData(data)
 
@@ -106,8 +116,12 @@ class ArenaMover
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
         @endTurn.setFaceUp(isMe)
-      when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA
+      when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA, Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
+      when Constants.Action.SUMMON_MINION
+        card = @_findCard(action.cardId)
+        card.minion(@referee.findCard(action.cardId))
+        @_findMinionsFor(action.playerIndex).add card
       else
         console.log "Unknown action #{action.action}"
 
@@ -146,12 +160,16 @@ class ArenaMover
     @player2Discover.doMouseEvent(event, raycaster)
     @player1Hand.holsterLock = @player1Discover.hasCards()
     @player1Hand.doMouseEvent(event, raycaster)
+    @player2Hand.holsterLock = @player2Discover.hasCards()
     @player2Hand.doMouseEvent(event, raycaster)
-    if!myDiscover.hasInteraction() and !myHand.hasInteraction()
+    if !myDiscover.hasInteraction() and !myHand.hasInteraction()
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
     @player1Mana.doMouseEvent(event, raycaster)
     @player2Mana.doMouseEvent(event, raycaster)
+    if !myDiscover.hasInteraction() and !myHand.hasInteraction()
+      @player1Minions.doMouseEvent(event, raycaster)
+      @player2Minions.doMouseEvent(event, raycaster)
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -177,6 +195,8 @@ class ArenaMover
       @player2Hand.enabled = true
       @player1Mana.customPosition(Constants.Position.Player.OPPONENT)
       @player2Mana.customPosition(Constants.Position.Player.SELF)
+      @player1Minions.customPosition(Constants.Position.Player.OPPONENT)
+      @player2Minions.customPosition(Constants.Position.Player.SELF)
     return
 
   playCard: (card, hand) ->
@@ -226,6 +246,11 @@ class ArenaMover
   _findManaFor: (playerIndex) ->
     return @player1Mana if playerIndex == 'player1'
     return @player2Mana if playerIndex == 'player2'
+    throw 'invalid player index'
+
+  _findMinionsFor: (playerIndex) ->
+    return @player1Minions if playerIndex == 'player1'
+    return @player2Minions if playerIndex == 'player2'
     throw 'invalid player index'
 
   _findCard: (cardId) ->

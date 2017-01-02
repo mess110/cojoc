@@ -29,6 +29,7 @@ Constants =
     DISCARDED: 'discarded'
     HERO: 'hero'
     HELD: 'held'
+    PLAYED: 'played'
 
   GameType:
     ARENA: 0
@@ -52,8 +53,10 @@ Constants =
     SELECT_HERO: 'selectHero'
     SELECT_CARD: 'selectCard'
     UPDATE_END_TURN_BUTTON: 'updateEndTurnButton'
+    SET_MANA: 'setMana'
     SET_MAX_MANA: 'setMaxMana'
     REPLENISH_MANA: 'replenishMana'
+    SUMMON_MINION: 'summonMinion'
 
   Position:
     Strategy:
