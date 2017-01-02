@@ -179,6 +179,24 @@ class ArenaMover
       @player2Mana.customPosition(Constants.Position.Player.SELF)
     return
 
+  playCard: (card, hand) ->
+    throw "card does not have playerIndex" unless card.playerIndex?
+
+    if @referee.hasManaFor(card.playerIndex, card.id)
+      memCard = @referee.findCard(card.id)
+      hand.remove(card)
+      card.dissolve()
+      hand.holster(true)
+      @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
+      @scene._emit(
+        type: 'gameInput'
+        action: Constants.Input.PLAY_CARD
+        cardId: card.id
+      )
+    else
+      @_findManaFor(card.playerIndex).shake()
+      console.ce "not enough mana for #{card.id}"
+
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex
 

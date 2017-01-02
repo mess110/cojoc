@@ -42,6 +42,7 @@ Constants =
     START_GAME: 'startGame'
     SELECT_CARD: 'selectCard'
     END_TURN: 'endTurn'
+    PLAY_CARD: 'playCard'
 
   Action:
     DRAW_CARD: 'drawCard'

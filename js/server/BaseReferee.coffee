@@ -18,8 +18,15 @@ class BaseReferee
     cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
     cards.size() == @json.maxCardsInHand
 
+  hasManaFor: (playerIndex, cardId) ->
+    card = @findCard(cardId)
+    card.defaults.cost <= @getMana(playerIndex)
+
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
+
+  getMana: (playerIndex) ->
+    @json[playerIndex].mana
 
   getMaxMana: (playerIndex) ->
     @json[playerIndex].maxMana
@@ -38,6 +45,7 @@ class BaseReferee
   findInput: ->
     @inputs.where(processed: false).first()
 
+  # TODO: should not find by index, instead by id
   findCard: (index) ->
     @json.cards[index]
 

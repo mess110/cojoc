@@ -50,10 +50,7 @@ class Hand extends BaseLine
 
   _doMouseUp: (raycaster, pos) ->
     if @_isInPlayArea(pos) and @selectedCard?
-      @remove(@selectedCard)
-      @selectedCard.dissolve()
-      # TODO: send play card command to server
-      @holster(true)
+      SceneManager.currentScene().mover.playCard(@selectedCard, @)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
     if oldSelected?

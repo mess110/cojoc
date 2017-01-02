@@ -67,6 +67,11 @@ class ArenaReferee extends BaseReferee
       when Constants.Input.END_TURN
         @addEndTurnAction()
         @bot.addEndTurnAction(input)
+      when Constants.Input.PLAY_CARD
+        # TODO
+        # add action summon minion
+        # substract mana
+        # add action update current mana
       else
         console.log "Unknown input action #{input.action}"
     input
@@ -178,15 +183,25 @@ class ArenaReferee extends BaseReferee
         super(input)
 
     if @isPhase(Constants.Phase.Arena.BATTLE)
-      if input.action == Constants.Input.END_TURN
-        if input.playerIndex == @json.turn and !@isDiscovering(input.playerIndex)
+      switch input.action
+        when Constants.Input.END_TURN
+          if input.playerIndex == @json.turn and !@isDiscovering(input.playerIndex)
+            super(input)
+        when Constants.Input.SELECT_CARD
+          card = @findCard(input.cardId)
+          return if card.status == Constants.CardStatus.HERO
+          return if card.status == Constants.CardStatus.DISCARDED
+          return if card.playerIndex != input.playerIndex
           super(input)
-      else
-        card = @findCard(input.cardId)
-        return if card.status == Constants.CardStatus.HERO and input.action == Constants.Action.SELECT_CARD
-        return if card.status == Constants.CardStatus.DISCARDED
-        if card.playerIndex == input.playerIndex
+        when Constants.Input.PLAY_CARD
+          card = @findCard(input.cardId)
+          return if card.status == Constants.CardStatus.HERO
+          return if card.status == Constants.CardStatus.DISCARDED
+          return if card.playerIndex != input.playerIndex
+          return unless @hasManaFor(input.playerIndex, input.cardId)
           super(input)
+        else
+          console.log "not adding, unknown input action #{input.action}"
 
   isHeroChosen: (playerIndex) ->
     @json[playerIndex].hero?

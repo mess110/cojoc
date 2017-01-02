@@ -66,19 +66,19 @@ class ManaBar extends BoxedModel
 
   update: (currentMana, maxMana) ->
     return if maxMana == @maxMana and currentMana == @currentMana
+    @maxMana = maxMana if maxMana?
+    @currentMana = currentMana if currentMana?
 
     for i in [0...@maxManaAllowed] by 1
       cube = @cubes[i]
 
-      if i < currentMana
+      if i < @currentMana
         cube.replenish()
-      else if i < maxMana
+      else if i < @maxMana
         cube.consume()
       else
         cube.hide()
 
-    @maxMana = maxMana
-    @currentMana = currentMana
     @manaText.setText(@toString())
     return
 
