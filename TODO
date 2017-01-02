@@ -1,6 +1,5 @@
 - helper text for noobs
 - when missdragging a card don't end turn
-- better summon minion animation
 - monitor enemy hovered
 - win condition
 - fatigue
@@ -12,3 +11,4 @@
 - fix minion text
 - fix overlapping mana bar
 - readable text
+- better summon minion animation

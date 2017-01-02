@@ -129,8 +129,7 @@ class ArenaMover
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
       when Constants.Action.SUMMON_MINION
         cardData = @referee.findCard(action.cardId)
-        if !@_isMe(action.playerIndex)
-          @cardPreview.animate(cardData)
+        @cardPreview.animate(cardData) if !@_isMe(action.playerIndex)
         card = @_findCard(action.cardId)
         card.minion(cardData)
         @_findHandFor(action.playerIndex).remove card

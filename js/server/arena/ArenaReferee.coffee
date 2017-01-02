@@ -76,7 +76,7 @@ class ArenaReferee extends BaseReferee
 
   addPlayCardAction: (input) ->
     if @hasMinionSpace(input.playerIndex)
-      @addAction { playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
+      @addAction { duration: 1000, playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
       @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
     else
       console.log 'too many minions in play'
