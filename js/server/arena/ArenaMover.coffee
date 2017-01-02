@@ -60,12 +60,10 @@ class ArenaMover
 
     @player1Minions = new Minions()
     @player1Minions.customPosition(Constants.Position.Player.SELF)
-    @player1Minions.toggleWireframe()
     @scene.scene.add @player1Minions.mesh
 
     @player2Minions = new Minions()
     @player2Minions.customPosition(Constants.Position.Player.OPPONENT)
-    @player2Minions.toggleWireframe()
     @scene.scene.add @player2Minions.mesh
 
   uiServerTick: (data) ->
@@ -203,20 +201,25 @@ class ArenaMover
   playCard: (card, hand) ->
     throw "card does not have playerIndex" unless card.playerIndex?
 
-    if @referee.hasManaFor(card.playerIndex, card.id)
-      memCard = @referee.findCard(card.id)
-      hand.remove(card)
-      card.dissolve()
-      hand.holster(true)
-      @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
-      @scene._emit(
-        type: 'gameInput'
-        action: Constants.Input.PLAY_CARD
-        cardId: card.id
-      )
-    else
+    unless @referee.hasManaFor(card.playerIndex, card.id)
       @_findManaFor(card.playerIndex).shake()
       console.ce "not enough mana for #{card.id}"
+      return
+
+    unless @referee.hasMinionSpace(card.playerIndex)
+      console.ce "too many minions"
+      return
+
+    memCard = @referee.findCard(card.id)
+    hand.remove(card)
+    card.dissolve()
+    hand.holster(true)
+    @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
+    @scene._emit(
+      type: 'gameInput'
+      action: Constants.Input.PLAY_CARD
+      cardId: card.id
+    )
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex

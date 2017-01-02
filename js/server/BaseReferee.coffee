@@ -22,6 +22,9 @@ class BaseReferee
     card = @findCard(cardId)
     card.defaults.cost <= @getMana(playerIndex)
 
+  hasMinionSpace: (playerIndex) ->
+    @findCards(playerIndex: playerIndex, status: Constants.CardStatus.PLAYED).size() < @json.maxMinionsPlayed
+
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
 

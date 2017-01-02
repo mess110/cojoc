@@ -22,6 +22,7 @@ class ArenaReferee extends BaseReferee
     allCards = Cards.random(30 * 3 * 2)
     @json =
       maxCardsInHand: 10
+      maxMinionsPlayed: 7
       maxMana: 10
       gameType: Constants.GameType.ARENA
       phase: Constants.Phase.Arena.HERO_SELECT
@@ -74,8 +75,11 @@ class ArenaReferee extends BaseReferee
     input
 
   addPlayCardAction: (input) ->
-    @addAction { playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
-    @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
+    if @hasMinionSpace(input.playerIndex)
+      @addAction { playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
+      @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
+    else
+      console.log 'too many minions in play'
 
   addSelectCardAction: (input) ->
     actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
@@ -212,6 +216,7 @@ class ArenaReferee extends BaseReferee
           return if card.status == Constants.CardStatus.DISCARDED
           return if card.playerIndex != input.playerIndex
           return unless @hasManaFor(input.playerIndex, input.cardId)
+          return unless @hasMinionSpace(input.playerIndex)
           super(input)
         else
           console.log "not adding, unknown input action #{input.action}"
