@@ -138,6 +138,9 @@ class ArenaMover
       else
         console.log "Unknown action #{action.action}"
 
+    # all actions
+    @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
+
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
     , duration
@@ -167,8 +170,8 @@ class ArenaMover
     myHand = @_findHandFor(@_getMyPlayerIndex())
 
     @deck.doMouseEvent(event, raycaster)
-    if !myDiscover.hasCards() and !myHand.hasSelected()
-      @endTurn.doMouseEvent(event, raycaster)
+    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected()
+    @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
     @player1Hand.holsterLock = @player1Discover.hasCards()

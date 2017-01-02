@@ -14,6 +14,14 @@ class BaseReferee
   isPhase: (phase) ->
     @json.phase == phase
 
+  hasActionsLeft: (playerIndex) ->
+    return false if @json.turn != playerIndex
+    canPlayACard = false
+    canDiscover = @findCards(status: Constants.CardStatus.DISCOVERED, playerIndex: playerIndex).any()
+    for card in @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
+      canPlayACard = true if @hasManaFor(playerIndex, card.cardId)
+    canPlayACard || canDiscover
+
   hasMaxCardsInHand: (playerIndex) ->
     cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
     cards.size() == @json.maxCardsInHand

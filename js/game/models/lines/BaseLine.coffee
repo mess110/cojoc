@@ -130,7 +130,10 @@ class BaseLine extends BoxedModel
 
   _updateGlow: (newFound, oldFound) ->
     if newFound?
-      newFound.glow.green()
+      if SceneManager.currentScene().mover._getMyPlayerIndex() == newFound.playerIndex
+        newFound.glow.green()
+      else
+        newFound.glow.red()
 
     if oldFound?
       oldFound.glow.none()

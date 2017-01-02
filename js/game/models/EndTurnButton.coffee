@@ -11,6 +11,7 @@ class EndTurnButton extends Card
     @animating = false
     @hasActionsLeft = true
     @clickOnlyOnFaceUp = true
+    @clickLock = false
     @hovered = false
     @original = { x: 0, y: 0, z: 0 }
     @faceUp = true
@@ -48,7 +49,7 @@ class EndTurnButton extends Card
 
   doMouseEvent: (event, raycaster) ->
     @hovered = @isHovered(raycaster)
-    if @hovered and event.type == 'mouseup'
+    if @hovered and event.type == 'mouseup' and !@clickLock
       @click()
       SceneManager.currentScene()._emit(
         type: 'gameInput'

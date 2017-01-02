@@ -121,4 +121,4 @@ class Hand extends BaseLine
   toString: ->
     return '' if @cards.isEmpty()
     return '1 carte' if @cards.size() == 1
-    "#{@cards.size} cărți"
+    "#{@cards.size()} cărți"
