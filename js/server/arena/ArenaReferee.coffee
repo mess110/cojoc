@@ -94,6 +94,16 @@ class ArenaReferee extends BaseReferee
       @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
       @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
       @addAction { playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
+
+      cards = @findCards(status: undefined)
+      otherIndex = @_getOtherPlayerIndex(@json.turn)
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: @json.turn, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[0].cardId }
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: otherIndex, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[1].cardId }
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: @json.turn, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[2].cardId }
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: otherIndex, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[3].cardId }
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: @json.turn, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[4].cardId }
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: otherIndex, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[5].cardId }
+
       @_addDiscoverActions()
 
   _addStartGameActions: ->
@@ -163,6 +173,10 @@ class ArenaReferee extends BaseReferee
         if dCard.cardId != card.cardId
           dCard.status = Constants.CardStatus.DISCARDED
           action.discardIds.push dCard.cardId
+
+    if action.action == Constants.Action.AUTO_SELECT_CARD
+      card = @findCard(action.cardId)
+      card.status = Constants.CardStatus.HELD
 
     if action.action == Constants.Action.DISCARD_CARD
       for discardId in action.cardIds

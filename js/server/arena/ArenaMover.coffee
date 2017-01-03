@@ -121,6 +121,14 @@ class ArenaMover
       when Constants.Action.SELECT_CARD
         selectCard = @_uiSelectCard(action)
         @_findHandFor(action.playerIndex).add selectCard
+      when Constants.Action.AUTO_SELECT_CARD
+        card = @deck.drawCard(@scene.scene)
+        card.id = action.cardId
+        card.playerIndex = action.playerIndex
+        if card.playerIndex == @_getMyPlayerIndex()
+          card.impersonate(@referee.findCard(action.cardId))
+        @uiCards.push card
+        @_findHandFor(action.playerIndex).add card
       when Constants.Action.UPDATE_END_TURN_BUTTON
         isMe = @_isMe(action.playerIndex)
         if isMe

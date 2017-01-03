@@ -57,6 +57,7 @@ Constants =
     SET_MAX_MANA: 'setMaxMana'
     REPLENISH_MANA: 'replenishMana'
     SUMMON_MINION: 'summonMinion'
+    AUTO_SELECT_CARD: 'autoSelectCard'
 
   Position:
     Strategy:
