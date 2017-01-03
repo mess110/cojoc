@@ -176,6 +176,7 @@ class ArenaReferee extends BaseReferee
 
     if action.action == Constants.Action.AUTO_SELECT_CARD
       card = @findCard(action.cardId)
+      card.playerIndex = action.playerIndex
       card.status = Constants.CardStatus.HELD
 
     if action.action == Constants.Action.DISCARD_CARD

@@ -248,6 +248,10 @@ class ArenaMover
       console.ce "too many minions"
       return
 
+    unless @referee.isTurn(card.playerIndex)
+      console.ce "not your turn"
+      return
+
     memCard = @referee.findCard(card.id)
     hand.remove(card)
     card.glow.none()
