@@ -5,13 +5,20 @@
   position: absolute
   left: 0px
   bottom: 0px
-  padding-left: 15px
+  padding-left: 10px
   opacity: 0;
   transition: opacity .25s ease
   z-index: $z-below-menu
 
   img
     width: 64px
+
+  @media (max-height: 360px)
+    padding-left: 6px
+    bottom: -2px
+
+    img
+      width: 48px
 
 // menu button
 

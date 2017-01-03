@@ -9,6 +9,7 @@ class BaseLine extends BoxedModel
     @mesh = new THREE.Object3D()
     @plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1)
     @enabled = true
+    @lock = false
     @holstered = false
     @holsterEnabled = false
     @defaultHolsterAmount = 5.8
@@ -82,6 +83,7 @@ class BaseLine extends BoxedModel
   # Override this where no holstering happnes
   _doHolster: (found, raycaster, pos) ->
     return false unless @holsterEnabled
+    # TODO: maybe don't holster on mouse event, only on mouse up
     if !@holstered and !found? and @_isInPlayArea(pos) and !@takenOut
       @holster(true)
       return true
@@ -233,6 +235,7 @@ class BaseLine extends BoxedModel
     @takenOut = false
     @_doChangeSelected(undefined, @selectedCard)
     @_updateGlow(undefined, @selectedCard)
+    @selectedCard = undefined
     @holstered = value
     @mesh.position.x = @_getHolsterAmount()
     @update(200)

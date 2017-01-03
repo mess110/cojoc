@@ -1,11 +1,11 @@
 class CojocText extends BaseText
-  constructor: () ->
+  constructor: (align = undefined) ->
     options =
       font: 'bolder 60px Pirata One'
       strokeStyle: 'black'
       fillStyle: 'white'
       text: 'hello'
-      # align: 'center'
+      align: align
       w: 1.25
       h: 1.25
       y: 10

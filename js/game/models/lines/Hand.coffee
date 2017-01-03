@@ -6,7 +6,7 @@ class Hand extends BaseLine
 
     @holsterEnabled = true
 
-    @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
+    @box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.5, 0.1), @_boxMaterial())
     @mesh.add @box
 
     @curve = new HandCurve()
@@ -36,6 +36,9 @@ class Hand extends BaseLine
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
     return unless @mine
+    if @holsterLock || @viewingBoard
+      @takenOut = false
+      return
     if @selectedCard?
       if @takenOut
         @_moveWithDiff(@selectedCard, pos)
@@ -55,7 +58,7 @@ class Hand extends BaseLine
     @text.setText(@toString())
 
   _doMouseUp: (raycaster, pos) ->
-    if @_isInPlayArea(pos) and @selectedCard?
+    if @_isInPlayArea(pos) and @selectedCard? and SceneManager.currentScene().mover.endTurn.faceUp
       SceneManager.currentScene().mover.playCard(@selectedCard, @)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
@@ -77,6 +80,7 @@ class Hand extends BaseLine
           duration: 200
           kind: 'Cubic', direction: 'In'
         )
+        # We don't want to scale the pivot, we are already scaling the mesh
         Helper.tween(
           mesh: oldSelected.pivot
           duration: 100
@@ -84,9 +88,6 @@ class Hand extends BaseLine
             rX: 0
             rY: 0
             rZ: 0
-            sX: @_getHolsterScale()
-            sY: @_getHolsterScale()
-            sZ: @_getHolsterScale()
         ).start()
 
     if newSelected?

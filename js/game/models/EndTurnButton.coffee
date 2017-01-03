@@ -13,6 +13,7 @@ class EndTurnButton extends Card
     @clickOnlyOnFaceUp = true
     @clickLock = false
     @hovered = false
+    @noGlow = false
     @original = { x: 0, y: 0, z: 0 }
     @faceUp = true
 
@@ -36,7 +37,9 @@ class EndTurnButton extends Card
     @hasActionsLeft = value
 
   tick: (tpf) ->
-    if @hasActionsLeft
+    if @noGlow
+      @glow.none()
+    else if @hasActionsLeft
       @glow.yellow()
     else
       @glow.green()

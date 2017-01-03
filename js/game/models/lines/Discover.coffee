@@ -5,9 +5,24 @@ class Discover extends BaseLine
     @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
     @mesh.add @box
 
+    @viewingBoard = false
+
+    @text = new CojocText('center')
+    @text.mesh.position.set 3.2, 2, 0
+    @text.setText('Ascunde')
+    @mesh.add @text.mesh
+
     @curve = new DiscoverCurve()
 
   tick: (tpf) ->
+    # this prob needs a better implementation. move it to something which
+    # doesn't happen at every tick
+    return unless @mine
+    currScene = SceneManager.currentScene()
+    if @cards.size() == 3 and currScene.game?
+      card = currScene.game.referee.findCard(@cards.first().id)
+      isHoldingNonHeroes = card.type != Constants.CardType.HERO
+    @text.setVisible(isHoldingNonHeroes or false)
 
   _moveInPosition: () ->
     for card in @cards
@@ -26,6 +41,7 @@ class Discover extends BaseLine
 
   _doMouseUp: (raycaster, pos) ->
     return unless @selectedCard?
+    return if @viewingBoard
     SceneManager.currentScene()._emit(
       type: 'gameInput'
       action: Constants.Input.SELECT_CARD
@@ -33,6 +49,14 @@ class Discover extends BaseLine
     )
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
+    if @text.isHovered(raycaster) and event.type == 'mouseup'
+      @viewingBoard = !@viewingBoard
+      if @viewingBoard
+        @text.setText('Arată')
+      else
+        @text.setText('Ascunde')
+      for card in @cards
+        card.mesh.visible = !@viewingBoard
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->
 

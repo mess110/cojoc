@@ -148,6 +148,7 @@ class ArenaMover
 
     # all actions
     @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
+    @endTurn.noGlow = @_findDiscoverFor(@_getMyPlayerIndex()).hasCards()
 
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
@@ -168,6 +169,8 @@ class ArenaMover
     @endTurn.tick(tpf)
     @player1Hand.tick(tpf)
     @player2Hand.tick(tpf)
+    @player1Discover.tick(tpf)
+    @player2Discover.tick(tpf)
     for card in @uiCards
       card.dissolveTick(tpf)
 
@@ -178,13 +181,17 @@ class ArenaMover
     myHand = @_findHandFor(@_getMyPlayerIndex())
 
     @deck.doMouseEvent(event, raycaster)
-    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected()
-    @endTurn.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
-    @player1Hand.holsterLock = @player1Discover.hasCards()
+    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected()
+    @endTurn.doMouseEvent(event, raycaster)
+
+    @player1Hand.holsterLock = @player1Discover.hasCards() and !@player1Discover.viewingBoard
+    @player1Hand.viewingBoard = @player1Discover.viewingBoard
     @player1Hand.doMouseEvent(event, raycaster)
-    @player2Hand.holsterLock = @player2Discover.hasCards()
+
+    @player2Hand.holsterLock = @player2Discover.hasCards() and !@player2Discover.viewingBoard
+    @player2Hand.viewingBoard = @player2Discover.viewingBoard
     @player2Hand.doMouseEvent(event, raycaster)
 
     if !myDiscover.hasInteraction() and !myHand.hasInteraction()
@@ -196,9 +203,9 @@ class ArenaMover
     if !@player2Discover.hasInteraction() and !@player2Discover.hasCards()
       @player2Mana.doMouseEvent(event, raycaster)
 
-    @player1Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction()
+    @player1Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
     @player1Minions.doMouseEvent(event, raycaster)
-    @player2Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction()
+    @player2Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
     @player2Minions.doMouseEvent(event, raycaster)
     @multiSelect = []
 
@@ -271,7 +278,7 @@ class ArenaMover
     return unless @scene.game.player2.owner?
     myIndex = @_getMyPlayerIndex()
     for card in cards
-      if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex)
+      if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex) and @endTurn.faceUp
         card.glow.blue()
       else
         card.glow.none()
