@@ -22,6 +22,11 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/panel2.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/turn-notification.png",
       "type": "texture"
     },

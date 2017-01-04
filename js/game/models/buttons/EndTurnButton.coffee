@@ -1,5 +1,5 @@
 # Use setPosition to also set the original position
-class EndTurnButton extends Card
+class EndTurnButton extends ToggleButton
   ANIMATION_DURATION = 1500
 
   constructor: ->
@@ -7,31 +7,11 @@ class EndTurnButton extends Card
 
     @front.material = Helper.basicMaterial('end-turn-front')
     @back.material = Helper.basicMaterial('end-turn-bg')
-    @mesh.rotation.z = Math.PI / 2
     @animating = false
     @hasActionsLeft = true
     @clickOnlyOnFaceUp = true
-    @clickLock = false
     @hovered = false
     @noGlow = false
-    @original = { x: 0, y: 0, z: 0 }
-    @faceUp = true
-
-  isFaceUp: ->
-    @faceUp
-
-  setFaceUp: (faceUp) ->
-    if faceUp == true and @isFaceUp()
-      return
-    if faceUp == false and !@isFaceUp()
-      return
-    @click(true)
-
-  setOriginalPosition: (x, y, z) ->
-    @original.x = x
-    @original.y = y
-    @original.z = z
-    @mesh.position.set x, y, z
 
   setActionsLeft: (value) ->
     @hasActionsLeft = value
@@ -44,16 +24,17 @@ class EndTurnButton extends Card
     else
       @glow.green()
 
-  doMouseEvent: (event, raycaster) ->
+  doMouseEvent: (event, raycaster, override=false) ->
     @hovered = @isHovered(raycaster)
     if @hovered and event.type == 'mouseup' and !@clickLock
-      @click()
-      SceneManager.currentScene()._emit(
+      @click(override)
+      currScene = SceneManager.currentScene()
+      currScene._emit(
         type: 'gameInput'
         action: Constants.Input.END_TURN
-      )
+      ) if currScene._emit?
 
-  click: (override = false)->
+  click: (override = false) ->
     return if !@faceUp and !override and @clickOnlyOnFaceUp
     if override
       @stop()

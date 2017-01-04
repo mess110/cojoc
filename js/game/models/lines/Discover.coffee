@@ -7,10 +7,9 @@ class Discover extends BaseLine
 
     @viewingBoard = false
 
-    @text = new CojocText('center')
-    @text.mesh.position.set 3.2, 2, 0
-    @text.setText('Ascunde')
-    @mesh.add @text.mesh
+    @toggleButton = new ToggleButton().discover()
+    @toggleButton.mesh.position.set 3.2, 2.6, 0
+    @mesh.add @toggleButton.mesh
 
     @curve = new DiscoverCurve()
 
@@ -22,7 +21,7 @@ class Discover extends BaseLine
     if @cards.size() == 3 and currScene.game?
       card = currScene.game.referee.findCard(@cards.first().id)
       isHoldingNonHeroes = card.type != Constants.CardType.HERO
-    @text.setVisible(isHoldingNonHeroes or false)
+    @toggleButton.setVisible(isHoldingNonHeroes or false)
 
   _moveInPosition: () ->
     for card in @cards
@@ -49,12 +48,9 @@ class Discover extends BaseLine
     )
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
-    if @text.isHovered(raycaster) and event.type == 'mouseup'
+    if @toggleButton.isHovered(raycaster) and event.type == 'mouseup' and @toggleButton.visible
       @viewingBoard = !@viewingBoard
-      if @viewingBoard
-        @text.setText('Arată')
-      else
-        @text.setText('Ascunde')
+      @toggleButton.click(true)
       for card in @cards
         card.mesh.visible = !@viewingBoard
 
