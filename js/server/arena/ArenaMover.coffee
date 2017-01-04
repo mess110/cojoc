@@ -76,6 +76,8 @@ class ArenaMover
     @turnNotification.mesh.position.set 0, 0.5, 13
     @scene.scene.add @turnNotification.mesh
 
+    @hoverMasta = new HoverMasta(@scene, @)
+
   uiServerTick: (data) ->
     @setData(data)
 
@@ -147,8 +149,9 @@ class ArenaMover
         console.log "Unknown action #{action.action}"
 
     # all actions
-    @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
-    @endTurn.noGlow = @_findDiscoverFor(@_getMyPlayerIndex()).hasCards()
+    if @arePlayersInit()
+      @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
+      @endTurn.noGlow = @_findDiscoverFor(@_getMyPlayerIndex()).hasCards()
 
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
@@ -173,6 +176,12 @@ class ArenaMover
     @player2Discover.tick(tpf)
     for card in @uiCards
       card.dissolveTick(tpf)
+
+    if @arePlayersInit()
+      @hoverMasta.tick(tpf)
+
+  highlight: (data) ->
+    @hoverMasta.highlight(data) if @arePlayersInit()
 
   uiKeyboardEvent: (event) ->
 
@@ -203,9 +212,10 @@ class ArenaMover
     if !@player2Discover.hasInteraction() and !@player2Discover.hasCards()
       @player2Mana.doMouseEvent(event, raycaster)
 
-    @player1Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
+    lockMinions = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
+    @player1Minions.lock = lockMinions
     @player1Minions.doMouseEvent(event, raycaster)
-    @player2Minions.lock = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
+    @player2Minions.lock = lockMinions
     @player2Minions.doMouseEvent(event, raycaster)
     @multiSelect = []
 
@@ -235,6 +245,14 @@ class ArenaMover
       @player2Mana.customPosition(Constants.Position.Player.SELF)
       @player1Minions.customPosition(Constants.Position.Player.OPPONENT)
       @player2Minions.customPosition(Constants.Position.Player.SELF)
+
+    # if !@discoverInited
+      # @discoverInited = true
+      # if @mirroredUI
+        # @player2Discover.addToggleButton()
+      # else
+        # @player1Discover.addToggleButton()
+
     return
 
   doMultiSelect: (cardId) ->
@@ -272,10 +290,7 @@ class ArenaMover
     )
 
   glowHeldCards: (cards) ->
-    return unless @scene.game.player1?
-    return unless @scene.game.player1.owner?
-    return unless @scene.game.player2?
-    return unless @scene.game.player2.owner?
+    return unless @arePlayersInit()
     myIndex = @_getMyPlayerIndex()
     for card in cards
       if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex) and @endTurn.faceUp
@@ -289,10 +304,16 @@ class ArenaMover
   _isBot: (playerIndex) ->
     @scene.game[playerIndex].owner == Constants.Storage.BOT
 
+  arePlayersInit: ->
+    @scene.game.player1? and @scene.game.player2? and @scene.game.player1.owner? and @scene.game.player2.owner?
+
   _getMyPlayerIndex: ->
     return 'player1' if @scene.game.player1.owner == @scene.myId
     return 'player2' if @scene.game.player2.owner == @scene.myId
     throw "unknown playerIndex for #{@scene.myId}"
+
+  _getOpponentPlayerIndex: ->
+    @referee._getOtherPlayerIndex(@_getMyPlayerIndex())
 
   _findDiscoverFor: (playerIndex) ->
     return @player1Discover if playerIndex == 'player1'

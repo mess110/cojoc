@@ -6,12 +6,12 @@ class Discover extends BaseLine
     @mesh.add @box
 
     @viewingBoard = false
+    @flipGlow = true
 
+    @curve = new DiscoverCurve()
     @toggleButton = new ToggleButton().discover()
     @toggleButton.mesh.position.set 3.2, 2.6, 0
     @mesh.add @toggleButton.mesh
-
-    @curve = new DiscoverCurve()
 
   tick: (tpf) ->
     # this prob needs a better implementation. move it to something which
@@ -48,6 +48,7 @@ class Discover extends BaseLine
     )
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
+    return unless @mine
     if @toggleButton.isHovered(raycaster) and event.type == 'mouseup' and @toggleButton.visible
       @viewingBoard = !@viewingBoard
       @toggleButton.click(true)

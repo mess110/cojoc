@@ -5,6 +5,7 @@ class Hand extends BaseLine
     super()
 
     @holsterEnabled = true
+    @flipGlow = true
 
     @box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.5, 0.1), @_boxMaterial())
     @mesh.add @box

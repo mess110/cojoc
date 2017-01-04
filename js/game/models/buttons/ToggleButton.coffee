@@ -55,22 +55,20 @@ class ToggleButton extends Card
   discover: ->
     @mesh.scale.set 0.3, 0.3, 0.3
     @front.material = @mkFront('Ascunde')
-    setTimeout =>
-      @back.material = @mkBack('Arată')
-    , 100
+    @back.material = @mkBack('Arată')
     @
 
   mkFront: (text) ->
-    @art.clear()
+    @art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
     @art.drawImage(key: 'panel2')
     @art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 185, y: -@canvasWidth / 2 + 40, font: '130px Pirata One', strokeLineWidth: 40)
     Helper.materialFromCanvas(@art.canvas)
 
   mkBack: (text) ->
-    @art.clear()
-    @art.drawImage(key: 'panel2')
-    @art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 40, font: '140px Pirata One', strokeLineWidth: 40)
-    Helper.materialFromCanvas(@art.canvas)
+    art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
+    art.drawImage(key: 'panel2')
+    art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 40, font: '140px Pirata One', strokeLineWidth: 40)
+    Helper.materialFromCanvas(art.canvas)
 
   setVisible: (value) ->
     @mesh.visible = value

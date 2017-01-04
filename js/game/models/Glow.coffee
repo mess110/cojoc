@@ -15,6 +15,9 @@ class Glow extends BaseModel
     @mesh = Helper.plane(material: @greenMaterial, width: @cardWidth + extra, height: @cardHeight + extra)
     @none()
 
+  isGlowing: ->
+    @mesh.visible
+
   none: ->
     return unless @mesh.visible
     @setVisible(false)

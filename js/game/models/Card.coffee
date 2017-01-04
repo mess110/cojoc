@@ -44,6 +44,10 @@ class Card extends BoxedModel
     @front.material = @mkCardMaterial(json)
     @
 
+  flipGlow: ->
+    @glow.flip()
+    @glow.mesh.position.z *= -1
+
   minion: (json) ->
     @_validateJsonCard(json)
     @front.material = @mkMinionMaterial(json)

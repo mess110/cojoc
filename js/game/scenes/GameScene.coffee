@@ -20,6 +20,7 @@ class GameScene extends BaseScene
 
     if @game.isBotGame()
       @game.afterServerTick = afterServerTick
+      @game.highlight = uiHighlight
       @game.startTicking()
 
     @_emit(type: 'join', id: @options.id)
@@ -32,6 +33,9 @@ class GameScene extends BaseScene
     # TODO: if @game/@mover is not defined, create it according to the
     # game type
     @mover.uiServerTick(data) if @mover?
+
+  highlight: (data) ->
+    @mover.highlight(data) if @mover?
 
   tick: (tpf) ->
     @mover.uiTick(tpf) if @mover?

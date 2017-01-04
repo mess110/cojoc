@@ -13,7 +13,7 @@ config =
   gameServer:
     autoStart: true
     ticksPerSecond: 10
-    ioMethods: ['join', 'gameInput', 'leaveQueue', 'joinQueue']
+    ioMethods: ['join', 'gameInput', 'highlight', 'leaveQueue', 'joinQueue']
 
 class GameServer extends server.GameServer
 
@@ -48,7 +48,11 @@ class GameServer extends server.GameServer
 
   gameInput: (socket, data) ->
     game = @getGame(data.id)
-    game.gameInput(socket, data)
+    game.gameInput(socket, data) if game?
+
+  highlight: (socket, data) ->
+    game = @getGame(data.id)
+    game.highlight(socket, data) if game?
 
   _newGame: (game) ->
     @games.push game

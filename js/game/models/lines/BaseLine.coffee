@@ -15,6 +15,7 @@ class BaseLine extends BoxedModel
     @defaultHolsterAmount = 5.8
     @holsterAmount = @defaultHolsterAmount
     @holsterLock = false
+    @flipGlow = false
     @mine = true
 
     @direction =
@@ -28,6 +29,9 @@ class BaseLine extends BoxedModel
       @cards.push toAdd
       toAdd.indexInHand = @cards.indexOf(toAdd)
 
+      if !@mine and @flipGlow
+        toAdd.flipGlow()
+
     @_changeCount()
     @update()
     toAddArray
@@ -38,6 +42,9 @@ class BaseLine extends BoxedModel
     for toRemove in toRemoveArray
       @cards.remove toRemove
       toRemove.indexInHand = undefined
+
+      if !@mine and @flipGlow
+        toRemove.flipGlow()
 
       @selectedCard == undefined if @selectedCard == toRemove
       @hoveredCard == undefined if @hoveredCard == toRemove
@@ -132,7 +139,7 @@ class BaseLine extends BoxedModel
     throw 'not implemented'
 
   _updateGlow: (newFound, oldFound) ->
-    if newFound?
+    if newFound? and !@lock
       if @mine
         newFound.glow.green()
       else

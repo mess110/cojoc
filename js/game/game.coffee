@@ -37,7 +37,15 @@ afterServerTick = (data) ->
     if currentScene.game.id == data.id
       currentScene.afterServerTick(data)
 
+uiHighlight = (data) ->
+  currentScene = SceneManager.currentScene()
+  if currentScene.afterServerTick?
+    if currentScene.game.id == data.id
+      currentScene.highlight(data)
+
 nm.on 'serverTick', afterServerTick
+
+nm.on 'highlight', uiHighlight
 
 nm.on 'startGame', (data) ->
   scope = getScope()

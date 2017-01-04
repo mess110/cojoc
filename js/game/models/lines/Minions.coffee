@@ -6,7 +6,6 @@ class Minions extends BaseLine
     @mesh.add @box
 
     @minionScale = 0.8
-    @lock = false
 
     @curve = new MinionsCurve()
 

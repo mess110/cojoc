@@ -52,6 +52,17 @@ class Game extends GameInstance
       console.ce "missing owner or playerIndex"
       console.ce data
 
+  highlight: (socket, data) ->
+    return if @isBotGame()
+    @_setPlayerIndex(data)
+    if data.playerIndex == 'player1'
+      @socket2.emit('highlight', data)
+      return
+    if data.playerIndex == 'player2'
+      @socket1.emit('highlight', data)
+      return
+    console.ce "unknown player index #{data.playerIndex}"
+
   toJson: ->
     {
       id: @id
