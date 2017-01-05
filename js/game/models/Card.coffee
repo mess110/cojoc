@@ -44,24 +44,10 @@ class Card extends BoxedModel
     @front.material = @mkCardMaterial(json)
     @
 
-  flipGlow: ->
-    @glow.flip()
-    @glow.mesh.position.z *= -1
-
   minion: (json) ->
     @_validateJsonCard(json)
     @front.material = @mkMinionMaterial(json)
     @
-
-  dissolve: (r=0, g=0, b=0) ->
-    fdm = Helper.dissolveMaterial(@front.material.clone().map)
-    @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
-    bdm = Helper.dissolveMaterial(@back.material.clone().map)
-    @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
-    @front.material = @fdm
-    @back.material = @bdm
-    @dissolved = true
-    return
 
   cancelMove: ->
     @tween.stop() if @tween?
@@ -72,6 +58,16 @@ class Card extends BoxedModel
     @tween = Helper.tween(options)
     @tween.start()
     @tween
+
+  dissolve: (r=0, g=0, b=0) ->
+    fdm = Helper.dissolveMaterial(@front.material.clone().map)
+    @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
+    bdm = Helper.dissolveMaterial(@back.material.clone().map)
+    @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
+    @front.material = @fdm
+    @back.material = @bdm
+    @dissolved = true
+    return
 
   dissolveTick: (tpf) ->
     return unless @dissolved

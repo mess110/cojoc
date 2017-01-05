@@ -30,7 +30,7 @@ class BaseLine extends BoxedModel
       toAdd.indexInHand = @cards.indexOf(toAdd)
 
       if !@mine and @flipGlow
-        toAdd.flipGlow()
+        toAdd.glow.flip()
 
     @_changeCount()
     @update()
@@ -44,7 +44,7 @@ class BaseLine extends BoxedModel
       toRemove.indexInHand = undefined
 
       if !@mine and @flipGlow
-        toRemove.flipGlow()
+        toRemove.glow.flip()
 
       @selectedCard == undefined if @selectedCard == toRemove
       @hoveredCard == undefined if @hoveredCard == toRemove

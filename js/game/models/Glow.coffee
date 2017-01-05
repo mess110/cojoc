@@ -44,6 +44,7 @@ class Glow extends BaseModel
 
   flip: ->
     @mesh.rotation.x = if @mesh.rotation.x == 0 then Math.PI else 0
+    @mesh.position.z *= -1
 
   _isSame: (material) ->
     @mesh.material == material and @mesh.visible
