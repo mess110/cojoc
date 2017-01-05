@@ -80,6 +80,7 @@ class Card extends BoxedModel
   dissolveTween: (obj) ->
     obj.dissolving = true
     tween = new TWEEN.Tween(value: 0).to(value: 1.1, 1000)
+    tween.easing(TWEEN.Easing.Quadratic.In)
     tween.onUpdate(->
       obj.fdm.uniforms.dissolve.value = @value
       obj.bdm.uniforms.dissolve.value = @value
