@@ -66,8 +66,13 @@ class Card extends BoxedModel
     @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
     bdm = Helper.dissolveMaterial(@back.material.clone().map)
     @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
+
+    @ofm = @front.material
+    @obm = @back.material
+
     @front.material = @fdm
     @back.material = @bdm
+
     @dissolveTween(@)
 
     return
@@ -80,7 +85,7 @@ class Card extends BoxedModel
       obj.bdm.uniforms.dissolve.value = @value
     )
     tween.onComplete(->
-      obj.dissolved = true
+      PoolManager.release(obj)
     )
     tween.start()
     tween

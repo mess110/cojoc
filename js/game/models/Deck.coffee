@@ -15,7 +15,7 @@ class Deck extends Card
   drawCard: (scene) ->
     return if @cardCount <= 0
 
-    card = new Card()
+    card = PoolManager.spawn(Card)
     card.mesh.position.set @mesh.position.x, @mesh.position.y, @mesh.position.z - 0.1
     card.mesh.rotation.set 0, Math.PI, 0
     scene.add card.mesh

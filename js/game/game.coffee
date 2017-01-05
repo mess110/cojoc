@@ -14,6 +14,7 @@ config = Config.get()
 config.fillWindow()
 config.transparentBackground = true
 config.debug = false
+# config.toggleStats()
 
 nm = NetworkManager.get()
 nm.connect()
