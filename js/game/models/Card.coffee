@@ -6,6 +6,8 @@ class Card extends BoxedModel
     @cardHeight = 4
     @canvasWidth = 336
     @canvasHeight = 452
+    @dissolving = false
+    @dissolved = false
 
     @mesh = new THREE.Object3D()
     @pivot = new THREE.Object3D()
@@ -66,14 +68,22 @@ class Card extends BoxedModel
     @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
     @front.material = @fdm
     @back.material = @bdm
-    @dissolved = true
+    @dissolveTween(@)
+
     return
 
-  dissolveTick: (tpf) ->
-    return unless @dissolved
-    return if @fdm.uniforms.dissolve.value > 1.1
-    @fdm.uniforms.dissolve.value += tpf
-    @bdm.uniforms.dissolve.value += tpf
+  dissolveTween: (obj) ->
+    obj.dissolving = true
+    tween = new TWEEN.Tween(value: 0).to(value: 1.1, 1000)
+    tween.onUpdate(->
+      obj.fdm.uniforms.dissolve.value = @value
+      obj.bdm.uniforms.dissolve.value = @value
+    )
+    tween.onComplete(->
+      obj.dissolved = true
+    )
+    tween.start()
+    tween
 
   mkMinionMaterial: (json) ->
     @art.clear()

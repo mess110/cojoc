@@ -174,8 +174,6 @@ class ArenaMover
     @player2Hand.tick(tpf)
     @player1Discover.tick(tpf)
     @player2Discover.tick(tpf)
-    for card in @uiCards
-      card.dissolveTick(tpf)
 
     if @arePlayersInit()
       @hoverMasta.tick(tpf)
