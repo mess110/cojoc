@@ -60,6 +60,7 @@ class Hand extends BaseLine
 
   _doMouseUp: (raycaster, pos) ->
     if @_isInPlayArea(pos) and @selectedCard? and SceneManager.currentScene().mover.endTurn.faceUp
+      return if @viewingBoard
       SceneManager.currentScene().mover.playCard(@selectedCard, @)
 
   _doChangeSelected: (newSelected, oldSelected, raycaster, pos) ->

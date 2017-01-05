@@ -1,3 +1,12 @@
+BaseModel::shake = (from = 1, to = 0.5) ->
+  return if @shaking
+  @shaking = true
+  new NoticeMeModifier(@, from, to, 500).delay(0).start()
+  new NoticeMeModifier(@, from, to, 500).delay(500).start()
+  setTimeout =>
+    @shaking = false
+  , 500 * 2
+
 class BoxedModel extends BaseModel
 
   isHovered: (raycaster) ->

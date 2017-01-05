@@ -11,16 +11,6 @@ class ManaCrystal extends BaseModel
     )
     @mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(size, size), @material)
     @material.opacity = 0
-    @shaking = false
-
-  shake: () ->
-    return if @shaking
-    @shaking = true
-    new NoticeMeModifier(@, 1, 0.5, ANIMATION_DURATION).delay(0).start()
-    new NoticeMeModifier(@, 1, 0.5, ANIMATION_DURATION).delay(ANIMATION_DURATION).start()
-    setTimeout =>
-      @shaking = false
-    , ANIMATION_DURATION * 2
 
   replenish: ->
     new FadeModifier(@, @mesh.material.opacity, 1, ANIMATION_DURATION).start()
