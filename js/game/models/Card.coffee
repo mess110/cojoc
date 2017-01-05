@@ -25,7 +25,7 @@ class Card extends BoxedModel
     @pivot.add @back
 
     @glow = new Glow()
-    @glow.mesh.position.set 0, 0, -0.01
+    @glow.original()
     @pivot.add @glow.mesh
 
     @box = new THREE.Mesh(

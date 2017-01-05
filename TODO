@@ -1,6 +1,5 @@
 - warning when playing card while ascunde
 - helper text for noobs
-- card pool
 - timer
 - win condition
 - fatigue
@@ -13,4 +12,3 @@
 - readable text
 - when missdragging a card don't end turn
 - better summon minion animation
-- monitor enemy hovered

@@ -83,6 +83,7 @@ class ArenaMover
       SceneManager.currentScene().mover.uiCards.remove item
       item.dissolving = false
       item.dissolved = false
+      item.glow.original()
       item.front.material = item.ofm
       item.back.material = item.obm
       item.fdm.uniforms.dissolve.value = 0

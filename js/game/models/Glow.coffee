@@ -42,9 +42,13 @@ class Glow extends BaseModel
     @setVisible(true)
     @mesh.material = @yellowMaterial
 
+  original: ->
+    @mesh.position.z = -0.01
+    @mesh.rotation.x = 0
+
   flip: ->
-    @mesh.rotation.x = if @mesh.rotation.x == 0 then Math.PI else 0
     @mesh.position.z *= -1
+    @mesh.rotation.x = if @mesh.rotation.x == 0 then Math.PI else 0
 
   _isSame: (material) ->
     @mesh.material == material and @mesh.visible
