@@ -61,11 +61,9 @@ class Card extends BoxedModel
     @tween.start()
     @tween
 
-  dissolve: (r=0, g=0, b=0) ->
-    fdm = Helper.dissolveMaterial(@front.material.clone().map)
-    @fdm = Helper.setDissolveMaterialColor(fdm, r, g, b)
-    bdm = Helper.dissolveMaterial(@back.material.clone().map)
-    @bdm = Helper.setDissolveMaterialColor(bdm, r, g, b)
+  dissolve: (release=true, r=0, g=0, b=0) ->
+    @fdm = @_dissolveColor(@front, r, g, b)
+    @bdm = @_dissolveColor(@back, r, g, b)
 
     @ofm = @front.material
     @obm = @back.material
@@ -73,11 +71,11 @@ class Card extends BoxedModel
     @front.material = @fdm
     @back.material = @bdm
 
-    @dissolveTween(@)
+    @dissolveTween(@, release)
 
     return
 
-  dissolveTween: (obj) ->
+  dissolveTween: (obj, release=true) ->
     obj.dissolving = true
     tween = new TWEEN.Tween(value: 0).to(value: 1.1, 1000)
     tween.easing(TWEEN.Easing.Quadratic.In)
@@ -85,9 +83,10 @@ class Card extends BoxedModel
       obj.fdm.uniforms.dissolve.value = @value
       obj.bdm.uniforms.dissolve.value = @value
     )
-    tween.onComplete(->
-      PoolManager.release(obj)
-    )
+    if release
+      tween.onComplete(->
+        PoolManager.release(obj)
+      )
     tween.start()
     tween
 
@@ -146,3 +145,7 @@ class Card extends BoxedModel
     throw 'key missing' unless json.key?
     throw 'name missing' unless json.name?
     throw 'defaults missing' unless json.defaults?
+
+  _dissolveColor: (mesh, r, g, b) ->
+    dm = Helper.dissolveMaterial(mesh.material.clone().map)
+    Helper.setDissolveMaterialColor(dm, r, g, b)

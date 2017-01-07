@@ -88,10 +88,9 @@ class BaseLine extends BoxedModel
   tick: (tpf) ->
 
   # Override this where no holstering happnes
-  _doHolster: (found, raycaster, pos) ->
+  _doHolster: (found, event, raycaster, pos) ->
     return false unless @holsterEnabled
-    # TODO: maybe don't holster on mouse event, only on mouse up
-    if !@holstered and !found? and @_isInPlayArea(pos) and !@takenOut
+    if !@holstered and !found? and @_isInPlayArea(pos) and !@takenOut and event.type == 'mouseup'
       @holster(true)
       return true
 
@@ -114,7 +113,7 @@ class BaseLine extends BoxedModel
     if found != @hoveredCard
       @_changeHovered(found, @hoveredCard)
 
-    return if @_doHolster(found, raycaster, pos)
+    return if @_doHolster(found, event, raycaster, pos)
 
     # Selected card
     if event.type == 'mousemove' and @mouseDown

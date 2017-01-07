@@ -291,8 +291,7 @@ class ArenaMover
     memCard = @referee.findCard(card.id)
     hand.remove(card)
     card.glow.none()
-    card.dissolve()
-    hand.holster(true)
+    card.dissolve(false)
     @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
     @scene._emit(
       type: 'gameInput'
