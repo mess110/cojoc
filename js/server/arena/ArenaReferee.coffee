@@ -36,7 +36,7 @@ class ArenaReferee extends BaseReferee
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
       turn: 'player1'
 
-    @_assignCardIdToCards()
+    @_prepareCards()
     @inputs = [
       { type: 'gameInput', processed: false, action: Constants.Input.START_GAME }
     ]
@@ -70,9 +70,36 @@ class ArenaReferee extends BaseReferee
         @bot.addEndTurnAction(input)
       when Constants.Input.PLAY_CARD
         @addPlayCardAction(input)
+      when Constants.Input.ATTACK
+        @addAttackAction(input)
       else
         console.log "Unknown input action #{input.action}"
     input
+
+  addAttackAction: (input) ->
+    card1 = @findCard(input.cards[0])
+    card2 = @findCard(input.cards[1])
+    if card1.playerIndex == input.playerIndex
+      attacker = card1
+      defender = card2
+    else
+      attacker = card2
+      defender = card1
+    @addAction { playerIndex: input.playerIndex, action: Constants.Action.ATTACK, attackerId: attacker.cardId, defenderId: defender.cardId }
+
+    dieIds = []
+    if attacker.stats.health < 1
+      dieIds.push attacker.cardId
+    if defender.stats.health < 1
+      dieIds.push defender.cardId
+
+    if dieIds.any()
+      @addAction {
+        duration: Constants.Duration.DISCARD_CARD
+        action: Constants.Action.DIE
+        cardIds: dieIds
+      }
+
 
   addPlayCardAction: (input) ->
     if @hasMinionSpace(input.playerIndex)
@@ -126,6 +153,8 @@ class ArenaReferee extends BaseReferee
     @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
     @addAction { playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
     @_addDiscoverActions()
+    for card in @findCards(status: Constants.CardStatus.PLAYED, playerIndex: @json.turn)
+      card.attacksLeft = 1
 
   _addDiscoverActions: ->
     cards = @findCards(status: undefined)
@@ -205,6 +234,20 @@ class ArenaReferee extends BaseReferee
       action.duration = Constants.Duration.SUMMON_MINION
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.PLAYED
+      card.attacksLeft = 0
+
+    if action.action == Constants.Action.ATTACK
+      action.duration = Constants.Duration.ATTACK
+      attacker = @findCard(action.attackerId)
+      defender = @findCard(action.defenderId)
+      attacker.attacksLeft -= 1
+      attacker.stats.health -= defender.stats.attack || 0
+      defender.stats.health -= attacker.stats.attack || 0
+
+    if action.action == Constants.Action.DIE
+      for id in action.cardIds
+        card = @findCard(id)
+        card.status = Constants.CardStatus.DISCARDED
 
     super(action)
 
@@ -236,6 +279,21 @@ class ArenaReferee extends BaseReferee
           return unless @hasManaFor(input.playerIndex, input.cardId)
           return unless @hasMinionSpace(input.playerIndex)
           super(input)
+        when Constants.Input.ATTACK
+          card1 = @findCard(input.cards[0])
+          card2 = @findCard(input.cards[1])
+          if card1.playerIndex == input.playerIndex
+            card = card1
+          else if card2.playerIndex == input.playerIndex
+            card = card2
+          else
+            console.log "not valid cards for attack #{input.cards}"
+            return
+
+          return if card.status != Constants.CardStatus.PLAYED
+          return if card.attacksLeft <= 0
+          return unless @isTurn(input.playerIndex)
+          super(input)
         else
           console.log "not adding, unknown input action #{input.action}"
 
@@ -247,10 +305,11 @@ class ArenaReferee extends BaseReferee
     return 'player1' if playerIndex == 'player2'
     throw "unknown playerIndex #{playerIndex}"
 
-  _assignCardIdToCards: ->
+  _prepareCards: ->
     i = 0
     for card in @json.cards
       card.cardId = i
+      card.stats = JSON.parse(JSON.stringify(card.defaults))
       i += 1
 
 exports.ArenaReferee = ArenaReferee

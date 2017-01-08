@@ -6,8 +6,6 @@ class Card extends BoxedModel
     @cardHeight = 4
     @canvasWidth = 336
     @canvasHeight = 452
-    @dissolving = false
-    @dissolved = false
 
     @mesh = new THREE.Object3D()
     @pivot = new THREE.Object3D()
@@ -61,36 +59,28 @@ class Card extends BoxedModel
     @tween.start()
     @tween
 
-  dissolve: (release=true, r=0, g=0, b=0) ->
-    @fdm = @_dissolveColor(@front, r, g, b)
-    @bdm = @_dissolveColor(@back, r, g, b)
+  dissolve: (release=true) ->
+    obj = @
+    obj.front.material = @_dissolveColor(@front)
+    obj.back.material = @_dissolveColor(@back)
 
-    @ofm = @front.material
-    @obm = @back.material
-
-    @front.material = @fdm
-    @back.material = @bdm
-
-    @dissolveTween(@, release)
-
-    return
-
-  dissolveTween: (obj, release=true) ->
-    obj.dissolving = true
-    tween = new TWEEN.Tween(value: 0).to(value: 1.1, 1000)
-    tween.easing(TWEEN.Easing.Quadratic.In)
+    tween = new TWEEN.Tween(value: 0).to(value: 1, 1000)
+    tween.easing(TWEEN.Easing.Cubic.In)
     tween.onUpdate(->
-      obj.fdm.uniforms.dissolve.value = @value
-      obj.bdm.uniforms.dissolve.value = @value
+      obj.front.material.uniforms.dissolve.value = @value
+      obj.back.material.uniforms.dissolve.value = @value
+      return
     )
     if release
       tween.onComplete(->
         PoolManager.release(obj)
+        return
       )
     tween.start()
     tween
 
   mkMinionMaterial: (json) ->
+    fillStyle = '#f9f9f9'
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
@@ -99,34 +89,37 @@ class Card extends BoxedModel
     padding = 5
     @art.ctx.drawImage(@art.canvas, 107, 25, 123, 168, padding, padding, @canvasWidth - padding * 2, @canvasHeight - padding * 2)
     @art.drawImage(key: 'minion-template')
-    if json.defaults.attack
-      @art.drawImage(key: 'wood-sword', y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.attack, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
-    if json.defaults.health
-      @art.drawImage(key: 'heart', x: @canvasWidth - 64, y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.health, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+    if json.stats.attack?
+      @art.drawImage(key: 'attack-small', y: @canvasHeight - 64)
+      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
+    if json.stats.health?
+      @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
+      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
 
     Helper.materialFromCanvas(@art.canvas)
 
   mkCardMaterial: (json) ->
+    fillStyle = '#f9f9f9'
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
     @art.drawImage(key: 'card-template')
     if json.defaults.cost
-      @art.drawImage(key: 'mana-crystal')
-      @art.drawText(text: json.defaults.cost, strokeStyle: 'black', x: 20, y: 50, font: '50px Pirata One')
+      @art.drawImage(key: 'mana-small')
+      @art.drawText(text: json.defaults.cost, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: 50, font: '50px Pirata One')
     if json.defaults.attack
-      @art.drawImage(key: 'wood-sword', y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.attack, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
+      @art.drawImage(key: 'attack-small', y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.attack, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
     if json.defaults.health
-      @art.drawImage(key: 'heart', x: @canvasWidth - 64, y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.health, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+      # fillStyle = if json.stats.health == json.defaults.health then '#f9f9f9' else 'red'
+      @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
+      @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
     # @art.drawText(text: 'Charge', strokeStyle: 'black', x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: '40px Pirata One')
     @art.drawBezier(
       curve: '20,157.2,130.02,100.0,190.5,246.2,492,176.3'
       text: json.name
       x: 70, y: 93
+      fillStyle: fillStyle
       strokeStyle: 'black'
       letterPadding: 6
       font: '50px Pirata One'
@@ -146,6 +139,6 @@ class Card extends BoxedModel
     throw 'name missing' unless json.name?
     throw 'defaults missing' unless json.defaults?
 
-  _dissolveColor: (mesh, r, g, b) ->
+  _dissolveColor: (mesh) ->
     dm = Helper.dissolveMaterial(mesh.material.clone().map)
-    Helper.setDissolveMaterialColor(dm, r, g, b)
+    Helper.setDissolveMaterialColor(dm, 0, 0, 0)

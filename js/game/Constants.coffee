@@ -44,6 +44,7 @@ Constants =
     SELECT_CARD: 'selectCard'
     END_TURN: 'endTurn'
     PLAY_CARD: 'playCard'
+    ATTACK: 'attack'
 
   Action:
     DRAW_CARD: 'drawCard'
@@ -58,6 +59,8 @@ Constants =
     REPLENISH_MANA: 'replenishMana'
     SUMMON_MINION: 'summonMinion'
     AUTO_SELECT_CARD: 'autoSelectCard'
+    ATTACK: 'attack'
+    DIE: 'die'
 
   Position:
     Strategy:
@@ -76,6 +79,7 @@ Constants =
     SELECT_CARD: 100
     UPDATE_END_TURN: 600
     SUMMON_MINION: 1000
+    ATTACK: 1000
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

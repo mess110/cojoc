@@ -5,7 +5,7 @@ class ManaCrystal extends BaseModel
     super()
     size = 0.75
     @material = new (THREE.MeshBasicMaterial)(
-      map: TextureManager.get().items['mana-crystal']
+      map: TextureManager.get().items['mana-small']
       side: THREE.DoubleSide
       transparent: true
     )

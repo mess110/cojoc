@@ -17,11 +17,6 @@
     },
     {
       "libPath": "",
-      "destPath": "assets/wood-sword.png",
-      "type": "texture"
-    },
-    {
-      "libPath": "",
       "destPath": "assets/panel2.png",
       "type": "texture"
     },
@@ -32,12 +27,32 @@
     },
     {
       "libPath": "",
-      "destPath": "assets/mana-crystal.png",
+      "destPath": "assets/attack-small.png",
       "type": "texture"
     },
     {
       "libPath": "",
-      "destPath": "assets/heart.png",
+      "destPath": "assets/health-small.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/mana-small.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/attack.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/health.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/mana.png",
       "type": "texture"
     },
     {
@@ -98,6 +113,11 @@
     {
       "libPath": "",
       "destPath": "assets/putinei.jpg",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/dmg.png",
       "type": "texture"
     },
     {

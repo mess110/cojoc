@@ -81,13 +81,10 @@ class ArenaMover
     PoolManager.onRelease Card, (item) ->
       SceneManager.currentScene().scene.remove item.mesh
       SceneManager.currentScene().mover.uiCards.remove item
-      item.dissolving = false
-      item.dissolved = false
+      item.mesh.scale.set 1, 1, 1
       item.glow.original()
-      item.front.material = item.ofm
-      item.back.material = item.obm
-      item.fdm.uniforms.dissolve.value = 0
-      item.bdm.uniforms.dissolve.value = 0
+      item.front.material = Helper.basicMaterial('card-bg')
+      item.back.material = Helper.basicMaterial('card-bg')
 
     PoolManager.onSpawn Card, (item) ->
 
@@ -158,6 +155,24 @@ class ArenaMover
         card.minion(cardData)
         @_findHandFor(action.playerIndex).remove card
         @_findMinionsFor(action.playerIndex).add card
+      when Constants.Action.ATTACK
+        attacker = @_findCard(action.attackerId)
+        defender = @_findCard(action.defenderId)
+
+        target = defender.mesh.position.clone()
+        target.z += 1
+        attacker.move(
+          target: target
+          duration: Constants.Duration.ATTACK / 2
+        )
+        setTimeout =>
+          @moveBackInPosition(action)
+        , Constants.Duration.ATTACK / 2
+      when Constants.Action.DIE
+        for id in action.cardIds
+          card = @_findCard(id)
+          card.dissolve()
+          @_findMinionsFor(card.playerIndex).remove(card)
       else
         console.log "Unknown action #{action.action}"
 
@@ -169,6 +184,14 @@ class ArenaMover
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
     , duration
+
+  moveBackInPosition: (action) ->
+    attacker = @_findCard(action.attackerId)
+    defender = @_findCard(action.defenderId)
+    attacker.minion(@referee.findCard(action.attackerId))
+    defender.minion(@referee.findCard(action.defenderId))
+    # TODO: add damage sign
+    @_findMinionsFor(action.playerIndex)._moveInPosition(Constants.Duration.ATTACK / 2)
 
   _uiSelectCard: (action) ->
     toRemove = []
@@ -190,6 +213,19 @@ class ArenaMover
 
     if @arePlayersInit()
       @hoverMasta.tick(tpf)
+
+    @hightlightCardsWhichCanAttack()
+
+  hightlightCardsWhichCanAttack: ->
+    return unless @arePlayersInit()
+    myMinions = @_findMinionsFor(@_getMyPlayerIndex())
+    for card in myMinions.cards
+      if myMinions.hasSelected()
+        continue if card.id == myMinions.selectedCard.id
+      if @referee.findCard(card.id).attacksLeft > 0 and @endTurn.faceUp
+        card.glow.green()
+      else
+        card.glow.none()
 
   highlight: (data) ->
     @hoverMasta.highlight(data) if @arePlayersInit()
@@ -269,8 +305,11 @@ class ArenaMover
   doMultiSelect: (cardId) ->
     @multiSelect.push cardId
     if @multiSelect.size() == 2
-      # TODO: attack
-      console.log @multiSelect
+      @scene._emit(
+        type: 'gameInput'
+        action: Constants.Input.ATTACK
+        cards: @multiSelect
+      )
 
   playCard: (card, hand) ->
     throw "card does not have playerIndex" unless card.playerIndex?
