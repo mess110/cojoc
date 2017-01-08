@@ -14,6 +14,12 @@ endTurnTest = ->
   scene.scene.add scene.toggleButton.mesh
   scene.toggleButton.setFaceUp(false)
 
+  scene.finishedButton = new FinishedButton()
+  scene.finishedButton.mesh.position.set 3, -1, 0
+  scene.finishedButton.animate()
+  scene.finishedButton.setText('Victorie')
+  scene.scene.add scene.finishedButton.mesh
+
   scene.doMouseEvent = (event, raycaster) ->
     scene.endTurn.doMouseEvent(event, raycaster, true)
     scene.toggleButton.doMouseEvent(event, raycaster, true)

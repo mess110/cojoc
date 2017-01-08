@@ -81,6 +81,7 @@ class Card extends BoxedModel
 
   mkMinionMaterial: (json) ->
     fillStyle = '#f9f9f9'
+    strokeLineWidth = 14
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
@@ -90,11 +91,11 @@ class Card extends BoxedModel
     @art.ctx.drawImage(@art.canvas, 107, 25, 123, 168, padding, padding, @canvasWidth - padding * 2, @canvasHeight - padding * 2)
     @art.drawImage(key: 'minion-template')
     if json.stats.attack?
-      @art.drawImage(key: 'attack-small', y: @canvasHeight - 64)
-      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
+      @art.drawImage(key: 'attack', x: 1, y: @canvasHeight - 115)
+      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: 32, y: @canvasHeight - 20, font: '100px Pirata One')
     if json.stats.health?
-      @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
-      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+      @art.drawImage(key: 'health', x: @canvasWidth - 121, y: @canvasHeight - 115)
+      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @canvasWidth - 80, y: @canvasHeight - 20, font: '100px Pirata One')
 
     Helper.materialFromCanvas(@art.canvas)
 

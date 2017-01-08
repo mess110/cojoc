@@ -117,7 +117,12 @@
     },
     {
       "libPath": "",
-      "destPath": "assets/dmg.png",
+      "destPath": "assets/wood.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/damage.png",
       "type": "texture"
     },
     {

@@ -10,12 +10,20 @@ class ArenaBot
     otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
     # only do it on bot turn
     return unless @referee.isTurn(otherIndex)
+    return if @referee.addFinishedAction()
     if !@referee.hasMaxCardsInHand(otherIndex)
       @_selectCard(input)
 
     for card in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.HELD)
       if @referee.hasManaFor(otherIndex, card.cardId)
         @_playMinion(input, card)
+
+    for minion in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED)
+      playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
+      playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
+      if minion.attacksLeft > 0 and playerAttackableCards.any()
+        @referee.addAttackAction { action: Constants.Action.ATTACK, playerIndex: otherIndex, cards: [minion.cardId, playerAttackableCards.first().cardId] }
+        return if @referee.addFinishedAction()
     @referee.addEndTurnAction()
 
   addSelectHeroAction: (input) ->
@@ -27,8 +35,11 @@ class ArenaBot
     inputCopy = JSON.parse(JSON.stringify(input))
     otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
     inputCopy.playerIndex = otherIndex
-    inputCopy.cardId = @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED).shuffle().first().cardId
-    @referee.addSelectCardAction(inputCopy)
+    possibleCards = @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.DISCOVERED)
+    if possibleCards.any()
+      inputCopy.cardId = possibleCards.shuffle().first().cardId
+      @referee.addSelectCardAction(inputCopy)
+    return
 
   _playMinion: (input, card) ->
     inputCopy = JSON.parse(JSON.stringify(input))

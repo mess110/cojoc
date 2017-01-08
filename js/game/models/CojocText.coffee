@@ -27,3 +27,19 @@ class BigText extends BaseText
       canvasW: 256
       canvasH: 256
     super(options)
+
+class BigText2 extends BaseText
+  constructor: (align = undefined) ->
+    options =
+      font: 'bolder 50px Pirata One'
+      strokeStyle: 'black'
+      strokeLineWidth: 10
+      fillStyle: 'white'
+      align: align
+      text: 'hello'
+      w: 4
+      h: 4
+      y: 20
+      canvasW: 256
+      canvasH: 256
+    super(options)

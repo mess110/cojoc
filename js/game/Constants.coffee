@@ -38,6 +38,7 @@ Constants =
     Arena:
       HERO_SELECT: 0
       BATTLE: 1
+      FINISHED: 2
 
   Input:
     START_GAME: 'startGame'
@@ -61,6 +62,8 @@ Constants =
     AUTO_SELECT_CARD: 'autoSelectCard'
     ATTACK: 'attack'
     DIE: 'die'
+    FINISH: 'finish'
+    FATIGUE: 'fatigue'
 
   Position:
     Strategy:
@@ -79,7 +82,7 @@ Constants =
     SELECT_CARD: 100
     UPDATE_END_TURN: 600
     SUMMON_MINION: 1000
-    ATTACK: 1000
+    ATTACK: 1500
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

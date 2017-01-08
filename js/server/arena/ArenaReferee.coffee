@@ -30,9 +30,11 @@ class ArenaReferee extends BaseReferee
       player1:
         mana: 0
         maxMana: 0
+        fatigue: 0
       player2:
         mana: 0
         maxMana: 0
+        fatigue: 0
       cards: Cards.heroes().shuffle().concat(Cards.heroes().shuffle()).concat(allCards)
       turn: 'player1'
 
@@ -74,7 +76,20 @@ class ArenaReferee extends BaseReferee
         @addAttackAction(input)
       else
         console.log "Unknown input action #{input.action}"
+
+    @addFinishedAction()
+
     input
+
+  addFinishedAction: ->
+    return false if @isPhase(Constants.Phase.Arena.HERO_SELECT)
+    return true if @isPhase(Constants.Phase.Arena.FINISHED)
+    aliveHeroes = @findCards(type: Constants.CardType.HERO, status: Constants.CardStatus.HERO)
+    if aliveHeroes.size() != 2
+      @json.phase = Constants.Phase.Arena.FINISHED
+      @addAction { action: Constants.Action.FINISH, winners: aliveHeroes.map (e) -> e.playerIndex }
+      return true
+    false
 
   addAttackAction: (input) ->
     card1 = @findCard(input.cards[0])
@@ -99,7 +114,6 @@ class ArenaReferee extends BaseReferee
         action: Constants.Action.DIE
         cardIds: dieIds
       }
-
 
   addPlayCardAction: (input) ->
     if @hasMinionSpace(input.playerIndex)
@@ -158,12 +172,26 @@ class ArenaReferee extends BaseReferee
 
   _addDiscoverActions: ->
     cards = @findCards(status: undefined)
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
-    @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+    if cards.any()
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
+      @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+    else
+      @json[@json.turn].fatigue += 1
+      fatigueDmg = @json[@json.turn].fatigue
+      heroId = @json[@json.turn].hero
+      hero = @findCard(heroId)
+      hero.stats.health -= fatigueDmg
+      @addAction { playerIndex: @json.turn, action: Constants.Action.FATIGUE, amount: fatigueDmg }
+      if hero.stats.health < 1
+        @addAction {
+          duration: Constants.Duration.DISCARD_CARD
+          action: Constants.Action.DIE
+          cardIds: [heroId]
+        }
 
     # Discard discover cards if the player has max cards in hand
     if @hasMaxCardsInHand(@json.turn)
@@ -290,7 +318,8 @@ class ArenaReferee extends BaseReferee
             console.log "not valid cards for attack #{input.cards}"
             return
 
-          return if card.status != Constants.CardStatus.PLAYED
+          return if ![Constants.CardStatus.PLAYED, Constants.CardStatus.HERO].includes(card1.status)
+          return if ![Constants.CardStatus.PLAYED, Constants.CardStatus.HERO].includes(card2.status)
           return if card.attacksLeft <= 0
           return unless @isTurn(input.playerIndex)
           super(input)

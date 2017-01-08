@@ -78,6 +78,8 @@ class ArenaMover
 
     @hoverMasta = new HoverMasta(@scene, @)
 
+    PoolManager.onSpawn Card, (item) ->
+
     PoolManager.onRelease Card, (item) ->
       SceneManager.currentScene().scene.remove item.mesh
       SceneManager.currentScene().mover.uiCards.remove item
@@ -86,7 +88,8 @@ class ArenaMover
       item.front.material = Helper.basicMaterial('card-bg')
       item.back.material = Helper.basicMaterial('card-bg')
 
-    PoolManager.onSpawn Card, (item) ->
+    PoolManager.onRelease Damage, (item) ->
+      SceneManager.currentScene().scene.remove(item.mesh)
 
   uiServerTick: (data) ->
     @setData(data)
@@ -163,16 +166,40 @@ class ArenaMover
         target.z += 1
         attacker.move(
           target: target
-          duration: Constants.Duration.ATTACK / 2
+          duration: Constants.Duration.ATTACK / 3
+          kind: 'Cubic', direction: 'In'
         )
         setTimeout =>
           @moveBackInPosition(action)
-        , Constants.Duration.ATTACK / 2
+        , Constants.Duration.ATTACK / 3
       when Constants.Action.DIE
         for id in action.cardIds
           card = @_findCard(id)
           card.dissolve()
           @_findMinionsFor(card.playerIndex).remove(card)
+      when Constants.Action.FINISH
+        @backDrop = new BackDrop()
+        @backDrop.mesh.position.z = 14
+        @scene.scene.add @backDrop.mesh
+        @backDrop.animate()
+
+        @finishedButton = new FinishedButton()
+        @finishedButton.mesh.position.set 0, 0, 15
+        if action.winners.includes(@_getMyPlayerIndex())
+          @finishedButton.setText('Victorie')
+        else
+          @finishedButton.setText('Înfrângere')
+        @finishedButton.animate()
+        @scene.scene.add @finishedButton.mesh
+      when Constants.Action.FATIGUE
+        dmg = PoolManager.spawn(Damage)
+        dmg.setText(action.amount * -1)
+        dmg.animate()
+        hero = @_findHeroFor(action.playerIndex).cards.first()
+        hero.minion(@referee.findCard(hero.id))
+        pos = hero.mesh.position
+        dmg.mesh.position.set pos.x, pos.y, pos.z
+        @scene.scene.add dmg.mesh
       else
         console.log "Unknown action #{action.action}"
 
@@ -190,7 +217,24 @@ class ArenaMover
     defender = @_findCard(action.defenderId)
     attacker.minion(@referee.findCard(action.attackerId))
     defender.minion(@referee.findCard(action.defenderId))
-    # TODO: add damage sign
+
+    # show damage for the defender
+    dmg = PoolManager.spawn(Damage)
+    dmg.setText(@referee.findCard(action.attackerId).stats.attack * -1)
+    newY = defender.mesh.position.y
+    dmg.mesh.position.set defender.mesh.position.x, newY, defender.mesh.position.z + .5
+    dmg.animate()
+    @scene.scene.add dmg.mesh
+
+    # show damage for the attacker
+    if @referee.findCard(action.defenderId).type != Constants.CardType.HERO
+      point = @_findMinionsFor(attacker.playerIndex).getPoint(attacker)
+      dmg2 = PoolManager.spawn(Damage)
+      dmg2.setText(@referee.findCard(action.defenderId).stats.attack * -1)
+      dmg2.mesh.position.set point.x, point.y - 1, point.z + .5
+      dmg2.animate()
+      @scene.scene.add dmg2.mesh
+
     @_findMinionsFor(action.playerIndex)._moveInPosition(Constants.Duration.ATTACK / 2)
 
   _uiSelectCard: (action) ->
@@ -225,7 +269,11 @@ class ArenaMover
       if @referee.findCard(card.id).attacksLeft > 0 and @endTurn.faceUp
         card.glow.green()
       else
-        card.glow.none()
+        if @hoverMasta.lastUiHoveredCard?
+          if card.id != @hoverMasta.lastUiHoveredCard.id
+            card.glow.none()
+        else
+          card.glow.none()
 
   highlight: (data) ->
     @hoverMasta.highlight(data) if @arePlayersInit()
@@ -233,13 +281,14 @@ class ArenaMover
   uiKeyboardEvent: (event) ->
 
   uiMouseEvent: (event, raycaster) ->
+    return unless @arePlayersInit()
     myDiscover = @_findDiscoverFor(@_getMyPlayerIndex())
     myHand = @_findHandFor(@_getMyPlayerIndex())
 
     @deck.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
-    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected()
+    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected() or @referee.isDiscovering(@_getMyPlayerIndex())
     @endTurn.doMouseEvent(event, raycaster)
 
     @player1Hand.holsterLock = @player1Discover.hasCards() and !@player1Discover.viewingBoard
@@ -292,13 +341,6 @@ class ArenaMover
       @player2Mana.customPosition(Constants.Position.Player.SELF)
       @player1Minions.customPosition(Constants.Position.Player.OPPONENT)
       @player2Minions.customPosition(Constants.Position.Player.SELF)
-
-    # if !@discoverInited
-      # @discoverInited = true
-      # if @mirroredUI
-        # @player2Discover.addToggleButton()
-      # else
-        # @player1Discover.addToggleButton()
 
     return
 

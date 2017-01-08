@@ -35,28 +35,28 @@ Cards = [
     defaults:
       cost: 1
       attack: 1
-      health: 1
+      health: 5
   }
   {
     key: 'babaDochia'
     name: 'Baba Dochia'
     type: Constants.CardType.HERO
     defaults:
-      health: 30
+      health: 21
   }
   {
     key: 'ileanaCosanzeana'
     name: 'Ileana Cosânzeana'
     type: Constants.CardType.HERO
     defaults:
-      health: 30
+      health: 21
   }
   {
     key: 'zalmoxis'
     name: 'Zalmoxis'
     type: Constants.CardType.HERO
     defaults:
-      health: 30
+      health: 21
   }
 ]
 

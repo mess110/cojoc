@@ -1,16 +1,11 @@
-- end turn can be force clicked by player one while auto selecting cards
-- cards which died do not show the back after being release and they are bigger.
-look for 0.8, also reset the card back when impersonating or making a minion
 - helper text for noobs
 - timer
-- win condition
-- fatigue
 - add spells
-- implement attack
 - sounds
 - add more minions
 - fix minion text
 - fix overlapping mana bar
 - readable text
 - when missdragging a card don't end turn
+- transparent helper.plane
 - better summon minion animation

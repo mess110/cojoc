@@ -18,5 +18,5 @@ cubeTest = ->
   console.log info
   info.stats = JSON.parse(JSON.stringify(info.defaults))
   info.stats.health -= 1
-  scene.card.impersonate(info)
+  scene.card.minion(info)
   scene.scene.add scene.card.mesh

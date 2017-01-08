@@ -19,10 +19,13 @@ class BaseReferee
   hasActionsLeft: (playerIndex) ->
     return false unless @isTurn(playerIndex)
     canPlayACard = false
+    canAttack = false
     canDiscover = @findCards(status: Constants.CardStatus.DISCOVERED, playerIndex: playerIndex).any()
     for card in @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
       canPlayACard = true if @hasManaFor(playerIndex, card.cardId)
-    canPlayACard or canDiscover
+    for card in @findCards(status: Constants.CardStatus.PLAYED, playerIndex: playerIndex)
+      canAttack = true if card.attacksLeft > 0
+    canPlayACard or canDiscover or canAttack
 
   hasMaxCardsInHand: (playerIndex) ->
     cards = @findCards(status: Constants.CardStatus.HELD, playerIndex: playerIndex)
