@@ -7,6 +7,7 @@ class Card extends BoxedModel
     @canvasWidth = 336
     @canvasHeight = 452
 
+    @json = {}
     @mesh = new THREE.Object3D()
     @pivot = new THREE.Object3D()
     @mesh.add @pivot
@@ -128,6 +129,12 @@ class Card extends BoxedModel
 
     Helper.materialFromCanvas(@art.canvas)
 
+  release: ->
+    @mesh.scale.set 1, 1, 1
+    @glow.original()
+    @front.material = Helper.basicMaterial('card-bg')
+    @back.material = Helper.basicMaterial('card-bg')
+
   toJson: ->
     {
       id: @id
@@ -139,6 +146,7 @@ class Card extends BoxedModel
     throw 'key missing' unless json.key?
     throw 'name missing' unless json.name?
     throw 'defaults missing' unless json.defaults?
+    @json = json
 
   _dissolveColor: (mesh) ->
     dm = Helper.dissolveMaterial(mesh.material.clone().map)

@@ -35,21 +35,37 @@ class Damage extends BoxedModel
 
   setText: (text) ->
     text = text.toString()
-    if !text.startsWith('-') or !text.startsWith('+')
-      if text.startsWith('-')
-        # do nothing
-      else
-        text = "+#{text}"
+    if text != '0'
+      if !text.startsWith('-') or !text.startsWith('+')
+        if text.startsWith('-')
+          # do nothing
+        else
+          text = "+#{text}"
     @text.setText(text)
+
+  release: ->
+    @f1m.stop() if @f1m?
+    @s1m.stop() if @s1m?
+    @s2m.stop() if @s2m?
+    @f2m.stop() if @f2m?
 
   animate: ->
     return if @animating
     @animating = true
 
-    new FadeModifier(@, 0, 1, ANIMATION_DURATION / 5).start()
-    new ScaleModifier(@, 0.001, 1, ANIMATION_DURATION).tween.easing(TWEEN.Easing.Elastic.Out).start()
-    new ScaleModifier(@, 1, 0.001, ANIMATION_DURATION).delay(ANIMATION_DURATION * 3).tween.easing(TWEEN.Easing.Cubic.Out).start()
-    new FadeModifier(@, 1, 0, ANIMATION_DURATION / 5).delay(ANIMATION_DURATION * 4 - ANIMATION_DURATION / 5).start()
+    @f1m = new FadeModifier(@, 0, 1, ANIMATION_DURATION / 5)
+    @f1m.start()
+
+    @s1m = new ScaleModifier(@, 0.001, 1, ANIMATION_DURATION)
+    @s1m.tween.easing(TWEEN.Easing.Elastic.Out)
+    @s1m.start()
+
+    @s2m = new ScaleModifier(@, 1, 0.001, ANIMATION_DURATION).delay(ANIMATION_DURATION * 3)
+    @s2m.tween.easing(TWEEN.Easing.Cubic.Out)
+    @s2m.start()
+
+    @f2m = new FadeModifier(@, 1, 0, ANIMATION_DURATION / 5).delay(ANIMATION_DURATION * 4 - ANIMATION_DURATION / 5)
+    @f2m.start()
 
     setTimeout =>
       @animating = false

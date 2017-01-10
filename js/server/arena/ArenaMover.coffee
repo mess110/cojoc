@@ -78,18 +78,14 @@ class ArenaMover
 
     @hoverMasta = new HoverMasta(@scene, @)
 
-    PoolManager.onSpawn Card, (item) ->
-
     PoolManager.onRelease Card, (item) ->
       SceneManager.currentScene().scene.remove item.mesh
       SceneManager.currentScene().mover.uiCards.remove item
-      item.mesh.scale.set 1, 1, 1
-      item.glow.original()
-      item.front.material = Helper.basicMaterial('card-bg')
-      item.back.material = Helper.basicMaterial('card-bg')
+      item.release()
 
     PoolManager.onRelease Damage, (item) ->
       SceneManager.currentScene().scene.remove(item.mesh)
+      item.release()
 
   uiServerTick: (data) ->
     @setData(data)
@@ -131,7 +127,11 @@ class ArenaMover
         @_findDiscoverFor(card.playerIndex).remove toDiscard
       when Constants.Action.SELECT_HERO
         selectCard = @_uiSelectCard(action)
-        selectCard.minion(@referee.findCard(action.cardId))
+        hero = @referee.findCard(action.cardId)
+        # Hero is selected only in the beginning, it is sort of safe to
+        # reset the properties initially
+        hero.stats.health = Cards.where(key: hero.key).first().defaults.health
+        selectCard.minion(hero)
         @_findHeroFor(action.playerIndex).add selectCard
       when Constants.Action.SELECT_CARD
         selectCard = @_uiSelectCard(action)
@@ -170,7 +170,7 @@ class ArenaMover
           kind: 'Cubic', direction: 'In'
         )
         setTimeout =>
-          @moveBackInPosition(action)
+          @attackMoveBackInPosition(action)
         , Constants.Duration.ATTACK / 3
       when Constants.Action.DIE
         for id in action.cardIds
@@ -196,7 +196,8 @@ class ArenaMover
         dmg.setText(action.amount * -1)
         dmg.animate()
         hero = @_findHeroFor(action.playerIndex).cards.first()
-        hero.minion(@referee.findCard(hero.id))
+        hero.json.stats.health -= action.amount
+        hero.minion(hero.json)
         pos = hero.mesh.position
         dmg.mesh.position.set pos.x, pos.y, pos.z
         @scene.scene.add dmg.mesh
@@ -206,31 +207,38 @@ class ArenaMover
     # all actions
     if @arePlayersInit()
       @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
-      @endTurn.noGlow = @_findDiscoverFor(@_getMyPlayerIndex()).hasCards()
+      @endTurn.noGlow = @referee.isDiscovering(@_getMyPlayerIndex())
 
     setTimeout ->
       SceneManager.currentScene().mover.setProcessing(false)
     , duration
 
-  moveBackInPosition: (action) ->
+  attackMoveBackInPosition: (action) ->
     attacker = @_findCard(action.attackerId)
     defender = @_findCard(action.defenderId)
-    attacker.minion(@referee.findCard(action.attackerId))
-    defender.minion(@referee.findCard(action.defenderId))
+
+    attackerJson = @referee.findCard(action.attackerId)
+    defenderJson = @referee.findCard(action.defenderId)
+
+    attacker.json.stats.health -= defenderJson.stats.attack || 0 # hero doesn't have attack
+    defender.json.stats.health -= attackerJson.stats.attack
+
+    attacker.minion(attacker.json)
+    defender.minion(defender.json)
 
     # show damage for the defender
     dmg = PoolManager.spawn(Damage)
-    dmg.setText(@referee.findCard(action.attackerId).stats.attack * -1)
+    dmg.setText(attackerJson.stats.attack * -1)
     newY = defender.mesh.position.y
     dmg.mesh.position.set defender.mesh.position.x, newY, defender.mesh.position.z + .5
     dmg.animate()
     @scene.scene.add dmg.mesh
 
     # show damage for the attacker
-    if @referee.findCard(action.defenderId).type != Constants.CardType.HERO
+    if defenderJson.type != Constants.CardType.HERO
       point = @_findMinionsFor(attacker.playerIndex).getPoint(attacker)
       dmg2 = PoolManager.spawn(Damage)
-      dmg2.setText(@referee.findCard(action.defenderId).stats.attack * -1)
+      dmg2.setText(defenderJson.stats.attack * -1)
       dmg2.mesh.position.set point.x, point.y - 1, point.z + .5
       dmg2.animate()
       @scene.scene.add dmg2.mesh
@@ -284,18 +292,22 @@ class ArenaMover
     return unless @arePlayersInit()
     myDiscover = @_findDiscoverFor(@_getMyPlayerIndex())
     myHand = @_findHandFor(@_getMyPlayerIndex())
+    amIDiscovering = @referee.isDiscovering(@_getMyPlayerIndex())
+
+    player1IsDiscovering = @referee.isDiscovering('player1')
+    player2IsDiscovering = @referee.isDiscovering('player2')
 
     @deck.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
-    @endTurn.clickLock = myDiscover.hasCards() or myHand.hasSelected() or @referee.isDiscovering(@_getMyPlayerIndex())
+    @endTurn.clickLock = myHand.hasSelected() or amIDiscovering
     @endTurn.doMouseEvent(event, raycaster)
 
-    @player1Hand.holsterLock = @player1Discover.hasCards() and !@player1Discover.viewingBoard
+    @player1Hand.holsterLock = player1IsDiscovering and !@player1Discover.viewingBoard
     @player1Hand.viewingBoard = @player1Discover.viewingBoard
     @player1Hand.doMouseEvent(event, raycaster)
 
-    @player2Hand.holsterLock = @player2Discover.hasCards() and !@player2Discover.viewingBoard
+    @player2Hand.holsterLock = player2IsDiscovering and !@player2Discover.viewingBoard
     @player2Hand.viewingBoard = @player2Discover.viewingBoard
     @player2Hand.doMouseEvent(event, raycaster)
 
@@ -303,12 +315,12 @@ class ArenaMover
       @player1Hero.doMouseEvent(event, raycaster)
       @player2Hero.doMouseEvent(event, raycaster)
 
-    if !@player1Discover.hasInteraction() and !@player1Discover.hasCards()
+    if !@player1Discover.hasInteraction() and !player1IsDiscovering
       @player1Mana.doMouseEvent(event, raycaster)
-    if !@player2Discover.hasInteraction() and !@player2Discover.hasCards()
+    if !@player2Discover.hasInteraction() and !player2IsDiscovering
       @player2Mana.doMouseEvent(event, raycaster)
 
-    lockMinions = myDiscover.hasInteraction() or myHand.hasInteraction() or myDiscover.hasCards()
+    lockMinions = myDiscover.hasInteraction() or myHand.hasInteraction() or amIDiscovering
     @player1Minions.lock = lockMinions
     @player1Minions.doMouseEvent(event, raycaster)
     @player2Minions.lock = lockMinions
