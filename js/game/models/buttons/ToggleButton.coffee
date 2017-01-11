@@ -9,6 +9,9 @@ class ToggleButton extends Card
     @mesh.rotation.z = Math.PI / 2
     @original = { x: 0, y: 0, z: 0 }
 
+  _getSize: ->
+    { width: 2, height: 4 }
+
   isFaceUp: ->
     @faceUp
 
@@ -53,21 +56,23 @@ class ToggleButton extends Card
     return
 
   discover: ->
-    @mesh.scale.set 0.3, 0.3, 0.3
+    @setScale(0.5)
+    @canvasWidth = 200
+    @canvasHeight = 400
     @front.material = @mkFront('Ascunde')
     @back.material = @mkBack('Arată')
     @
 
   mkFront: (text) ->
     @art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
-    @art.drawImage(key: 'panel2')
-    @art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 185, y: -@canvasWidth / 2 + 40, font: '130px Pirata One', strokeLineWidth: 40)
+    @art.drawImage(key: 'panel-toggle-button')
+    @art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 155, y: -@canvasWidth / 2 + 40, font: '110px Pirata One', strokeLineWidth: 20)
     Helper.materialFromCanvas(@art.canvas)
 
   mkBack: (text) ->
     art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
-    art.drawImage(key: 'panel2')
-    art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 40, font: '140px Pirata One', strokeLineWidth: 40)
+    art.drawImage(key: 'panel-toggle-button')
+    art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 50, font: '140px Pirata One', strokeLineWidth: 40)
     Helper.materialFromCanvas(art.canvas)
 
   setVisible: (value) ->

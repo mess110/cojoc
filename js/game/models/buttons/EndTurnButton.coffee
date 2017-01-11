@@ -12,6 +12,12 @@ class EndTurnButton extends ToggleButton
     @clickOnlyOnFaceUp = true
     @hovered = false
     @noGlow = false
+    @hideTutorial = false
+
+    @panel = new EndTurnPanel()
+    @panel.mesh.rotation.set 0, 0, -Math.PI * 2
+    @panel.mesh.position.set 2.5, 0, 0
+    @mesh.add @panel.mesh
 
   setActionsLeft: (value) ->
     @hasActionsLeft = value
@@ -24,10 +30,16 @@ class EndTurnButton extends ToggleButton
     else
       @glow.green()
 
+    @panel.setVisible(!@hasActionsLeft and !@hideTutorial)
+
+  _getSize: ->
+    { width: 3, height: 4 }
+
   doMouseEvent: (event, raycaster, override=false) ->
     @hovered = @isHovered(raycaster)
     if @hovered and event.type == 'mouseup' and !@clickLock
       @click(override)
+      @hideTutorial = true
       currScene = SceneManager.currentScene()
       currScene._emit(
         type: 'gameInput'

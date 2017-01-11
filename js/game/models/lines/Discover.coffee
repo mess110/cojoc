@@ -9,10 +9,14 @@ class Discover extends BaseLine
     @flipGlow = true
 
     @curve = new DiscoverCurve()
+
     @toggleButton = new ToggleButton().discover()
     @toggleButton.mesh.position.set 3.2, 2.6, 0
-
     @mesh.add @toggleButton.mesh
+
+    @panel = new ChooseCardPanel()
+    @panel.mesh.position.set 0, 2.5, 0
+    @mesh.add @panel.mesh
 
   tick: (tpf) ->
     # this prob needs a better implementation. move it to something which
@@ -23,6 +27,7 @@ class Discover extends BaseLine
       card = currScene.game.referee.findCard(@cards.first().id)
       isHoldingNonHeroes = card.type != Constants.CardType.HERO
     @toggleButton.setVisible(isHoldingNonHeroes or false)
+    @panel.setVisible(currScene.game.referee.isDiscovering(currScene.mover._getMyPlayerIndex()) and @cards.size() == 3 and @toggleButton.faceUp)
 
   _moveInPosition: () ->
     for card in @cards

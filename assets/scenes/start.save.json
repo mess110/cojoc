@@ -17,6 +17,11 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/panel-toggle-button.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/panel2.png",
       "type": "texture"
     },

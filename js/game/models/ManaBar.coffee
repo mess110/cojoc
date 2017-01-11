@@ -78,6 +78,7 @@ class ManaBar extends BoxedModel
       else
         cube.hide()
 
+    @manaText.setVisible(true)
     @manaText.setText(@toString())
     return
 
@@ -87,13 +88,13 @@ class ManaBar extends BoxedModel
     return
 
   toString: ->
-    @currentMana.toString() + " / " + @maxMana.toString()
+    "#{@currentMana.toString()} / #{@maxMana.toString()}"
 
   doMouseEvent: (event, raycaster) ->
     hovered = @isHovered(raycaster)
     if hovered != @hovered
       @hovered = hovered
-      @manaText.setVisible(@hovered)
+      # @manaText.setVisible(@hovered)
 
   customPosition: (i) ->
     switch i

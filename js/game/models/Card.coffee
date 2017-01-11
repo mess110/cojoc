@@ -2,8 +2,9 @@ class Card extends BoxedModel
   constructor: () ->
     super()
 
-    @cardWidth = 3
-    @cardHeight = 4
+    size = @_getSize()
+    @cardWidth = size.width
+    @cardHeight = size.height
     @canvasWidth = 336
     @canvasHeight = 452
 
@@ -32,6 +33,9 @@ class Card extends BoxedModel
       @_boxMaterial()
     )
     @mesh.add @box
+
+  _getSize: ->
+    { width: 3, height: 4 }
 
   setOpacity: (value) ->
     @front.material.opacity = value if @front?

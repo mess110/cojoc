@@ -77,7 +77,9 @@ class ArenaMover
     @scene.scene.add @turnNotification.mesh
 
     @hoverMasta = new HoverMasta(@scene, @)
+
     @backDrop = new BackDrop()
+    @backDrop.mesh.position.z = -10
     @scene.scene.add @backDrop.mesh
 
     @finishedButton = new FinishedButton()
@@ -158,6 +160,7 @@ class ArenaMover
       when Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana) if @_isBot(action.playerIndex)
       when Constants.Action.SUMMON_MINION
+        @_findHandFor(action.playerIndex).hideTutorial = true if @_isMe(action.playerIndex)
         cardData = @referee.findCard(action.cardId)
         @cardPreview.animate(cardData) if !@_isMe(action.playerIndex)
         card = @_findCard(action.cardId)
@@ -168,6 +171,7 @@ class ArenaMover
         point = minions.getPoint(card)
         duration = card.entrance(cardData, action.duration, point)
       when Constants.Action.PLAY_SPELL
+        @_findHandFor(action.playerIndex).hideTutorial = true if @_isMe(action.playerIndex)
         cardData = @referee.findCard(action.cardId)
         console.log action
         console.log cardData
@@ -407,11 +411,14 @@ class ArenaMover
   glowHeldCards: (cards) ->
     return unless @arePlayersInit()
     myIndex = @_getMyPlayerIndex()
+    glowing = false
     for card in cards
       if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex) and @endTurn.faceUp
         card.glow.blue()
+        glowing = true
       else
         card.glow.none()
+    glowing
 
   _isMe: (playerIndex) ->
     @_getMyPlayerIndex() == playerIndex

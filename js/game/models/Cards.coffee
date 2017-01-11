@@ -143,7 +143,7 @@ Cards = [
   {
     key: 'babaDochia'
     name: 'Baba Dochia'
-    nameX: 50
+    nameX: 60
     type: Constants.CardType.HERO
     defaults:
       health: 21
@@ -165,7 +165,7 @@ Cards = [
     name: 'Zalmoxis'
     type: Constants.CardType.HERO
     nameLetterPadding: 7.5
-    nameX: 60
+    nameX: 90
     defaults:
       health: 21
   }

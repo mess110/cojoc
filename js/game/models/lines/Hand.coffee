@@ -6,6 +6,7 @@ class Hand extends BaseLine
 
     @holsterEnabled = true
     @flipGlow = true
+    @hideTutorial = false
 
     @box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.5, 0.1), @_boxMaterial())
     @mesh.add @box
@@ -16,6 +17,10 @@ class Hand extends BaseLine
     @text = new CojocText()
     @text.setText(@toString())
     @mesh.add @text.mesh
+
+    @panel = new PlayCardPanel()
+    @panel.mesh.position.set 0, 1, 0
+    @mesh.add @panel.mesh
 
   tick: (tpf) ->
     amount = tpf
@@ -28,12 +33,18 @@ class Hand extends BaseLine
       @selectedCard.pivot.rotation.y = @direction.x
 
     if @holstered and @boxIsHovered
-      @text.setVisible(true)
+      if @panel.visible
+        @text.setVisible(false)
+      else
+        @text.setVisible(true)
     else
       @text.setVisible(false)
 
-    if @mine and SceneManager.currentScene().mover?
-      SceneManager.currentScene().mover.glowHeldCards(@cards)
+    currScene = SceneManager.currentScene()
+    if @mine and currScene.mover?
+      glowing = currScene.mover.glowHeldCards(@cards)
+      isDiscovering = currScene.mover.referee.isDiscovering(currScene.mover._getMyPlayerIndex())
+      @panel.setVisible(glowing and @holstered and !@hideTutorial and !isDiscovering)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
     return unless @mine

@@ -37,10 +37,10 @@ class Hero extends BaseLine
       when Constants.Position.Player.SELF
         @mine = true
         @mesh.position.set 0, -6, 0
-        @mesh.rotation.set 0, 0, 0
+        @mesh.rotation.set -0.2, 0, 0
       when Constants.Position.Player.OPPONENT
         @mine = false
         @mesh.position.set 0, 6, 0
-        @mesh.rotation.set 0, 0, 0
+        @mesh.rotation.set 0.2, 0, 0
       else
         throw "invalid customPosition #{i}"
