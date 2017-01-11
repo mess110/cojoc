@@ -5,8 +5,6 @@ class Minions extends BaseLine
     @box = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 0.1), @_boxMaterial())
     @mesh.add @box
 
-    @minionScale = 0.8
-
     @curve = new MinionsCurve()
 
   _moveInPosition: (duration = 1000) ->
@@ -26,9 +24,9 @@ class Minions extends BaseLine
           rX: 0
           rY: 0
           rZ: 0
-          sX: @minionScale
-          sY: @minionScale
-          sZ: @minionScale
+          sX: Constants.MINION_SCALE
+          sY: Constants.MINION_SCALE
+          sZ: Constants.MINION_SCALE
       )
 
   _doMouseUp: (raycaster, pos) ->
@@ -50,6 +48,9 @@ class Minions extends BaseLine
             rX: 0
             rY: 0
             rZ: 0
+            sX: Constants.MINION_SCALE
+            sY: Constants.MINION_SCALE
+            sZ: Constants.MINION_SCALE
           duration: 200
           kind: 'Cubic', direction: 'In'
         )
@@ -66,6 +67,9 @@ class Minions extends BaseLine
           rX: 0
           rY: 0
           rZ: 0
+          sX: Constants.MINION_SCALE
+          sY: Constants.MINION_SCALE
+          sZ: Constants.MINION_SCALE
         duration: 200
         kind: 'Cubic', direction: 'Out'
       )

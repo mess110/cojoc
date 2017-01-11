@@ -1,6 +1,10 @@
 class CardsScene extends BaseScene
   init: (options) ->
-    @cards = new CyclicArray(Cards)
+    totalCards = [].concat(Cards)
+    while totalCards.size() % 3 != 0
+      totalCards.push {}
+
+    @cards = new CyclicArray(totalCards)
     @cards.index = -1
 
     @card1 = new Card()
@@ -14,6 +18,11 @@ class CardsScene extends BaseScene
     @card3.mesh.position.x += 4
     @scene.add @card3.mesh
 
+    @page = 0
+    @text = new BigText('center')
+    @text.mesh.position.set 0, -4.5, 0
+    @scene.add @text.mesh
+
     @next()
 
   tick: (tpf) ->
@@ -21,22 +30,26 @@ class CardsScene extends BaseScene
   doKeyboardEvent: (event) ->
 
   doMouseEvent: (event, raycaster) ->
-    if event.type == 'mousemove'
-      for card in [@card1, @card2, @card3]
-        if card.isHovered(raycaster)
-          card.glow.green()
-        else
-          card.glow.none()
 
   next: ->
-    @card1.impersonate(@cards.next())
-    @card2.impersonate(@cards.next())
-    @card3.impersonate(@cards.next())
+    for card in [@card1, @card2, @card3]
+      tmp = @cards.next()
+      if tmp.key?
+        card.impersonate(tmp)
+        card.setOpacity(1)
+      else
+        card.setOpacity(0)
+
+    text = "#{(@cards.index + 1) / 3} / #{@cards.items.size() / 3}"
+    @text.setText(text)
 
   prev: ->
     @cards.prev()
     @cards.prev()
+    @cards.prev()
 
-    @card1.impersonate(@cards.next())
-    @card2.impersonate(@cards.next())
-    @card3.impersonate(@cards.next())
+    @cards.prev()
+    @cards.prev()
+    @cards.prev()
+
+    @next()

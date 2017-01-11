@@ -2,7 +2,8 @@ class BaseLine extends BoxedModel
   constructor: ->
     super()
 
-    @maxRotation = 1
+    @maxRotation = 0.25
+    @rotationStep = 0.025
     @rotMod = 1
     @mouseDown = false
     @cards = []
@@ -167,10 +168,10 @@ class BaseLine extends BoxedModel
 
     if event.type == 'mousemove' and @oldEvent?
       if @oldEvent.pageX != event.pageX
-        amount = if event.pageX < @oldEvent.pageX then -0.01 else 0.01
+        amount = if event.pageX < @oldEvent.pageX then -@rotationStep else @rotationStep
         @direction.x = Helper.addWithMinMax(@direction.x, amount, -@maxRotation, @maxRotation)
       if @oldEvent.pageY != event.pageY
-        amount = if event.pageY < @oldEvent.pageY then 0.01 else -0.01
+        amount = if event.pageY < @oldEvent.pageY then @rotationStep else -@rotationStep
         @direction.y = Helper.addWithMinMax(@direction.y, amount, -@maxRotation, @maxRotation)
 
     @oldEvent = event

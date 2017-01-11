@@ -19,6 +19,14 @@ Constants =
     CURRENT_ID: 'currentId'
     TMP_USER: 'tmpUser'
 
+  MINION_SCALE: 0.8
+
+  NameCurve:
+    DEFAULT: '0,0,100,0,200,0,300,0'
+    SAD_MOUTH: '20,0,84,-30,168,-30,276,0'
+    HAPPY_MOUTH: '20,0,84,30,168,30,276,0'
+    SNAKE: '20,0,104,-40,188,40,296,-20'
+
   CardType:
     HERO: 'hero'
     MINION: 'minion'
@@ -64,6 +72,7 @@ Constants =
     DIE: 'die'
     FINISH: 'finish'
     FATIGUE: 'fatigue'
+    PLAY_SPELL: 'playSpell'
 
   Position:
     Strategy:

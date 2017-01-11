@@ -16,7 +16,7 @@ class ArenaBot
 
     for card in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.HELD)
       if @referee.hasManaFor(otherIndex, card.cardId)
-        @_playMinion(input, card)
+        @_playCard(input, card)
 
     for minion in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED)
       playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
@@ -41,7 +41,7 @@ class ArenaBot
       @referee.addSelectCardAction(inputCopy)
     return
 
-  _playMinion: (input, card) ->
+  _playCard: (input, card) ->
     inputCopy = JSON.parse(JSON.stringify(input))
     otherIndex = @referee._getOtherPlayerIndex(input.playerIndex)
     inputCopy.playerIndex = otherIndex

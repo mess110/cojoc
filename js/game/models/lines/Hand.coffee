@@ -24,8 +24,8 @@ class Hand extends BaseLine
 
     # rotate the card according to the direction the mouse is going
     if @selectedCard? and @takenOut
-      @selectedCard.pivot.rotation.x = -@direction.y / 2
-      @selectedCard.pivot.rotation.y = @direction.x / 2
+      @selectedCard.pivot.rotation.x = -@direction.y
+      @selectedCard.pivot.rotation.y = @direction.x
 
     if @holstered and @boxIsHovered
       @text.setVisible(true)

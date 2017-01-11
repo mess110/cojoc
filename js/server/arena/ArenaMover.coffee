@@ -77,6 +77,10 @@ class ArenaMover
     @scene.scene.add @turnNotification.mesh
 
     @hoverMasta = new HoverMasta(@scene, @)
+    @backDrop = new BackDrop()
+    @scene.scene.add @backDrop.mesh
+
+    @finishedButton = new FinishedButton()
 
     PoolManager.onRelease Card, (item) ->
       SceneManager.currentScene().scene.remove item.mesh
@@ -149,15 +153,24 @@ class ArenaMover
         if isMe
           @turnNotification.animate()
         @endTurn.setFaceUp(isMe)
-      when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA, Constants.Action.SET_MANA
+      when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
+      when Constants.Action.SET_MANA
+        @_findManaFor(action.playerIndex).update(action.mana, action.maxMana) if @_isBot(action.playerIndex)
       when Constants.Action.SUMMON_MINION
         cardData = @referee.findCard(action.cardId)
         @cardPreview.animate(cardData) if !@_isMe(action.playerIndex)
         card = @_findCard(action.cardId)
-        card.minion(cardData)
+        card.setOpacity(0)
         @_findHandFor(action.playerIndex).remove card
-        @_findMinionsFor(action.playerIndex).add card
+        minions = @_findMinionsFor(action.playerIndex)
+        minions.add card
+        point = minions.getPoint(card)
+        duration = card.entrance(cardData, action.duration, point)
+      when Constants.Action.PLAY_SPELL
+        cardData = @referee.findCard(action.cardId)
+        console.log action
+        console.log cardData
       when Constants.Action.ATTACK
         attacker = @_findCard(action.attackerId)
         defender = @_findCard(action.defenderId)
@@ -178,12 +191,8 @@ class ArenaMover
           card.dissolve()
           @_findMinionsFor(card.playerIndex).remove(card)
       when Constants.Action.FINISH
-        @backDrop = new BackDrop()
         @backDrop.mesh.position.z = 14
-        @scene.scene.add @backDrop.mesh
-        @backDrop.animate()
-
-        @finishedButton = new FinishedButton()
+        @backDrop.fadeIn()
         @finishedButton.mesh.position.set 0, 0, 15
         if action.winners.includes(@_getMyPlayerIndex())
           @finishedButton.setText('Victorie')
@@ -192,15 +201,11 @@ class ArenaMover
         @finishedButton.animate()
         @scene.scene.add @finishedButton.mesh
       when Constants.Action.FATIGUE
-        dmg = PoolManager.spawn(Damage)
-        dmg.setText(action.amount * -1)
-        dmg.animate()
         hero = @_findHeroFor(action.playerIndex).cards.first()
         hero.json.stats.health -= action.amount
         hero.minion(hero.json)
         pos = hero.mesh.position
-        dmg.mesh.position.set pos.x, pos.y, pos.z
-        @scene.scene.add dmg.mesh
+        @_spawnDmg(action.amount * -1, pos)
       else
         console.log "Unknown action #{action.action}"
 
@@ -213,6 +218,13 @@ class ArenaMover
       SceneManager.currentScene().mover.setProcessing(false)
     , duration
 
+  _spawnDmg: (amount, position)->
+    dmg = PoolManager.spawn(Damage)
+    dmg.setText(amount)
+    dmg.mesh.position.set position.x, position.y, position.z
+    dmg.animate()
+    @scene.scene.add dmg.mesh
+
   attackMoveBackInPosition: (action) ->
     attacker = @_findCard(action.attackerId)
     defender = @_findCard(action.defenderId)
@@ -220,28 +232,28 @@ class ArenaMover
     attackerJson = @referee.findCard(action.attackerId)
     defenderJson = @referee.findCard(action.defenderId)
 
-    attacker.json.stats.health -= defenderJson.stats.attack || 0 # hero doesn't have attack
+    attacker.json.stats.health -= (defenderJson.stats.attack || 0) # hero doesn't have attack
     defender.json.stats.health -= attackerJson.stats.attack
 
     attacker.minion(attacker.json)
     defender.minion(defender.json)
 
     # show damage for the defender
-    dmg = PoolManager.spawn(Damage)
-    dmg.setText(attackerJson.stats.attack * -1)
     newY = defender.mesh.position.y
-    dmg.mesh.position.set defender.mesh.position.x, newY, defender.mesh.position.z + .5
-    dmg.animate()
-    @scene.scene.add dmg.mesh
+    pos =
+      x: defender.mesh.position.x
+      y: newY
+      z: defender.mesh.position.z + 0.5
+    @_spawnDmg(attackerJson.stats.attack * -1, pos)
 
     # show damage for the attacker
     if defenderJson.type != Constants.CardType.HERO
       point = @_findMinionsFor(attacker.playerIndex).getPoint(attacker)
-      dmg2 = PoolManager.spawn(Damage)
-      dmg2.setText(defenderJson.stats.attack * -1)
-      dmg2.mesh.position.set point.x, point.y - 1, point.z + .5
-      dmg2.animate()
-      @scene.scene.add dmg2.mesh
+      pos =
+        x: point.x
+        y: point.y - 1
+        z: point.z + 0.5
+      @_spawnDmg(defenderJson.stats.attack * -1, pos)
 
     @_findMinionsFor(action.playerIndex)._moveInPosition(Constants.Duration.ATTACK / 2)
 

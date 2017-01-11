@@ -116,11 +116,16 @@ class ArenaReferee extends BaseReferee
       }
 
   addPlayCardAction: (input) ->
-    if @hasMinionSpace(input.playerIndex)
+    card = @findCard(input.cardId)
+    if card.type == Constants.CardType.MINION
+      if @hasMinionSpace(input.playerIndex)
+        @addAction { duration: 1000, playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
+        @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
+      else
+        console.log 'too many minions in play'
+    if card.type == Constants.CardType.SPELL
       @addAction { duration: 1000, playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
-      @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_MINION, cardId: input.cardId }
-    else
-      console.log 'too many minions in play'
+      @addAction { playerIndex: input.playerIndex, action: Constants.Action.PLAY_SPELL, cardId: input.cardId }
 
   addSelectCardAction: (input) ->
     actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
@@ -277,6 +282,10 @@ class ArenaReferee extends BaseReferee
         card = @findCard(id)
         card.status = Constants.CardStatus.DISCARDED
 
+    if action.action == Constants.Action.PLAY_SPELL
+      card = @findCard(action.cardId)
+      card.status = Constants.CardStatus.DISCARDED
+
     super(action)
 
   addInput: (input) ->
@@ -300,12 +309,12 @@ class ArenaReferee extends BaseReferee
           super(input)
         when Constants.Input.PLAY_CARD
           card = @findCard(input.cardId)
-          return if card.status == Constants.CardStatus.HERO
-          return if card.status == Constants.CardStatus.DISCARDED
+          return if card.status != Constants.CardStatus.HELD
           return if card.playerIndex != input.playerIndex
           return unless @isTurn(input.playerIndex)
           return unless @hasManaFor(input.playerIndex, input.cardId)
-          return unless @hasMinionSpace(input.playerIndex)
+          if card.type == Constants.CardType.MINION
+            return unless @hasMinionSpace(input.playerIndex)
           super(input)
         when Constants.Input.ATTACK
           card1 = @findCard(input.cards[0])
@@ -338,7 +347,6 @@ class ArenaReferee extends BaseReferee
     i = 0
     for card in @json.cards
       card.cardId = i
-      card.stats = JSON.parse(JSON.stringify(card.defaults))
       i += 1
 
 exports.ArenaReferee = ArenaReferee

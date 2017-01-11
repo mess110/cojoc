@@ -75,9 +75,20 @@
       "destPath": "assets/card-template.png",
       "type": "texture"
     },
+
+    {
+      "libPath": "",
+      "destPath": "assets/cards/babaDochia.png",
+      "type": "texture"
+    },
     {
       "libPath": "",
       "destPath": "assets/cards/calulNazdravan.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/capcaun.png",
       "type": "texture"
     },
     {
@@ -87,17 +98,22 @@
     },
     {
       "libPath": "",
-      "destPath": "assets/cards/muma.png",
+      "destPath": "assets/cards/fireball.png",
       "type": "texture"
     },
     {
       "libPath": "",
-      "destPath": "assets/cards/sanziene.png",
+      "destPath": "assets/cards/fireember.png",
       "type": "texture"
     },
     {
       "libPath": "",
-      "destPath": "assets/cards/babaDochia.png",
+      "destPath": "assets/cards/greaterHeal.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/heal.png",
       "type": "texture"
     },
     {
@@ -107,9 +123,40 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/cards/lesserHeal.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/muma.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/pyroblast.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/viespe.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/cards/zalmoxis.png",
       "type": "texture"
     },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/zorila.png",
+      "type": "texture"
+    },
+
     {
       "libPath": "",
       "destPath": "assets/putinei.jpg",

@@ -50,6 +50,16 @@ class Card extends BoxedModel
     @front.material = @mkMinionMaterial(json)
     @
 
+  entrance: (json, duration, point) ->
+    @cancelMove()
+    @mesh.position.set point.x, point.y, point.z
+    @mesh.rotation.set 0, 0, 0
+    @minion(json)
+    new FadeModifier(@, 0, 1, duration / 3 * 2).start()
+    new ScaleModifier(@, 0.001, Constants.MINION_SCALE, duration / 2).start()
+    @setOpacity(1)
+    duration
+
   cancelMove: ->
     @tween.stop() if @tween?
 
@@ -93,10 +103,10 @@ class Card extends BoxedModel
     @art.drawImage(key: 'minion-template')
     if json.stats.attack?
       @art.drawImage(key: 'attack', x: 1, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: 32, y: @canvasHeight - 20, font: '100px Pirata One')
+      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @_getStatsAttackX(json), y: @canvasHeight - 20, font: '100px Pirata One')
     if json.stats.health?
       @art.drawImage(key: 'health', x: @canvasWidth - 121, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @canvasWidth - 80, y: @canvasHeight - 20, font: '100px Pirata One')
+      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: '100px Pirata One')
 
     Helper.materialFromCanvas(@art.canvas)
 
@@ -106,28 +116,62 @@ class Card extends BoxedModel
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
     @art.drawImage(key: 'card-template')
-    if json.defaults.cost
+    if json.defaults.cost?
       @art.drawImage(key: 'mana-small')
-      @art.drawText(text: json.defaults.cost, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: 50, font: '50px Pirata One')
-    if json.defaults.attack
+      @art.drawText(text: json.defaults.cost, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultCostX(json), y: 50, font: '50px Pirata One')
+    if json.defaults.attack?
       @art.drawImage(key: 'attack-small', y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.attack, fillStyle: fillStyle, strokeStyle: 'black', x: 20, y: @canvasHeight - 15, font: '50px Pirata One')
-    if json.defaults.health
-      # fillStyle = if json.stats.health == json.defaults.health then '#f9f9f9' else 'red'
+      @art.drawText(text: json.defaults.attack, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultAttackX(json), y: @canvasHeight - 14, font: '50px Pirata One')
+    if json.defaults.health?
       @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: 'black', x: @canvasWidth - 40, y: @canvasHeight - 15, font: '50px Pirata One')
+      @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultHealthX(json), y: @canvasHeight - 14, font: '50px Pirata One')
     # @art.drawText(text: 'Charge', strokeStyle: 'black', x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: '40px Pirata One')
-    @art.drawBezier(
-      curve: '20,157.2,130.02,100.0,190.5,246.2,492,176.3'
+
+    nameType = if json.nameCurve? then 'drawBezier' else 'drawText'
+    @art[nameType](
+      curve: json.nameCurve
       text: json.name
-      x: 70, y: 93
+      x: json.nameX || 0, y: (json.nameY || @canvasHeight / 2 + 22) + (json.nameAddY || 0)
       fillStyle: fillStyle
       strokeStyle: 'black'
-      letterPadding: 6
-      font: '50px Pirata One'
+      letterPadding: json.nameLetterPadding || 6
+      font: "#{json.nameFontSize || 50}px Pirata One"
     )
 
     Helper.materialFromCanvas(@art.canvas)
+
+  _iconTextHelper: (json, which, attr, start, offset) ->
+    def = start - offset
+
+    i = 0
+    s = json[which][attr].toString()
+    while i < s.length # 1 is shorter in width
+      def += 9 if s[i] == '1'
+      i++
+
+    if json[which][attr] == 1
+      def -= 6
+    if json[which][attr] >= 10 or json[which][attr] <= -10 # length
+      def -= 15
+    if json[which][attr] < 0 # minus
+      def -= 10
+    def
+
+  _getStatsHealthX: (json) ->
+    @_iconTextHelper(json, 'stats', 'health', @canvasWidth, 80)
+
+  _getDefaultHealthX: (json) ->
+    @_iconTextHelper(json, 'defaults', 'health', @canvasWidth, 40)
+
+  _getStatsAttackX: (json) ->
+    @_iconTextHelper(json, 'stats', 'attack', 34, 0)
+
+  _getDefaultAttackX: (json) ->
+    @_iconTextHelper(json, 'defaults', 'attack', 22, 0)
+
+  _getDefaultCostX: (json) ->
+    @_iconTextHelper(json, 'defaults', 'cost', 18, 0)
+
 
   release: ->
     @mesh.scale.set 1, 1, 1

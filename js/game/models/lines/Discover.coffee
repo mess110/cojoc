@@ -11,6 +11,7 @@ class Discover extends BaseLine
     @curve = new DiscoverCurve()
     @toggleButton = new ToggleButton().discover()
     @toggleButton.mesh.position.set 3.2, 2.6, 0
+
     @mesh.add @toggleButton.mesh
 
   tick: (tpf) ->

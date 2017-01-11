@@ -14,9 +14,10 @@ cubeTest = ->
     item.bdm.uniforms.dissolve.value = 0
 
   scene.card = PoolManager.spawn(Card)
-  info = Cards.randomMinion()
-  console.log info
-  info.stats = JSON.parse(JSON.stringify(info.defaults))
-  info.stats.health -= 1
-  scene.card.minion(info)
+  info = Cards[0] # Cards.randomMinion()
+  scene.card.impersonate(info)
   scene.scene.add scene.card.mesh
+
+  scene.doKeyboardEvent = (event) ->
+    if event.type == 'keyup'
+      scene.card.impersonate(scene.card.json)

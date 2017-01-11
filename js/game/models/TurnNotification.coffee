@@ -5,18 +5,12 @@ class TurnNotification extends BaseModel
     super()
     @animating = false
 
-    geom = new THREE.PlaneBufferGeometry(6.71 * 0.8, 5.64 * 0.8)
-    material = new THREE.MeshBasicMaterial(
-      map: TextureManager.get().items['turn-notification']
-      side: THREE.DoubleSide
-      transparent: true
-    )
+    geom = new THREE.PlaneBufferGeometry(6.71, 5.64)
+    material = Helper.basicMaterial('turn-notification')
     @mesh = new THREE.Mesh(geom, material)
-    @mesh.renderOrder = 0
 
-    @text = new BigText()
-    @text.mesh.position.set -1, -3.5, 0.05
-    @text.mesh.renderOrder = 1
+    @text = new BigText('center')
+    @text.mesh.position.set 0, -3.5, 0.075
     @mesh.add @text.mesh
     @setText('Rândul tău')
 
