@@ -8,6 +8,7 @@ Cards = [
     key: 'viespe'
     name: 'Viespe'
     type: Constants.CardType.MINION
+    charge: true
     nameX: 105
     defaults:
       cost: 1
@@ -18,6 +19,7 @@ Cards = [
     key: 'corb'
     name: 'Corb'
     type: Constants.CardType.MINION
+    taunt: true
     nameX: 120
     defaults:
       cost: 1
@@ -91,7 +93,10 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
+      cost: 2
+    onPlay:
+      target: true
+      dmg: -3
   }
   {
     key: 'fireball'
@@ -99,7 +104,10 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
+      cost: -4
+    onPlay:
+      target: true
+      dmg: -6
   }
   {
     key: 'pyroblast'
@@ -107,7 +115,10 @@ Cards = [
     nameX: 90
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
+      cost: 5
+    onPlay:
+      target: false
+      dmg: -3
   }
   {
     key: 'lesserHeal'
@@ -115,7 +126,10 @@ Cards = [
     nameX: 115
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
+      cost: 2
+    onPlay:
+      target: true
+      dmg: 5
   }
   {
     key: 'heal'
@@ -126,7 +140,9 @@ Cards = [
     nameCurve: Constants.NameCurve.SNAKE
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
+      cost: 6
+    onPlay:
+      dmg: 3
   }
   {
     key: 'greaterHeal'
@@ -135,6 +151,9 @@ Cards = [
     type: Constants.CardType.SPELL
     defaults:
       cost: 4
+    onPlay:
+      target: true
+      dmg: 12
   }
 
   # ------------------------ #
@@ -197,5 +216,6 @@ Cards.randomSpell = ->
 
 for pureCard in Cards
   pureCard.stats = JSON.parse(JSON.stringify(pureCard.defaults))
+  pureCard.onPlay ?= {}
 
 exports.Cards = Cards

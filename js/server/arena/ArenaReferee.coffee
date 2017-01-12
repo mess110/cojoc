@@ -268,6 +268,8 @@ class ArenaReferee extends BaseReferee
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.PLAYED
       card.attacksLeft = 0
+      if card.charge
+        card.attacksLeft = 1
 
     if action.action == Constants.Action.ATTACK
       action.duration = Constants.Duration.ATTACK
@@ -331,6 +333,7 @@ class ArenaReferee extends BaseReferee
           return if ![Constants.CardStatus.PLAYED, Constants.CardStatus.HERO].includes(card2.status)
           return if card.attacksLeft <= 0
           return unless @isTurn(input.playerIndex)
+          # TODO: do not allow attack if there is a taunt in play
           super(input)
         else
           console.log "not adding, unknown input action #{input.action}"

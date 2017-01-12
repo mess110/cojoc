@@ -15,7 +15,8 @@ class Discover extends BaseLine
     @mesh.add @toggleButton.mesh
 
     @panel = new ChooseCardPanel()
-    @panel.mesh.position.set 0, 2.5, 0
+    @panel.mesh.position.set 0, 2.6, 0
+    @panel.setVisible(false)
     @mesh.add @panel.mesh
 
   tick: (tpf) ->

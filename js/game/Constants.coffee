@@ -21,6 +21,13 @@ Constants =
 
   MINION_SCALE: 0.8
 
+  TEXT_COLOR: '#f9f9f9'
+  STROKE_COLOR: 'black'
+
+  FLAVOR_FONT: '40px Pirata One'
+  MINION_STAT_FONT: '100px Pirata One'
+  CARD_STAT_FONT: '50px Pirata One'
+
   NameCurve:
     DEFAULT: '0,0,100,0,200,0,300,0'
     SAD_MOUTH: '20,0,84,-30,168,-30,276,0'

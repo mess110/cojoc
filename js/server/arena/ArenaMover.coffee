@@ -13,7 +13,9 @@ class ArenaMover
     @uiCards = []
     @processing = false
     @mirroredUI = false
+    @forceShowAllTutorials = false
     @multiSelect = []
+    @castingSpell = undefined
 
     @deck = new Deck(@referee.json.cards.length)
     @deck.mesh.position.set -12, 0, 0
@@ -160,8 +162,8 @@ class ArenaMover
       when Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana) if @_isBot(action.playerIndex)
       when Constants.Action.SUMMON_MINION
-        @_findHandFor(action.playerIndex).hideTutorial = true if @_isMe(action.playerIndex)
-        cardData = @referee.findCard(action.cardId)
+        cardKey = @referee.findCard(action.cardId).key
+        cardData = Cards.where(key: cardKey).shallowClone().first()
         @cardPreview.animate(cardData) if !@_isMe(action.playerIndex)
         card = @_findCard(action.cardId)
         card.setOpacity(0)
@@ -171,10 +173,15 @@ class ArenaMover
         point = minions.getPoint(card)
         duration = card.entrance(cardData, action.duration, point)
       when Constants.Action.PLAY_SPELL
-        @_findHandFor(action.playerIndex).hideTutorial = true if @_isMe(action.playerIndex)
         cardData = @referee.findCard(action.cardId)
-        console.log action
-        console.log cardData
+        if !@_isMe(action.playerIndex)
+          card = @_findCard(action.cardId)
+          @cardPreview.animate(cardData)
+          @_findHandFor(action.playerIndex).remove card
+          card.dissolve()
+          # TODO: summon spell
+
+        # TODO: find spell and cast it
       when Constants.Action.ATTACK
         attacker = @_findCard(action.attackerId)
         defender = @_findCard(action.defenderId)
@@ -213,8 +220,7 @@ class ArenaMover
       else
         console.log "Unknown action #{action.action}"
 
-    # all actions
-    if @arePlayersInit()
+    if @arePlayersInit() and action.playerIndex == @_getMyPlayerIndex()
       @endTurn.hasActionsLeft = @referee.hasActionsLeft(@_getMyPlayerIndex())
       @endTurn.noGlow = @referee.isDiscovering(@_getMyPlayerIndex())
 
@@ -284,6 +290,11 @@ class ArenaMover
 
     @hightlightCardsWhichCanAttack()
 
+    if @forceShowAllTutorials and @arePlayersInit()
+      @player2Discover.panel.setVisible(true)
+      @player2Hand.panel.setVisible(true)
+      @endTurn.panel.setVisible(true)
+
   hightlightCardsWhichCanAttack: ->
     return unless @arePlayersInit()
     myMinions = @_findMinionsFor(@_getMyPlayerIndex())
@@ -316,15 +327,20 @@ class ArenaMover
     @deck.doMouseEvent(event, raycaster)
     @player1Discover.doMouseEvent(event, raycaster)
     @player2Discover.doMouseEvent(event, raycaster)
-    @endTurn.clickLock = myHand.hasSelected() or amIDiscovering
+    @endTurn.clickLock = myHand.hasSelected() or amIDiscovering or @castingSpell?
     @endTurn.doMouseEvent(event, raycaster)
 
     @player1Hand.holsterLock = player1IsDiscovering and !@player1Discover.viewingBoard
     @player1Hand.viewingBoard = @player1Discover.viewingBoard
-    @player1Hand.doMouseEvent(event, raycaster)
 
     @player2Hand.holsterLock = player2IsDiscovering and !@player2Discover.viewingBoard
     @player2Hand.viewingBoard = @player2Discover.viewingBoard
+
+    if @castingSpell?
+      myHand.holsterLock = true
+      myHand.viewingBoard = false
+
+    @player1Hand.doMouseEvent(event, raycaster)
     @player2Hand.doMouseEvent(event, raycaster)
 
     if !myDiscover.hasInteraction() and !myHand.hasInteraction()
@@ -342,6 +358,21 @@ class ArenaMover
     @player2Minions.lock = lockMinions
     @player2Minions.doMouseEvent(event, raycaster)
     @multiSelect = []
+
+    # TODO: move to HoverMasta
+    lastHoveredCard = @hoverMasta.lastHoveredCard
+    if event.type == 'mouseup' and @castingSpell? and lastHoveredCard?
+       # TODO: check which cards are allowed to be targeted
+      if lastHoveredCard.id != @castingSpell
+        # TODO: summon spell
+        console.log "casting #{@castingSpell} on #{lastHoveredCard.id}"
+        @scene._emit(
+          type: 'gameInput'
+          action: Constants.Input.PLAY_CARD
+          cardId: @castingSpell
+          targetId: lastHoveredCard.id
+        )
+        @castingSpell = undefined
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -389,31 +420,53 @@ class ArenaMover
       console.ce "not enough mana for #{card.id}"
       return
 
-    unless @referee.hasMinionSpace(card.playerIndex)
-      console.ce "too many minions"
-      return
-
     unless @referee.isTurn(card.playerIndex)
       console.ce "not your turn"
       return
 
     memCard = @referee.findCard(card.id)
+
+    if memCard.type == Constants.CardType.MINION
+      unless @referee.hasMinionSpace(card.playerIndex)
+        console.ce "too many minions"
+        return
+
     hand.remove(card)
     card.glow.none()
-    card.dissolve(false)
     @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
-    @scene._emit(
-      type: 'gameInput'
-      action: Constants.Input.PLAY_CARD
-      cardId: card.id
-    )
+    @_findHandFor(card.playerIndex).hideTutorial = true if @_isMe(card.playerIndex)
+
+    if memCard.type == Constants.CardType.MINION
+      card.dissolve(false)
+      unless @referee.hasCardsWhichCanBePlayedNow(@_getMyPlayerIndex())
+        @_findHandFor(@_getMyPlayerIndex()).holster(true)
+      @scene._emit(
+        type: 'gameInput'
+        action: Constants.Input.PLAY_CARD
+        cardId: card.id
+      )
+    else if memCard.type == Constants.CardType.SPELL
+      card.dissolve()
+      @_findHandFor(@_getMyPlayerIndex()).holster(true)
+      if memCard.onPlay.target
+        @castingSpell = memCard.cardId
+        console.log "choosing target for #{@castingSpell}"
+      else
+        @scene._emit(
+          type: 'gameInput'
+          action: Constants.Input.PLAY_CARD
+          cardId: card.id
+        )
+        console.log "casting spell #{memCard.cardId}"
+
 
   glowHeldCards: (cards) ->
     return unless @arePlayersInit()
     myIndex = @_getMyPlayerIndex()
     glowing = false
     for card in cards
-      if @referee.hasManaFor(myIndex, card.id) and @referee.isTurn(myIndex) and @endTurn.faceUp
+      hasMana = @referee.hasManaFor(myIndex, card.id) and @_findManaFor(myIndex).hasManaFor(card)
+      if hasMana and @referee.isTurn(myIndex) and @endTurn.faceUp
         card.glow.blue()
         glowing = true
       else

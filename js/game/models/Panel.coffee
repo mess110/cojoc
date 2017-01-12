@@ -25,15 +25,16 @@ class ChooseCardPanel extends BasePanel
       @_boxMaterial()
     )
     @mesh.add @box
-    @setScale(0.5)
+    @setScale(0.9)
 
 class PlayCardPanel extends ChooseCardPanel
   constructor: ->
     super()
     @setText('Joacă o carte')
+    @setScale(1.1)
 
 class EndTurnPanel extends ChooseCardPanel
   constructor: ->
     super()
     @setText('Termină tura')
-    @setScale(1)
+    @setScale(2.2)

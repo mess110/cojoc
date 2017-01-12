@@ -19,7 +19,8 @@ class Hand extends BaseLine
     @mesh.add @text.mesh
 
     @panel = new PlayCardPanel()
-    @panel.mesh.position.set 0, 1, 0
+    @panel.mesh.position.set -2, 1.3, 0
+    @panel.setVisible(false)
     @mesh.add @panel.mesh
 
   tick: (tpf) ->
@@ -44,7 +45,7 @@ class Hand extends BaseLine
     if @mine and currScene.mover?
       glowing = currScene.mover.glowHeldCards(@cards)
       isDiscovering = currScene.mover.referee.isDiscovering(currScene.mover._getMyPlayerIndex())
-      @panel.setVisible(glowing and @holstered and !@hideTutorial and !isDiscovering)
+      @panel.setVisible(glowing and @holstered and !@hideTutorial and !isDiscovering and !currScene.mover.castingSpell?)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
     return unless @mine

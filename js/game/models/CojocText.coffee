@@ -2,8 +2,8 @@ class CojocText extends BaseText
   constructor: (align = undefined) ->
     options =
       font: 'bolder 60px Pirata One'
-      strokeStyle: 'black'
-      fillStyle: 'white'
+      strokeStyle: Constants.STROKE_COLOR
+      fillStyle: Constants.TEXT_COLOR
       text: 'hello'
       align: align
       w: 1.25
@@ -17,9 +17,9 @@ class BigText extends BaseText
   constructor: (align = undefined) ->
     options =
       font: 'bolder 50px Pirata One'
-      strokeStyle: 'black'
+      strokeStyle: Constants.STROKE_COLOR
       strokeLineWidth: 10
-      fillStyle: 'white'
+      fillStyle: Constants.TEXT_COLOR
       align: align
       text: 'hello'
       w: 4
@@ -32,9 +32,9 @@ class BigText2 extends BaseText
   constructor: (align = undefined) ->
     options =
       font: 'bolder 50px Pirata One'
-      strokeStyle: 'black'
+      strokeStyle: Constants.STROKE_COLOR
       strokeLineWidth: 10
-      fillStyle: 'white'
+      fillStyle: Constants.TEXT_COLOR
       align: align
       text: 'hello'
       w: 4
@@ -48,9 +48,9 @@ class BigText3 extends BaseText
   constructor: (align = undefined) ->
     options =
       font: 'bolder 90px Pirata One'
-      strokeStyle: 'black'
+      strokeStyle: Constants.STROKE_COLOR
       strokeLineWidth: 10
-      fillStyle: 'white'
+      fillStyle: Constants.TEXT_COLOR
       align: align
       text: 'hello'
       w: 4

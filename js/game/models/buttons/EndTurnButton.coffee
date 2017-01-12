@@ -16,7 +16,8 @@ class EndTurnButton extends ToggleButton
 
     @panel = new EndTurnPanel()
     @panel.mesh.rotation.set 0, 0, -Math.PI * 2
-    @panel.mesh.position.set 2.5, 0, 0
+    @panel.mesh.position.set 2.9, 4.4, 0
+    @panel.setVisible(false)
     @mesh.add @panel.mesh
 
   setActionsLeft: (value) ->
@@ -30,7 +31,7 @@ class EndTurnButton extends ToggleButton
     else
       @glow.green()
 
-    @panel.setVisible(!@hasActionsLeft and !@hideTutorial)
+    @panel.setVisible(!@hasActionsLeft and !@hideTutorial and @faceUp)
 
   _getSize: ->
     { width: 3, height: 4 }

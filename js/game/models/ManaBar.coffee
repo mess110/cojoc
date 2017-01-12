@@ -82,6 +82,9 @@ class ManaBar extends BoxedModel
     @manaText.setText(@toString())
     return
 
+  hasManaFor: (uiCard) ->
+    @currentMana >= uiCard.json.stats.cost
+
   shake: ->
     for cube in @cubes
       cube.shake()

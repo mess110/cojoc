@@ -66,13 +66,13 @@ class ToggleButton extends Card
   mkFront: (text) ->
     @art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
     @art.drawImage(key: 'panel-toggle-button')
-    @art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 155, y: -@canvasWidth / 2 + 40, font: '110px Pirata One', strokeLineWidth: 20)
+    @art.drawText(angle: 90, text: text, fillStyle: Constants.TEXT_COLOR, strokeStyle: Constants.STROKE_COLOR, x: @canvasHeight / 2 - 155, y: -@canvasWidth / 2 + 40, font: '110px Pirata One', strokeLineWidth: 20)
     Helper.materialFromCanvas(@art.canvas)
 
   mkBack: (text) ->
     art = new ArtGenerator(width: @canvasWidth, height: @canvasHeight)
     art.drawImage(key: 'panel-toggle-button')
-    art.drawText(angle: 90, text: text, strokeStyle: 'black', x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 50, font: '140px Pirata One', strokeLineWidth: 40)
+    art.drawText(angle: 90, text: text, fillStyle: Constants.TEXT_COLOR, strokeStyle: Constants.STROKE_COLOR, x: @canvasHeight / 2 - 120, y: -@canvasWidth / 2 + 50, font: '140px Pirata One', strokeLineWidth: 40)
     Helper.materialFromCanvas(art.canvas)
 
   setVisible: (value) ->

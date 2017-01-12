@@ -28,7 +28,7 @@ app.config ($routeProvider) ->
   ).otherwise redirectTo: '/'
   return
 
-app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toastr) ->
+app.controller 'MainController', ($scope, $location, $window, $routeParams, $timeout, toastr) ->
   $scope.inputDisabled = false
   $scope.game =
     loaded: false
@@ -105,7 +105,7 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
     document.getElementById('prev').style.opacity = 1
     document.getElementById('next').style.opacity = 1
 
-  $scope.start = () ->
+  $scope.start = ->
     return if !($scope.game.loaded and $scope.game.connected)
     path = $location.path()
     options = {}
@@ -122,6 +122,9 @@ app.controller 'MainController', ($scope, $location, $routeParams, $timeout, toa
       scene = menuScene
 
     engine.initScene(scene, options, false)
+
+  $scope.reload = ->
+    $window.location.reload()
 
 app.controller 'LandingController', ($scope) ->
   document.getElementById('back-button').style.opacity = 0
@@ -152,6 +155,7 @@ app.controller 'NewGameController', ($scope) ->
 
 app.controller 'SettingsController', ($scope) ->
   document.getElementById("back-button").style.opacity = 1
+  $scope.hidePrevNext()
   $scope.sound = Persist.get(Constants.Storage.SOUND)
   $scope.bot = Persist.get(Constants.Storage.BOT)
   $scope.volume = Persist.get(Constants.Storage.VOLUME)

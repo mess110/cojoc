@@ -95,7 +95,7 @@ class Card extends BoxedModel
     tween
 
   mkMinionMaterial: (json) ->
-    fillStyle = '#f9f9f9'
+    fillStyle = Constants.TEXT_COLOR
     strokeLineWidth = 14
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
@@ -107,29 +107,36 @@ class Card extends BoxedModel
     @art.drawImage(key: 'minion-template')
     if json.stats.attack?
       @art.drawImage(key: 'attack', x: 1, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @_getStatsAttackX(json), y: @canvasHeight - 20, font: '100px Pirata One')
+      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsAttackX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
     if json.stats.health?
       @art.drawImage(key: 'health', x: @canvasWidth - 121, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: 'black', strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: '100px Pirata One')
+      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
+
+    # TODO: draw taunt
 
     Helper.materialFromCanvas(@art.canvas)
 
   mkCardMaterial: (json) ->
-    fillStyle = '#f9f9f9'
+    fillStyle = Constants.TEXT_COLOR
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
     @art.drawImage(key: json.key)
     @art.drawImage(key: 'card-template')
     if json.defaults.cost?
       @art.drawImage(key: 'mana-small')
-      @art.drawText(text: json.defaults.cost, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultCostX(json), y: 50, font: '50px Pirata One')
+      @art.drawText(text: json.defaults.cost, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, x: @_getDefaultCostX(json), y: 50, font: Constants.CARD_STAT_FONT)
     if json.defaults.attack?
       @art.drawImage(key: 'attack-small', y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.attack, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultAttackX(json), y: @canvasHeight - 14, font: '50px Pirata One')
+      @art.drawText(text: json.defaults.attack, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, x: @_getDefaultAttackX(json), y: @canvasHeight - 14, font: Constants.CARD_STAT_FONT)
     if json.defaults.health?
       @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
-      @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: 'black', x: @_getDefaultHealthX(json), y: @canvasHeight - 14, font: '50px Pirata One')
-    # @art.drawText(text: 'Charge', strokeStyle: 'black', x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: '40px Pirata One')
+      @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, x: @_getDefaultHealthX(json), y: @canvasHeight - 14, font: Constants.CARD_STAT_FONT)
+
+    if json.charge
+      @art.drawText(text: 'Charge', strokeLineWidth: 0, strokeStyle: Constants.STROKE_COLOR, fillStyle: Constants.TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+
+    if json.taunt
+      @art.drawText(text: 'Taunt', strokeLineWidth: 0, strokeStyle: Constants.STROKE_COLOR, fillStyle: Constants.TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
 
     nameType = if json.nameCurve? then 'drawBezier' else 'drawText'
     @art[nameType](
@@ -137,7 +144,7 @@ class Card extends BoxedModel
       text: json.name
       x: json.nameX || 0, y: (json.nameY || @canvasHeight / 2 + 22) + (json.nameAddY || 0)
       fillStyle: fillStyle
-      strokeStyle: 'black'
+      strokeStyle: Constants.STROKE_COLOR
       letterPadding: json.nameLetterPadding || 6
       font: "#{json.nameFontSize || 50}px Pirata One"
     )
@@ -179,6 +186,7 @@ class Card extends BoxedModel
 
   release: ->
     @mesh.scale.set 1, 1, 1
+    @pivot.rotation.set 0, 0, 0
     @glow.original()
     @front.material = Helper.basicMaterial('card-bg')
     @back.material = Helper.basicMaterial('card-bg')
