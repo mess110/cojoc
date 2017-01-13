@@ -143,12 +143,22 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/cards/pasareaMaiastra.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/cards/pyroblast.png",
       "type": "texture"
     },
     {
       "libPath": "",
       "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/spiridus.png",
       "type": "texture"
     },
     {

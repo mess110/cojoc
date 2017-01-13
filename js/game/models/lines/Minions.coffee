@@ -12,7 +12,7 @@ class Minions extends BaseLine
       point = @getPoint(card)
       if card == @selectedCard
         point.x += @_getExtraX(card)
-        point.z += 4
+        point.z += 0.5
 
       card.pivot.rotation.set 0, 0, 0
       card.move(
@@ -31,7 +31,9 @@ class Minions extends BaseLine
 
   _doMouseUp: (raycaster, pos) ->
     return unless @selectedCard?
-    SceneManager.currentScene().mover.doMultiSelect(@selectedCard.id)
+    currScene = SceneManager.currentScene()
+    return unless currScene.mover?
+    currScene.mover.doMultiSelect(@selectedCard.id)
 
   _doAfterMouseEvent: (event, raycaster, pos) ->
 
@@ -63,13 +65,13 @@ class Minions extends BaseLine
         target:
           x: point.x + @_getExtraX(@selectedCard)
           y: point.y
-          z: point.z + 4
+          z: point.z + 0.5
           rX: 0
           rY: 0
           rZ: 0
-          sX: Constants.MINION_SCALE
-          sY: Constants.MINION_SCALE
-          sZ: Constants.MINION_SCALE
+          sX: Constants.MINION_SCALE * 1.1
+          sY: Constants.MINION_SCALE * 1.1
+          sZ: Constants.MINION_SCALE * 1.1
         duration: 200
         kind: 'Cubic', direction: 'Out'
       )
@@ -78,11 +80,11 @@ class Minions extends BaseLine
     switch i
       when Constants.Position.Player.SELF
         @mine = true
-        @mesh.position.set 0, -1.75, 0
+        @mesh.position.set 0, -1.8, 0
         @mesh.rotation.set 0, 0, 0
       when Constants.Position.Player.OPPONENT
         @mine = false
-        @mesh.position.set 0, 1.75, 0
+        @mesh.position.set 0, 1.8, 0
         @mesh.rotation.set 0, 0, 0
       else
         throw "invalid customPosition #{i}"

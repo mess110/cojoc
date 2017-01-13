@@ -74,6 +74,8 @@ class ArenaReferee extends BaseReferee
         @addPlayCardAction(input)
       when Constants.Input.ATTACK
         @addAttackAction(input)
+      when Constants.Input.TARGET_SPELL
+        @addTargetSpell(input)
       else
         console.log "Unknown input action #{input.action}"
 
@@ -107,7 +109,10 @@ class ArenaReferee extends BaseReferee
       dieIds.push attacker.cardId
     if defender.stats.health < 1
       dieIds.push defender.cardId
+    @addDeadCardsAction(dieIds)
 
+  addDeadCardsAction: (inputIds) ->
+    dieIds = [].concat(inputIds)
     if dieIds.any()
       @addAction {
         duration: Constants.Duration.DISCARD_CARD
@@ -125,7 +130,24 @@ class ArenaReferee extends BaseReferee
         console.log 'too many minions in play'
     if card.type == Constants.CardType.SPELL
       @addAction { duration: 1000, playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
-      @addAction { playerIndex: input.playerIndex, action: Constants.Action.PLAY_SPELL, cardId: input.cardId }
+      action = @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_SPELL, cardId: input.cardId }
+
+      unless @hasOnPlayTarget(card)
+        @addAction { playerIndex: input.playerIndex, action: Constants.Action.AOE_SPELL, targets: action.targets, cardId: input.cardId }
+
+        deadIds = []
+        for target in action.targets
+          targetCard = @findCard(target.cardId)
+          if targetCard.stats.health < 1
+            deadIds.push target.cardId
+        @addDeadCardsAction(deadIds)
+
+  addTargetSpell: (input) ->
+    @addAction { duration: Constants.Duration.DISSOLVE, playerIndex: input.playerIndex, action: Constants.Action.TARGET_SPELL, cardId: input.cardId, targetId: input.targetId }
+
+    target = @findCard(input.targetId)
+    if target.stats.health < 1
+      @addDeadCardsAction(input.targetId)
 
   addSelectCardAction: (input) ->
     actionName = if @isPhase(Constants.Phase.Arena.HERO_SELECT) then Constants.Action.SELECT_HERO else Constants.Action.SELECT_CARD
@@ -167,6 +189,8 @@ class ArenaReferee extends BaseReferee
     @addAction { playerIndex: 'player2', action: Constants.Action.DISCOVER_CARD, cardId: 5 }
 
   addEndTurnAction: ->
+    if @isDiscovering(@json.turn)
+      @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: @json.turn, action: Constants.Action.SELECT_CARD }
     @json.turn = @_getOtherPlayerIndex(@json.turn)
     @addAction { duration: Constants.Duration.UPDATE_END_TURN, playerIndex: @json.turn, action: Constants.Action.UPDATE_END_TURN_BUTTON }
     @addAction { playerIndex: @json.turn, action: Constants.Action.SET_MAX_MANA, to: @getMaxMana(@json.turn) + 1 }
@@ -192,11 +216,7 @@ class ArenaReferee extends BaseReferee
       hero.stats.health -= fatigueDmg
       @addAction { playerIndex: @json.turn, action: Constants.Action.FATIGUE, amount: fatigueDmg }
       if hero.stats.health < 1
-        @addAction {
-          duration: Constants.Duration.DISCARD_CARD
-          action: Constants.Action.DIE
-          cardIds: [heroId]
-        }
+        @addDeadCardsAction(heroId)
 
     # Discard discover cards if the player has max cards in hand
     if @hasMaxCardsInHand(@json.turn)
@@ -228,11 +248,12 @@ class ArenaReferee extends BaseReferee
           action.discardIds.push dCard.cardId
 
     if action.action == Constants.Action.SELECT_CARD
-      card = @findCard(action.cardId)
-      card.status = Constants.CardStatus.HELD
+      if action.cardId?
+        card = @findCard(action.cardId)
+        card.status = Constants.CardStatus.HELD
       action.discardIds = []
       for dCard in @findCards(playerIndex: action.playerIndex, status: Constants.CardStatus.DISCOVERED)
-        if dCard.cardId != card.cardId
+        if dCard.cardId != action.cardId
           dCard.status = Constants.CardStatus.DISCARDED
           action.discardIds.push dCard.cardId
 
@@ -285,11 +306,45 @@ class ArenaReferee extends BaseReferee
         card = @findCard(id)
         card.status = Constants.CardStatus.DISCARDED
 
-    if action.action == Constants.Action.PLAY_SPELL
+    if action.action == Constants.Action.SUMMON_SPELL
+      action.targets = []
+      action.duration = Constants.Duration.SUMMON_MINION
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.DISCARDED
 
+      for onPlayEffect in card.onPlay
+        if onPlayEffect.dmg?
+          for target in @getSpellTargets(action.playerIndex, onPlayEffect)
+            action.targets.push { cardId: target.cardId, dmg: onPlayEffect.dmg }
+            target.stats.health += onPlayEffect.dmg
+
+    if action.action == Constants.Action.TARGET_SPELL
+      action.duration = Constants.Duration.DISSOLVE
+      card = @findCard(action.cardId)
+      target = @findCard(action.targetId)
+
+      card.status = Constants.CardStatus.DISCARDED
+      onPlayEffect = card.onPlay.where(target: true).first()
+      if onPlayEffect.dmg?
+        # TODO: max health
+        target.stats.health += onPlayEffect.dmg
+        action.dmg = onPlayEffect.dmg
+
     super(action)
+
+  getSpellTargets: (playerIndex, onPlayEffect) ->
+    targets = []
+    return [] if onPlayEffect.target
+    otherIndex = @_getOtherPlayerIndex(playerIndex)
+    if onPlayEffect.ownMinions
+      targets = targets.concat(@findCards(playerIndex: playerIndex, status: Constants.CardStatus.PLAYED))
+    if onPlayEffect.enemyMinions
+      targets = targets.concat(@findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED))
+    if onPlayEffect.ownHero
+      targets = targets.concat(@findCards(playerIndex: playerIndex, status: Constants.CardStatus.HERO))
+    if onPlayEffect.enemyHero
+      targets = targets.concat(@findCards(playerIndex: otherIndex, status: Constants.CardStatus.HERO))
+    targets
 
   addInput: (input) ->
     if @isPhase(Constants.Phase.Arena.HERO_SELECT)
@@ -301,7 +356,7 @@ class ArenaReferee extends BaseReferee
     if @isPhase(Constants.Phase.Arena.BATTLE)
       switch input.action
         when Constants.Input.END_TURN
-          if @isTurn(input.playerIndex) and !@isDiscovering(input.playerIndex)
+          if @isTurn(input.playerIndex)
             super(input)
         when Constants.Input.SELECT_CARD
           # TODO: find out if we need double select protection
@@ -340,6 +395,11 @@ class ArenaReferee extends BaseReferee
           enemyTauntMinions = @findTauntMinions().map (e) -> e.cardId
           if enemyTauntMinions.any()
             return unless enemyTauntMinions.includes(otherCard.cardId)
+          super(input)
+        when Constants.Input.TARGET_SPELL
+          return unless @isTurn(input.playerIndex)
+          return unless input.cardId? # maybe check for the actual card
+          return unless input.targetId? # maybe check for the actual card
           super(input)
         else
           console.log "not adding, unknown input action #{input.action}"

@@ -26,7 +26,6 @@ class HoverMasta
 
   changeHovered: (newHovered) ->
     @lastHoveredCard = newHovered
-    # TODO: emit
     toSendId = if newHovered? then newHovered.id else undefined
     @scene._emit(
       type: 'highlight'

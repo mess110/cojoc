@@ -58,6 +58,7 @@ class Card extends BoxedModel
     @cancelMove()
     @mesh.position.set point.x, point.y, point.z
     @mesh.rotation.set 0, 0, 0
+    @pivot.rotation.set 0, 0, 0
     @minion(json)
     new FadeModifier(@, 0, 1, duration / 3 * 2).start()
     new ScaleModifier(@, 0.001, Constants.MINION_SCALE, duration / 2).start()
@@ -79,7 +80,7 @@ class Card extends BoxedModel
     obj.front.material = @_dissolveColor(@front)
     obj.back.material = @_dissolveColor(@back)
 
-    tween = new TWEEN.Tween(value: 0).to(value: 1, 1000)
+    tween = new TWEEN.Tween(value: 0).to(value: 1, Constants.Duration.DISSOLVE)
     tween.easing(TWEEN.Easing.Cubic.In)
     tween.onUpdate(->
       obj.front.material.uniforms.dissolve.value = @value
@@ -133,23 +134,32 @@ class Card extends BoxedModel
       @art.drawImage(key: 'health-small', x: @canvasWidth - 64, y: @canvasHeight - 64)
       @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, x: @_getDefaultHealthX(json), y: @canvasHeight - 14, font: Constants.CARD_STAT_FONT)
 
+    lineCount = 0
     if json.charge
-      @art.drawText(text: 'Charge', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: 'Charge', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + @_getLineOffset(json, lineCount), font: Constants.FLAVOR_FONT)
+      lineCount += 1
 
     if json.taunt
-      @art.drawText(text: 'Scut', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 30, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: 'Scut', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 30, y: @canvasHeight / 3 * 2 + @_getLineOffset(json, lineCount), font: Constants.FLAVOR_FONT)
+      lineCount += 1
 
     if json.windfury
-      @art.drawText(text: 'Windfury', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: 'Windfury', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + @_getLineOffset(json, lineCount), font: Constants.FLAVOR_FONT)
+      lineCount += 1
 
-    if json.onPlay.dmg?
-      s = json.onPlay.dmg.toString()
-      s = "+#{s}" if json.onPlay.dmg > 0
-      s += " viață"
-      unless json.onPlay.target
-        s += ' la toți'
+    for onPlayEffect in json.onPlay
+      s = '?'
+      if onPlayEffect.dmg?
+        s = onPlayEffect.dmg.toString()
+        s = "+#{s}" if onPlayEffect.dmg > 0
+        s += " viață"
+
+      s += @_flavorTextTarget(onPlayEffect)
+
+      lineCountOffset = @_getLineOffset(json, lineCount)
       cw = s.size()
-      @art.drawText(text: s, strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - cw / 2 * 10 - 10, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: s, strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - cw / 2 * 10 - 10, y: @canvasHeight / 3 * 2 + lineCountOffset, font: Constants.FLAVOR_FONT)
+      lineCount += 1
 
     nameType = if json.nameCurve? then 'drawBezier' else 'drawText'
     @art[nameType](
@@ -163,6 +173,42 @@ class Card extends BoxedModel
     )
 
     Helper.materialFromCanvas(@art.canvas)
+
+  _getLineOffset: (json, lineCount) ->
+    totalLineCount = @_countFlavorTextLines(json)
+
+    lineCountOffset = switch totalLineCount
+      when 1
+        50 + lineCount * 40
+      when 2
+        30 + lineCount * 40
+      when 3
+        10 + lineCount * 40
+      else
+        0
+    lineCountOffset
+
+  _countFlavorTextLines: (json) ->
+    totalLineCount = 0
+    for onPlayEffect in json.onPlay
+      totalLineCount += 1 if onPlayEffect.dmg?
+    totalLineCount += 1 if json.charge
+    totalLineCount += 1 if json.windfury
+    totalLineCount += 1 if json.taunt
+    totalLineCount
+
+  _flavorTextTarget: (onPlayEffect) ->
+    return '' if onPlayEffect.target
+    return ' la toți' if onPlayEffect.ownMinions and onPlayEffect.ownHero and onPlayEffect.enemyMinions and onPlayEffect.enemyHero
+    return ' la aliați' if onPlayEffect.ownMinions and onPlayEffect.ownHero and !onPlayEffect.enemyMinions and !onPlayEffect.enemyHero
+    return ' la inamici' if !onPlayEffect.ownMinions and !onPlayEffect.ownHero and onPlayEffect.enemyMinions and onPlayEffect.enemyHero
+    return ' la eroul tău' if !onPlayEffect.ownMinions and onPlayEffect.ownHero and !onPlayEffect.enemyMinions and !onPlayEffect.enemyHero
+    return ' la eroul inamic' if !onPlayEffect.ownMinions and !onPlayEffect.ownHero and !onPlayEffect.enemyMinions and onPlayEffect.enemyHero
+    return ' la minionii tăi' if onPlayEffect.ownMinions and !onPlayEffect.ownHero and !onPlayEffect.enemyMinions and !onPlayEffect.enemyHero
+    return ' la minionii inamici' if !onPlayEffect.ownMinions and !onPlayEffect.ownHero and onPlayEffect.enemyMinions and !onPlayEffect.enemyHero
+    return ' la eroi' if !onPlayEffect.ownMinions and onPlayEffect.ownHero and !onPlayEffect.enemyMinions and onPlayEffect.enemyHero
+    return ' la minioni' if onPlayEffect.ownMinions and !onPlayEffect.ownHero and onPlayEffect.enemyMinions and !onPlayEffect.enemyHero
+    '!'
 
   _iconTextHelper: (json, which, attr, start, offset) ->
     def = start - offset

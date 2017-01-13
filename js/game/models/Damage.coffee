@@ -1,5 +1,5 @@
 class Damage extends BoxedModel
-  ANIMATION_DURATION = 500
+  ANIMATION_DURATION = Constants.Duration.DAMAGE_SIGN / 4
 
   constructor: ->
     super()

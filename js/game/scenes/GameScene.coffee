@@ -30,8 +30,6 @@ class GameScene extends BaseScene
     @game.stopTicking() if @game?
 
   afterServerTick: (data) ->
-    # TODO: if @game/@mover is not defined, create it according to the
-    # game type
     @mover.uiServerTick(data) if @mover?
 
   highlight: (data) ->

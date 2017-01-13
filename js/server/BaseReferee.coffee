@@ -42,11 +42,14 @@ class BaseReferee
   hasMinionSpace: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.PLAYED).size() < @json.maxMinionsPlayed
 
-  findTauntMinions: (playerIndex) ->
-    @findCards(taunt: true, status: Constants.CardStatus.PLAYED, playerIndex: playerIndex)
-
   hasTauntMinions: (playerIndex) ->
     @findTauntMinions(playerIndex).any()
+
+  hasOnPlayTarget: (json) ->
+    json.onPlay.where(target: true).any()
+
+  findTauntMinions: (playerIndex) ->
+    @findCards(taunt: true, status: Constants.CardStatus.PLAYED, playerIndex: playerIndex)
 
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
@@ -64,6 +67,7 @@ class BaseReferee
     action.duration ?= Constants.Duration.DEFAULT
     action.index = @json.actions.length
     @json.actions.push action
+    action
 
   addInput: (data) ->
     data.processed = false

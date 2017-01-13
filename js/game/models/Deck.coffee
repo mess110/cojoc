@@ -6,7 +6,7 @@ class Deck extends Card
 
     @cardCount = maxCards
     @text = new BigText('center')
-    @text.mesh.position.set 0, -1.35, 0
+    @text.mesh.position.set 1, -1.35, 2
     @text.setText(@cardCount)
     @text.setVisible(false)
     @mesh.add @text.mesh

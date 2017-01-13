@@ -31,6 +31,8 @@ Constants =
   MINION_STAT_FONT: '100px Pirata One'
   CARD_STAT_FONT: '50px Pirata One'
 
+  END_TURN_TIMEOUT: 75 # seconds
+
   NameCurve:
     DEFAULT: '0,0,100,0,200,0,300,0'
     SAD_MOUTH: '20,0,84,-30,168,-30,276,0'
@@ -64,6 +66,7 @@ Constants =
     END_TURN: 'endTurn'
     PLAY_CARD: 'playCard'
     ATTACK: 'attack'
+    TARGET_SPELL: 'targetSpell'
 
   Action:
     DRAW_CARD: 'drawCard'
@@ -82,7 +85,9 @@ Constants =
     DIE: 'die'
     FINISH: 'finish'
     FATIGUE: 'fatigue'
-    PLAY_SPELL: 'playSpell'
+    SUMMON_SPELL: 'summonSpell'
+    TARGET_SPELL: 'targetSpell'
+    AOE_SPELL: 'aoeSpell'
 
   Position:
     Strategy:
@@ -102,6 +107,11 @@ Constants =
     UPDATE_END_TURN: 600
     SUMMON_MINION: 1000
     ATTACK: 1500
+    DISSOLVE: 1000
+    DAMAGE_SIGN: 2000
+
+  Targeting:
+    ALL: { ownMinions: true, enemyMinions: true, ownHero: true, enemyHero: true }
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

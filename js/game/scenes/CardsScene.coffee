@@ -7,15 +7,22 @@ class CardsScene extends BaseScene
     @cards = new CyclicArray(totalCards)
     @cards.index = -1
 
+    scale = 1.0
+    space = 3.3
+
     @card1 = new Card()
-    @card1.mesh.position.x -= 4
+    @card1.mesh.position.set -space, 0 ,0
+    @card1.mesh.scale.set scale, scale, scale
     @scene.add @card1.mesh
 
     @card2 = new Card()
+    @card2.mesh.position.set 0, 0, 0
+    @card2.mesh.scale.set scale, scale, scale
     @scene.add @card2.mesh
 
     @card3 = new Card()
-    @card3.mesh.position.x += 4
+    @card3.mesh.position.set space, 0, 0
+    @card3.mesh.scale.set scale, scale, scale
     @scene.add @card3.mesh
 
     @page = 0

@@ -228,7 +228,7 @@ class BaseLine extends BoxedModel
     if !(@cards.size() % 2 == 1 and parseInt(@cards.size() / 2) == card.indexInHand)
       offset = (@cards.size() / 2 - 0.5)
       extraX -= (card.indexInHand - offset) / 2
-    extraX
+    extraX * 0.1
 
   _getHolsterAmount: ->
     if @holstered then @holsterAmount else 0

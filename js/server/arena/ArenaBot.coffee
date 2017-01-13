@@ -24,7 +24,7 @@ class ArenaBot
       else
         playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
         playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
-      if minion.attacksLeft > 0 and playerAttackableCards.any()
+      while minion.attacksLeft > 0 and playerAttackableCards.any()
         @referee.addAttackAction { action: Constants.Action.ATTACK, playerIndex: otherIndex, cards: [minion.cardId, playerAttackableCards.first().cardId] }
         return if @referee.addFinishedAction()
     @referee.addEndTurnAction()
@@ -50,6 +50,14 @@ class ArenaBot
     inputCopy.playerIndex = otherIndex
     inputCopy.cardId = card.cardId
     @referee.addPlayCardAction(inputCopy)
+    if @referee.hasOnPlayTarget(card)
+      # TODO: this is how we allow spell casting on certain cards. probably need to do this for target
+      castableCards = @referee.getSpellTargets('player1', Constants.Targeting.ALL)
+      targetInput =
+        playerIndex: otherIndex
+        cardId: card.cardId
+        targetId: castableCards.shuffle().first().cardId
+      @referee.addTargetSpell targetInput
 
   isEnabled: ->
     @enabled

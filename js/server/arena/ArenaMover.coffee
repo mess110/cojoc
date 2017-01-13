@@ -86,6 +86,8 @@ class ArenaMover
 
     @finishedButton = new FinishedButton()
 
+    @endTurnTimer = new EndTurnTimer()
+
     PoolManager.onRelease Card, (item) ->
       SceneManager.currentScene().scene.remove item.mesh
       SceneManager.currentScene().mover.uiCards.remove item
@@ -156,32 +158,35 @@ class ArenaMover
         isMe = @_isMe(action.playerIndex)
         if isMe
           @turnNotification.animate()
+          @endTurnTimer.start()
+        else
+          if @castingSpell?
+            castingCard = @_findCard(@castingSpell)
+            castingCard.dissolve()
+            @castingSpell = undefined
+
+        @endTurn.timer.setValue(Constants.END_TURN_TIMEOUT)
         @endTurn.setFaceUp(isMe)
       when Constants.Action.SET_MAX_MANA, Constants.Action.REPLENISH_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana)
       when Constants.Action.SET_MANA
         @_findManaFor(action.playerIndex).update(action.mana, action.maxMana) if @_isBot(action.playerIndex)
-      when Constants.Action.SUMMON_MINION
+      when Constants.Action.SUMMON_MINION, Constants.Action.SUMMON_SPELL
         cardKey = @referee.findCard(action.cardId).key
         cardData = Cards.where(key: cardKey).shallowClone().first()
         @cardPreview.animate(cardData) if !@_isMe(action.playerIndex)
         card = @_findCard(action.cardId)
         card.setOpacity(0)
         @_findHandFor(action.playerIndex).remove card
-        minions = @_findMinionsFor(action.playerIndex)
-        minions.add card
-        point = minions.getPoint(card)
-        duration = card.entrance(cardData, action.duration, point)
-      when Constants.Action.PLAY_SPELL
-        cardData = @referee.findCard(action.cardId)
-        if !@_isMe(action.playerIndex)
-          card = @_findCard(action.cardId)
-          @cardPreview.animate(cardData)
-          @_findHandFor(action.playerIndex).remove card
-          card.dissolve()
-          # TODO: summon spell
 
-        # TODO: find spell and cast it
+        if action.action == Constants.Action.SUMMON_MINION
+          minions = @_findMinionsFor(action.playerIndex)
+          minions.add card
+          point = minions.getPoint(card)
+        else
+          point = { x: 10, y: 0, z: 1 }
+
+        duration = card.entrance(cardData, action.duration, point)
       when Constants.Action.ATTACK
         attacker = @_findCard(action.attackerId)
         defender = @_findCard(action.defenderId)
@@ -196,6 +201,27 @@ class ArenaMover
         setTimeout =>
           @attackMoveBackInPosition(action)
         , Constants.Duration.ATTACK / 3
+      when Constants.Action.AOE_SPELL
+        spellCard = @_findCard(action.cardId)
+        for target in action.targets
+          card = @_findCard(target.cardId)
+          card.json.stats.health += target.dmg
+          card.minion(card.json)
+          @_spawnDmg(target.dmg, card.mesh.position)
+
+        spellCard.dissolve()
+        duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
+      when Constants.Action.TARGET_SPELL
+        card = @_findCard(action.cardId)
+        target = @_findCard(action.targetId)
+
+        if action.dmg?
+          @_spawnDmg(action.dmg, target.mesh.position)
+          target.json.stats.health += action.dmg
+          target.minion(target.json)
+
+        # TODO: move to card and dissolve after
+        card.dissolve()
       when Constants.Action.DIE
         for id in action.cardIds
           card = @_findCard(id)
@@ -229,9 +255,10 @@ class ArenaMover
     , duration
 
   _spawnDmg: (amount, position)->
+    offsetZ = 0.5
     dmg = PoolManager.spawn(Damage)
     dmg.setText(amount)
-    dmg.mesh.position.set position.x, position.y, position.z
+    dmg.mesh.position.set position.x, position.y, position.z + offsetZ
     dmg.animate()
     @scene.scene.add dmg.mesh
 
@@ -253,7 +280,7 @@ class ArenaMover
     pos =
       x: defender.mesh.position.x
       y: newY
-      z: defender.mesh.position.z + 0.5
+      z: defender.mesh.position.z
     @_spawnDmg(attackerJson.stats.attack * -1, pos)
 
     # show damage for the attacker
@@ -262,15 +289,16 @@ class ArenaMover
       pos =
         x: point.x
         y: point.y - 1
-        z: point.z + 0.5
+        z: point.z
       @_spawnDmg(defenderJson.stats.attack * -1, pos)
 
     @_findMinionsFor(action.playerIndex)._moveInPosition(Constants.Duration.ATTACK / 2)
 
   _uiSelectCard: (action) ->
     toRemove = []
-    selectCard = @_findCard(action.cardId)
-    toRemove.push selectCard
+    if action.cardId?
+      selectCard = @_findCard(action.cardId)
+      toRemove.push selectCard
     for discardId in action.discardIds
       card = @_findCard(discardId)
       toRemove.push card
@@ -279,7 +307,7 @@ class ArenaMover
     selectCard
 
   uiTick: (tpf) ->
-    @endTurn.tick(tpf)
+    @endTurn.tick(tpf, @castingSpell?)
     @player1Hand.tick(tpf)
     @player2Hand.tick(tpf)
     @player1Discover.tick(tpf)
@@ -359,20 +387,26 @@ class ArenaMover
     @player2Minions.doMouseEvent(event, raycaster)
     @multiSelect = []
 
-    # TODO: move to HoverMasta
+    @hoverMasterMouseEvent(event)
+
+  hoverMasterMouseEvent: (event) ->
     lastHoveredCard = @hoverMasta.lastHoveredCard
-    if event.type == 'mouseup' and @castingSpell? and lastHoveredCard?
-       # TODO: check which cards are allowed to be targeted
-      if lastHoveredCard.id != @castingSpell
-        # TODO: summon spell
-        console.log "casting #{@castingSpell} on #{lastHoveredCard.id}"
-        @scene._emit(
-          type: 'gameInput'
-          action: Constants.Input.PLAY_CARD
-          cardId: @castingSpell
-          targetId: lastHoveredCard.id
-        )
-        @castingSpell = undefined
+    return unless event.type == 'mouseup' and @castingSpell? and lastHoveredCard?
+    return if lastHoveredCard.id == @castingSpell # do not cast on self
+
+    targets = @referee.getSpellTargets('player1', Constants.Targeting.ALL)
+    unless targets.where(cardId: lastHoveredCard.id).any()
+      console.log "can not target card #{lastHoveredCard.id}"
+      return
+
+    console.log "casting #{@castingSpell} on #{lastHoveredCard.id}"
+    @scene._emit(
+      type: 'gameInput'
+      action: Constants.Input.TARGET_SPELL
+      cardId: @castingSpell
+      targetId: lastHoveredCard.id
+    )
+    @castingSpell = undefined
 
   # Populates the json data and takes care of reversing the position
   # so the current player is always game.player1 on the client
@@ -443,29 +477,24 @@ class ArenaMover
     card.glow.none()
     @_findManaFor(card.playerIndex).update(@referee.getMana(card.playerIndex) - memCard.defaults.cost)
     @_findHandFor(card.playerIndex).hideTutorial = true if @_isMe(card.playerIndex)
+    card.dissolve(false)
 
     if memCard.type == Constants.CardType.MINION
-      card.dissolve(false)
       unless @referee.hasCardsWhichCanBePlayedNow(@_getMyPlayerIndex())
         @_findHandFor(@_getMyPlayerIndex()).holster(true)
-      @scene._emit(
-        type: 'gameInput'
-        action: Constants.Input.PLAY_CARD
-        cardId: card.id
-      )
     else if memCard.type == Constants.CardType.SPELL
-      card.dissolve()
       @_findHandFor(@_getMyPlayerIndex()).holster(true)
-      if memCard.onPlay.target
+      if @referee.hasOnPlayTarget(memCard)
         @castingSpell = memCard.cardId
         console.log "choosing target for #{@castingSpell}"
       else
-        @scene._emit(
-          type: 'gameInput'
-          action: Constants.Input.PLAY_CARD
-          cardId: card.id
-        )
         console.log "casting spell #{memCard.cardId}"
+
+    @scene._emit(
+      type: 'gameInput'
+      action: Constants.Input.PLAY_CARD
+      cardId: card.id
+    )
 
 
   glowHeldCards: (cards) ->

@@ -20,18 +20,24 @@ class EndTurnButton extends ToggleButton
     @panel.setVisible(false)
     @mesh.add @panel.mesh
 
+    @timer = new TimerPanel
+    @timer.mesh.rotation.set 0, 0, -Math.PI * 2
+    @timer.mesh.position.set -2.2, 0, 0
+    @mesh.add @timer.mesh
+
   setActionsLeft: (value) ->
     @hasActionsLeft = value
 
-  tick: (tpf) ->
+  tick: (tpf, castingSpell) ->
+    @timer.tick(tpf)
     if @noGlow
       @glow.none()
-    else if @hasActionsLeft
+    else if @hasActionsLeft or castingSpell
       @glow.yellow()
     else
       @glow.green()
 
-    @panel.setVisible(!@hasActionsLeft and !@hideTutorial and @faceUp)
+    @panel.setVisible(!@hasActionsLeft and !@hideTutorial and @faceUp and !castingSpell)
 
   _getSize: ->
     { width: 3, height: 4 }
@@ -42,6 +48,7 @@ class EndTurnButton extends ToggleButton
       @click(override)
       @hideTutorial = true
       currScene = SceneManager.currentScene()
+      # currScene.mover.endTurnTimer.stop()
       currScene._emit(
         type: 'gameInput'
         action: Constants.Input.END_TURN

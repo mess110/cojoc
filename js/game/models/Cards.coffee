@@ -74,6 +74,31 @@ Cards = [
       health: 4
   }
   {
+    key: 'pasareaMaiastra'
+    name: 'Pasărea Măiastră'
+    taunt: true
+    nameX: 20
+    nameAddY: 0
+    nameLetterPadding: 4
+    nameFontSize: 35
+    nameCurve: Constants.NameCurve.SNAKE
+    type: Constants.CardType.MINION
+    defaults:
+      cost: 4
+      attack: 2
+      health: 6
+  }
+  {
+    key: 'spiridus'
+    name: 'Spiriduș'
+    nameX: 90
+    type: Constants.CardType.MINION
+    defaults:
+      cost: 4
+      attack: 2
+      health: 6
+  }
+  {
     key: 'capcaun'
     name: 'Căpcăun'
     taunt: true
@@ -94,10 +119,10 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 2
-    onPlay:
-      target: true
-      dmg: -3
+      cost: 1
+    onPlay: [
+      { dmg: -2, enemyMinions: true, enemyHero: true }
+    ]
   }
   {
     key: 'fireball'
@@ -105,10 +130,10 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
-    onPlay:
-      target: true
-      dmg: -7
+      cost: 2
+    onPlay: [
+      { target: true, dmg: -4 }
+    ]
   }
   {
     key: 'pyroblast'
@@ -116,10 +141,10 @@ Cards = [
     nameX: 90
     type: Constants.CardType.SPELL
     defaults:
-      cost: 5
-    onPlay:
-      target: false
-      dmg: -3
+      cost: 1
+    onPlay: [
+      { target: false, dmg: -2, ownMinions: true, enemyMinions: true }
+    ]
   }
   {
     key: 'lesserHeal'
@@ -127,10 +152,11 @@ Cards = [
     nameX: 115
     type: Constants.CardType.SPELL
     defaults:
-      cost: 2
-    onPlay:
-      target: true
-      dmg: 5
+      cost: 1
+    onPlay: [
+      { dmg: 2, ownMinions: true, ownHero: true }
+      { dmg: -2, enemyMinions: true, enemyHero: true }
+    ]
   }
   {
     key: 'heal'
@@ -141,9 +167,10 @@ Cards = [
     nameCurve: Constants.NameCurve.SNAKE
     type: Constants.CardType.SPELL
     defaults:
-      cost: 3
-    onPlay:
-      dmg: 4
+      cost: 2
+    onPlay: [
+      { target: false, dmg: 4, ownMinions: true }
+    ]
   }
   {
     key: 'greaterHeal'
@@ -151,10 +178,10 @@ Cards = [
     nameX: 110
     type: Constants.CardType.SPELL
     defaults:
-      cost: 4
-    onPlay:
-      target: true
-      dmg: 12
+      cost: 1
+    onPlay: [
+      { target: true, dmg: 6 }
+    ]
   }
 
   # ------------------------ #
@@ -199,12 +226,14 @@ Cards.random = (count = 1) ->
 
 Cards.minions = ->
   Cards.where(type: Constants.CardType.MINION).shallowClone()
+  # @spells()
 
 Cards.heroes = ->
   Cards.where(type: Constants.CardType.HERO).shallowClone()
 
 Cards.spells = ->
   Cards.where(type: Constants.CardType.SPELL).shallowClone()
+  # @minions()
 
 Cards.randomMinion = ->
   @minions().shuffle().first()
@@ -217,6 +246,8 @@ Cards.randomSpell = ->
 
 for pureCard in Cards
   pureCard.stats = JSON.parse(JSON.stringify(pureCard.defaults))
-  pureCard.onPlay ?= {}
+  pureCard.onPlay ?= []
+
+# TODO: make sure there is maximum 1 target onplayeffect per card
 
 exports.Cards = Cards

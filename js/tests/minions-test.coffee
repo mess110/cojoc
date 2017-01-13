@@ -45,8 +45,6 @@ minionsTest = ->
 
   scene.afterCinematic = (tpf) ->
     scene.minions.tick(tpf)
-    for card in allCards
-      card.dissolveTick(tpf)
 
   scene.doMouseEvent = (event, raycaster) ->
     scene.minions.doMouseEvent(event, raycaster)
