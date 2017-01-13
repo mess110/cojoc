@@ -25,17 +25,31 @@ class CardsScene extends BaseScene
 
     @next()
 
+  _getHoveredCard: (raycaster) ->
+    for card in [@card1, @card2, @card3]
+      if card.isHovered(raycaster)
+        return card
+
   tick: (tpf) ->
 
   doKeyboardEvent: (event) ->
 
   doMouseEvent: (event, raycaster) ->
+    hovered = @_getHoveredCard(raycaster)
+    if hovered? and event.type == 'mouseup'
+      if hovered.isMinion
+        hovered.impersonate(hovered.json)
+        hovered.isMinion = false
+      else
+        hovered.minion(hovered.json)
+        hovered.isMinion = true
 
   next: ->
     for card in [@card1, @card2, @card3]
       tmp = @cards.next()
       if tmp.key?
         card.impersonate(tmp)
+        card.isMinion = false
         card.setOpacity(1)
       else
         card.setOpacity(0)

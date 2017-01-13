@@ -112,7 +112,8 @@ class Card extends BoxedModel
       @art.drawImage(key: 'health', x: @canvasWidth - 121, y: @canvasHeight - 115)
       @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
 
-    # TODO: draw taunt
+    if json.taunt
+      @art.drawImage(key: 'taunt', x: @canvasWidth - 128)
 
     Helper.materialFromCanvas(@art.canvas)
 
@@ -133,10 +134,22 @@ class Card extends BoxedModel
       @art.drawText(text: json.defaults.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, x: @_getDefaultHealthX(json), y: @canvasHeight - 14, font: Constants.CARD_STAT_FONT)
 
     if json.charge
-      @art.drawText(text: 'Charge', strokeLineWidth: 0, strokeStyle: Constants.STROKE_COLOR, fillStyle: Constants.TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: 'Charge', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
 
     if json.taunt
-      @art.drawText(text: 'Taunt', strokeLineWidth: 0, strokeStyle: Constants.STROKE_COLOR, fillStyle: Constants.TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+      @art.drawText(text: 'Scut', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 30, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+
+    if json.windfury
+      @art.drawText(text: 'Windfury', strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - 50, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
+
+    if json.onPlay.dmg?
+      s = json.onPlay.dmg.toString()
+      s = "+#{s}" if json.onPlay.dmg > 0
+      s += " viață"
+      unless json.onPlay.target
+        s += ' la toți'
+      cw = s.size()
+      @art.drawText(text: s, strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - cw / 2 * 10 - 10, y: @canvasHeight / 3 * 2 + 50, font: Constants.FLAVOR_FONT)
 
     nameType = if json.nameCurve? then 'drawBezier' else 'drawText'
     @art[nameType](

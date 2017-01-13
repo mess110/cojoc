@@ -24,7 +24,10 @@ Constants =
   TEXT_COLOR: '#f9f9f9'
   STROKE_COLOR: 'black'
 
-  FLAVOR_FONT: '40px Pirata One'
+  FLAVOR_FONT: '35px Pirata One'
+  FLAVOR_TEXT_COLOR: '#f9f9f9'
+  FLAVOR_STROKE_COLOR: 'black'
+
   MINION_STAT_FONT: '100px Pirata One'
   CARD_STAT_FONT: '50px Pirata One'
 

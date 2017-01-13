@@ -406,6 +406,14 @@ class ArenaMover
   doMultiSelect: (cardId) ->
     @multiSelect.push cardId
     if @multiSelect.size() == 2
+      otherIndex = @_getOpponentPlayerIndex()
+      if @referee.hasTauntMinions(otherIndex)
+        tauntMinions = @referee.findTauntMinions(otherIndex)
+        tauntMinionIds = tauntMinions.map (e) -> e.cardId
+        if !tauntMinionIds.includes(@multiSelect[0]) and !tauntMinionIds.includes(@multiSelect[1])
+          for minion in tauntMinions
+            @_findCard(minion.cardId).shake(0.8, 0.6)
+          return
       @scene._emit(
         type: 'gameInput'
         action: Constants.Input.ATTACK

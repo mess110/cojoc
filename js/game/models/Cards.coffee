@@ -19,7 +19,6 @@ Cards = [
     key: 'corb'
     name: 'Corb'
     type: Constants.CardType.MINION
-    taunt: true
     nameX: 120
     defaults:
       cost: 1
@@ -35,6 +34,7 @@ Cards = [
     nameLetterPadding: 5
     nameAddY: 5
     type: Constants.CardType.MINION
+    windfury: true
     defaults:
       cost: 2
       attack: 3
@@ -76,12 +76,13 @@ Cards = [
   {
     key: 'capcaun'
     name: 'Căpcăun'
+    taunt: true
     nameX: 90
     type: Constants.CardType.MINION
     defaults:
       cost: 4
-      attack: 5
-      health: 4
+      attack: 2
+      health: 6
   }
 
   # ------------------------ #
@@ -104,10 +105,10 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: -4
+      cost: 4
     onPlay:
       target: true
-      dmg: -6
+      dmg: -7
   }
   {
     key: 'pyroblast'
@@ -140,9 +141,9 @@ Cards = [
     nameCurve: Constants.NameCurve.SNAKE
     type: Constants.CardType.SPELL
     defaults:
-      cost: 6
+      cost: 3
     onPlay:
-      dmg: 3
+      dmg: 4
   }
   {
     key: 'greaterHeal'

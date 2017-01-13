@@ -42,6 +42,12 @@ class BaseReferee
   hasMinionSpace: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.PLAYED).size() < @json.maxMinionsPlayed
 
+  findTauntMinions: (playerIndex) ->
+    @findCards(taunt: true, status: Constants.CardStatus.PLAYED, playerIndex: playerIndex)
+
+  hasTauntMinions: (playerIndex) ->
+    @findTauntMinions(playerIndex).any()
+
   isDiscovering: (playerIndex) ->
     @findCards(playerIndex: playerIndex, status: Constants.CardStatus.DISCOVERED).any()
 

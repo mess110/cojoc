@@ -32,6 +32,11 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/taunt.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/attack-small.png",
       "type": "texture"
     },

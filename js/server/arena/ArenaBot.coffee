@@ -19,8 +19,11 @@ class ArenaBot
         @_playCard(input, card)
 
     for minion in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED)
-      playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
-      playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
+      if @referee.hasTauntMinions(input.playerIndex)
+        playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, taunt: true, status: Constants.CardStatus.PLAYED).shuffle()
+      else
+        playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
+        playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
       if minion.attacksLeft > 0 and playerAttackableCards.any()
         @referee.addAttackAction { action: Constants.Action.ATTACK, playerIndex: otherIndex, cards: [minion.cardId, playerAttackableCards.first().cardId] }
         return if @referee.addFinishedAction()

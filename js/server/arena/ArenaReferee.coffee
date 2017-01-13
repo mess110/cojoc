@@ -173,7 +173,7 @@ class ArenaReferee extends BaseReferee
     @addAction { playerIndex: @json.turn, action: Constants.Action.REPLENISH_MANA }
     @_addDiscoverActions()
     for card in @findCards(status: Constants.CardStatus.PLAYED, playerIndex: @json.turn)
-      card.attacksLeft = 1
+      card.attacksLeft = if card.windfury then 2 else 1
 
   _addDiscoverActions: ->
     cards = @findCards(status: undefined)
@@ -267,9 +267,10 @@ class ArenaReferee extends BaseReferee
       action.duration = Constants.Duration.SUMMON_MINION
       card = @findCard(action.cardId)
       card.status = Constants.CardStatus.PLAYED
-      card.attacksLeft = 0
       if card.charge
-        card.attacksLeft = 1
+        card.attacksLeft = if card.windfury then 2 else 1
+      else
+        card.attacksLeft = 0
 
     if action.action == Constants.Action.ATTACK
       action.duration = Constants.Duration.ATTACK
@@ -323,8 +324,10 @@ class ArenaReferee extends BaseReferee
           card2 = @findCard(input.cards[1])
           if card1.playerIndex == input.playerIndex
             card = card1
+            otherCard = card2
           else if card2.playerIndex == input.playerIndex
             card = card2
+            otherCard = card1
           else
             console.log "not valid cards for attack #{input.cards}"
             return
@@ -333,7 +336,10 @@ class ArenaReferee extends BaseReferee
           return if ![Constants.CardStatus.PLAYED, Constants.CardStatus.HERO].includes(card2.status)
           return if card.attacksLeft <= 0
           return unless @isTurn(input.playerIndex)
-          # TODO: do not allow attack if there is a taunt in play
+          otherIndex = @_getOtherPlayerIndex(card.playerIndex)
+          enemyTauntMinions = @findTauntMinions().map (e) -> e.cardId
+          if enemyTauntMinions.any()
+            return unless enemyTauntMinions.includes(otherCard.cardId)
           super(input)
         else
           console.log "not adding, unknown input action #{input.action}"
