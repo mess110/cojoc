@@ -119,9 +119,9 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 1
+      cost: 2
     onPlay: [
-      { dmg: -2, enemyMinions: true, enemyHero: true }
+      { target: true, dmg: -3 }
     ]
   }
   {
@@ -130,9 +130,9 @@ Cards = [
     nameX: 135
     type: Constants.CardType.SPELL
     defaults:
-      cost: 2
+      cost: 4
     onPlay: [
-      { target: true, dmg: -4 }
+      { target: true, dmg: -6 }
     ]
   }
   {
@@ -141,9 +141,9 @@ Cards = [
     nameX: 90
     type: Constants.CardType.SPELL
     defaults:
-      cost: 1
+      cost: 7
     onPlay: [
-      { target: false, dmg: -2, ownMinions: true, enemyMinions: true }
+      { target: false, dmg: -4, enemyMinions: true, enemyHero: true }
     ]
   }
   {
@@ -154,8 +154,7 @@ Cards = [
     defaults:
       cost: 1
     onPlay: [
-      { dmg: 2, ownMinions: true, ownHero: true }
-      { dmg: -2, enemyMinions: true, enemyHero: true }
+      { target: true, dmg: 3 }
     ]
   }
   {
@@ -167,9 +166,10 @@ Cards = [
     nameCurve: Constants.NameCurve.SNAKE
     type: Constants.CardType.SPELL
     defaults:
-      cost: 2
+      cost: 4
     onPlay: [
-      { target: false, dmg: 4, ownMinions: true }
+      { dmg: 2, ownMinions: true, ownHero: true }
+      { dmg: -2, enemyMinions: true, enemyHero: true }
     ]
   }
   {
@@ -178,9 +178,9 @@ Cards = [
     nameX: 110
     type: Constants.CardType.SPELL
     defaults:
-      cost: 1
+      cost: 3
     onPlay: [
-      { target: true, dmg: 6 }
+      { target: true, dmg: 9 }
     ]
   }
 
@@ -245,9 +245,11 @@ Cards.randomSpell = ->
   @spells().shuffle().first()
 
 for pureCard in Cards
+  pureCard.defaults.maxHealth = pureCard.defaults.health
   pureCard.stats = JSON.parse(JSON.stringify(pureCard.defaults))
   pureCard.onPlay ?= []
 
-# TODO: make sure there is maximum 1 target onplayeffect per card
+  if pureCard.onPlay.where(target: true).size() > 1
+    throw "too many onPlay target actions for #{pureCard.id}"
 
 exports.Cards = Cards

@@ -222,6 +222,7 @@ class ArenaMover
 
         # TODO: move to card and dissolve after
         card.dissolve()
+        duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
       when Constants.Action.DIE
         for id in action.cardIds
           card = @_findCard(id)
