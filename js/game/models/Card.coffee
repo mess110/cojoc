@@ -95,8 +95,12 @@ class Card extends BoxedModel
     tween.start()
     tween
 
+  _findTextFillColor: (json, which) ->
+    return Constants.TEXT_DAMAGED_COLOR if json.stats[which] < json.defaults[which]
+    return Constants.TEXT_BUFFED_COLOR if json.stats[which] > json.defaults[which]
+    return Constants.TEXT_COLOR
+
   mkMinionMaterial: (json) ->
-    fillStyle = Constants.TEXT_COLOR
     strokeLineWidth = 14
     @art.clear()
     @art.drawImage(key: 'card-art-bg')
@@ -107,11 +111,13 @@ class Card extends BoxedModel
     @art.ctx.drawImage(@art.canvas, 107, 25, 123, 168, padding, padding, @canvasWidth - padding * 2, @canvasHeight - padding * 2)
     @art.drawImage(key: 'minion-template')
     if json.stats.attack?
+      attackFillColor = @_findTextFillColor(json, 'attack')
       @art.drawImage(key: 'attack', x: 1, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.attack, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsAttackX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
+      @art.drawText(text: json.stats.attack, fillStyle: attackFillColor, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsAttackX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
     if json.stats.health?
+      healthFillScolor = @_findTextFillColor(json, 'health')
       @art.drawImage(key: 'health', x: @canvasWidth - 121, y: @canvasHeight - 115)
-      @art.drawText(text: json.stats.health, fillStyle: fillStyle, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
+      @art.drawText(text: json.stats.health, fillStyle: healthFillScolor, strokeStyle: Constants.STROKE_COLOR, strokeLineWidth: strokeLineWidth, x: @_getStatsHealthX(json), y: @canvasHeight - 20, font: Constants.MINION_STAT_FONT)
 
     if json.taunt
       @art.drawImage(key: 'taunt', x: @canvasWidth - 128)

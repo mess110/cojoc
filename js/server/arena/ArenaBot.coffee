@@ -19,12 +19,13 @@ class ArenaBot
         @_playCard(input, card)
 
     for minion in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED)
-      if @referee.hasTauntMinions(input.playerIndex)
-        playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, taunt: true, status: Constants.CardStatus.PLAYED).shuffle()
-      else
-        playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
-        playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
-      while minion.attacksLeft > 0 and playerAttackableCards.any()
+      while minion.stats.health > 0 and minion.attacksLeft > 0
+        if @referee.hasTauntMinions(input.playerIndex)
+          playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, taunt: true, status: Constants.CardStatus.PLAYED).shuffle()
+        else
+          playerAttackableCards = @referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.PLAYED)
+          playerAttackableCards = playerAttackableCards.concat(@referee.findCards(playerIndex: input.playerIndex, status: Constants.CardStatus.HERO)).shuffle()
+        continue unless playerAttackableCards.any()
         @referee.addAttackAction { action: Constants.Action.ATTACK, playerIndex: otherIndex, cards: [minion.cardId, playerAttackableCards.first().cardId] }
         return if @referee.addFinishedAction()
     @referee.addEndTurnAction()
@@ -51,13 +52,15 @@ class ArenaBot
     inputCopy.cardId = card.cardId
     @referee.addPlayCardAction(inputCopy)
     if @referee.hasOnPlayTarget(card)
-      # TODO: this is how we allow spell casting on certain cards. probably need to do this for target
-      castableCards = @referee.getSpellTargets('player1', Constants.Targeting.ALL)
-      targetInput =
-        playerIndex: otherIndex
-        cardId: card.cardId
-        targetId: castableCards.shuffle().first().cardId
-      @referee.addTargetSpell targetInput
+      castableCards = @referee.getSpellTargets('player1', card.validTargets)
+      if castableCards.any()
+        targetInput =
+          playerIndex: otherIndex
+          cardId: card.cardId
+          targetId: castableCards.shuffle().first().cardId
+        @referee.addTargetSpell targetInput
+      else
+        console.log "no castable cards for #{card.cardId}"
 
   isEnabled: ->
     @enabled

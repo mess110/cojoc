@@ -310,27 +310,29 @@ class ArenaReferee extends BaseReferee
       action.targets = []
       action.duration = Constants.Duration.SUMMON_MINION
       card = @findCard(action.cardId)
-      card.status = Constants.CardStatus.DISCARDED
 
+      card.status = Constants.CardStatus.DISCARDED
       for onPlayEffect in card.onPlay
-        if onPlayEffect.dmg?
-          for target in @getSpellTargets(action.playerIndex, onPlayEffect)
-            action.targets.push { cardId: target.cardId, dmg: onPlayEffect.dmg }
-            target.stats.health += onPlayEffect.dmg
+        for target in @getSpellTargets(action.playerIndex, onPlayEffect)
+          @_handleDmgOnPlay(action, onPlayEffect, target)
 
     if action.action == Constants.Action.TARGET_SPELL
+      action.targets = []
       action.duration = Constants.Duration.DISSOLVE
       card = @findCard(action.cardId)
       target = @findCard(action.targetId)
 
       card.status = Constants.CardStatus.DISCARDED
+      # TODO: this is the reason why we can't have more than 2 target onPlay effects
       onPlayEffect = card.onPlay.where(target: true).first()
-      if onPlayEffect.dmg?
-        # TODO: max health
-        target.stats.health += onPlayEffect.dmg
-        action.dmg = onPlayEffect.dmg
+      @_handleDmgOnPlay(action, onPlayEffect, target)
 
     super(action)
+
+  _handleDmgOnPlay: (action, onPlayEffect, target) ->
+    if onPlayEffect.dmg?
+      action.targets.push { cardId: target.cardId, dmg: onPlayEffect.dmg }
+      target.stats.health += onPlayEffect.dmg
 
   getSpellTargets: (playerIndex, onPlayEffect) ->
     targets = []

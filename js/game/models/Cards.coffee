@@ -249,6 +249,9 @@ for pureCard in Cards
   pureCard.stats = JSON.parse(JSON.stringify(pureCard.defaults))
   pureCard.onPlay ?= []
 
+  if pureCard.type == Constants.CardType.SPELL
+    pureCard.validTargets ?= Constants.Targeting.ALL
+
   if pureCard.onPlay.where(target: true).size() > 1
     throw "too many onPlay target actions for #{pureCard.id}"
 

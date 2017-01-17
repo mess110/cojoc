@@ -212,16 +212,14 @@ class ArenaMover
         spellCard.dissolve()
         duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
       when Constants.Action.TARGET_SPELL
-        card = @_findCard(action.cardId)
-        target = @_findCard(action.targetId)
+        spellCard = @_findCard(action.cardId)
+        for target in action.targets
+          card = @_findCard(target.cardId)
+          card.json.stats.health += target.dmg
+          card.minion(card.json)
+          @_spawnDmg(target.dmg, card.mesh.position)
 
-        if action.dmg?
-          @_spawnDmg(action.dmg, target.mesh.position)
-          target.json.stats.health += action.dmg
-          target.minion(target.json)
-
-        # TODO: move to card and dissolve after
-        card.dissolve()
+        spellCard.dissolve()
         duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
       when Constants.Action.DIE
         for id in action.cardIds

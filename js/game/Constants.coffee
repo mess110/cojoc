@@ -22,6 +22,9 @@ Constants =
   MINION_SCALE: 0.8
 
   TEXT_COLOR: '#f9f9f9'
+  TEXT_DAMAGED_COLOR: 'red'
+  TEXT_BUFFED_COLOR: 'green'
+
   STROKE_COLOR: 'black'
 
   FLAVOR_FONT: '35px Pirata One'
@@ -112,6 +115,8 @@ Constants =
 
   Targeting:
     ALL: { ownMinions: true, enemyMinions: true, ownHero: true, enemyHero: true }
+    ENEMY_MINIONS: { ownMinions: false, enemyMinions: true, ownHero: false, enemyHero: false }
+    OWN_MINIONS: { ownMinions: true, enemyMinions: false, ownHero: false, enemyHero: false }
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 
