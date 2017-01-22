@@ -73,6 +73,10 @@ class ArenaMover
     @cardPreview.mesh.position.set -3, 1, 12.5
     @scene.scene.add @cardPreview.mesh
 
+    @hoverPreview = new HoverPreview()
+    @hoverPreview.mesh.position.set 3, 1, 12.5
+    @scene.scene.add @hoverPreview.mesh
+
     @turnNotification = new TurnNotification()
     @turnNotification.setOpacity(0)
     @turnNotification.mesh.position.set 0, 0.5, 13
@@ -201,23 +205,16 @@ class ArenaMover
         setTimeout =>
           @attackMoveBackInPosition(action)
         , Constants.Duration.ATTACK / 3
-      when Constants.Action.AOE_SPELL
+      when Constants.Action.AOE_SPELL, Constants.Action.TARGET_SPELL
         spellCard = @_findCard(action.cardId)
         for target in action.targets
           card = @_findCard(target.cardId)
-          card.json.stats.health += target.dmg
+          if target.dmg?
+            @referee._handleDmg(card.json, target.dmg)
+            @_spawnDmg(target.dmg, card.mesh.position)
+          if target.buff
+            @referee._handleBuff(card.json, target)
           card.minion(card.json)
-          @_spawnDmg(target.dmg, card.mesh.position)
-
-        spellCard.dissolve()
-        duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
-      when Constants.Action.TARGET_SPELL
-        spellCard = @_findCard(action.cardId)
-        for target in action.targets
-          card = @_findCard(target.cardId)
-          card.json.stats.health += target.dmg
-          card.minion(card.json)
-          @_spawnDmg(target.dmg, card.mesh.position)
 
         spellCard.dissolve()
         duration = Constants.Duration.DISSOLVE + Constants.Duration.DAMAGE_SIGN
@@ -393,7 +390,8 @@ class ArenaMover
     return unless event.type == 'mouseup' and @castingSpell? and lastHoveredCard?
     return if lastHoveredCard.id == @castingSpell # do not cast on self
 
-    targets = @referee.getSpellTargets('player1', Constants.Targeting.ALL)
+    spellCard = @referee.findCard(@castingSpell)
+    targets = @referee.getSpellTargets(@_getMyPlayerIndex(), spellCard.validTargets)
     unless targets.where(cardId: lastHoveredCard.id).any()
       console.log "can not target card #{lastHoveredCard.id}"
       return
@@ -470,6 +468,11 @@ class ArenaMover
     if memCard.type == Constants.CardType.MINION
       unless @referee.hasMinionSpace(card.playerIndex)
         console.ce "too many minions"
+        return
+
+    if memCard.type == Constants.CardType.SPELL
+      unless @referee.hasSpellTargets(card.playerIndex, memCard.validTargets)
+        console.log "no valid targets"
         return
 
     hand.remove(card)

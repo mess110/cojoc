@@ -16,6 +16,7 @@ class ArenaBot
 
     for card in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.HELD)
       if @referee.hasManaFor(otherIndex, card.cardId)
+        continue if card.type == Constants.CardType.SPELL and !@referee.hasSpellTargets(otherIndex, card.validTargets)
         @_playCard(input, card)
 
     for minion in @referee.findCards(playerIndex: otherIndex, status: Constants.CardStatus.PLAYED)

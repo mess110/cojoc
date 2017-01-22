@@ -117,6 +117,7 @@ Constants =
     ALL: { ownMinions: true, enemyMinions: true, ownHero: true, enemyHero: true }
     ENEMY_MINIONS: { ownMinions: false, enemyMinions: true, ownHero: false, enemyHero: false }
     OWN_MINIONS: { ownMinions: true, enemyMinions: false, ownHero: false, enemyHero: false }
+    ALL_MINIONS: { ownMinions: true, enemyMinions: true, ownHero: false, enemyHero: false }
 
 Constants.DEFAULT_TOAST = Constants.ValidToasts.first()
 

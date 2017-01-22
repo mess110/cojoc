@@ -19,7 +19,7 @@ class ArenaReferee extends BaseReferee
   constructor: (botEnabled) ->
     super(botEnabled)
     @bot = new ArenaBot(@)
-    allCards = Cards.random(30 * 3 * 2)
+    allCards = Cards.random(3 * 3 * 2)
     @json =
       maxCardsInHand: 10
       maxMinionsPlayed: 7
@@ -120,6 +120,12 @@ class ArenaReferee extends BaseReferee
         cardIds: dieIds
       }
 
+      for dieId in dieIds
+        card = @findCard(dieId)
+        for onDeathEffect in card.onDeath
+          if onDeathEffect.drawCards?
+            @addDrawCards(card.playerIndex, onDeathEffect.drawCards)
+
   addPlayCardAction: (input) ->
     card = @findCard(input.cardId)
     if card.type == Constants.CardType.MINION
@@ -132,6 +138,9 @@ class ArenaReferee extends BaseReferee
       @addAction { duration: 1000, playerIndex: input.playerIndex, action: Constants.Action.SET_MANA, cardId: input.cardId }
       action = @addAction { playerIndex: input.playerIndex, action: Constants.Action.SUMMON_SPELL, cardId: input.cardId }
 
+      if action.drawCards?
+        @addDrawCards(action.playerIndex, action.drawCards)
+
       unless @hasOnPlayTarget(card)
         @addAction { playerIndex: input.playerIndex, action: Constants.Action.AOE_SPELL, targets: action.targets, cardId: input.cardId }
 
@@ -141,6 +150,18 @@ class ArenaReferee extends BaseReferee
           if targetCard.stats.health < 1
             deadIds.push target.cardId
         @addDeadCardsAction(deadIds)
+
+  addDrawCards: (playerIndex, amount) ->
+    count = amount
+    while count > 0
+      cards = @findCards(status: undefined)
+      unless cards.any()
+        count -= 1
+        @addFatigueAction(playerIndex, Constants.Duration.DAMAGE_SIGN)
+        continue
+      unless @hasMaxCardsInHand(playerIndex)
+        @addAction { duration: Constants.Duration.SELECT_CARD, playerIndex: playerIndex, action: Constants.Action.AUTO_SELECT_CARD, cardId: cards[0].cardId }
+      count -= 1
 
   addTargetSpell: (input) ->
     @addAction { duration: Constants.Duration.DISSOLVE, playerIndex: input.playerIndex, action: Constants.Action.TARGET_SPELL, cardId: input.cardId, targetId: input.targetId }
@@ -204,19 +225,14 @@ class ArenaReferee extends BaseReferee
     if cards.any()
       @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[0].cardId }
       @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[0].cardId }
-      @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
-      @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
-      @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
-      @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
+      if cards.size() > 1
+        @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[1].cardId }
+        @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[1].cardId }
+      if cards.size() > 2
+        @addAction { playerIndex: @json.turn, action: Constants.Action.DRAW_CARD, cardId: cards[2].cardId }
+        @addAction { playerIndex: @json.turn, action: Constants.Action.DISCOVER_CARD, cardId: cards[2].cardId }
     else
-      @json[@json.turn].fatigue += 1
-      fatigueDmg = @json[@json.turn].fatigue
-      heroId = @json[@json.turn].hero
-      hero = @findCard(heroId)
-      hero.stats.health -= fatigueDmg
-      @addAction { playerIndex: @json.turn, action: Constants.Action.FATIGUE, amount: fatigueDmg }
-      if hero.stats.health < 1
-        @addDeadCardsAction(heroId)
+      @addFatigueAction(@json.turn)
 
     # Discard discover cards if the player has max cards in hand
     if @hasMaxCardsInHand(@json.turn)
@@ -226,6 +242,16 @@ class ArenaReferee extends BaseReferee
         action: Constants.Action.DISCARD_CARD
         cardIds: [cards[0].cardId, cards[1].cardId, cards[2].cardId]
       }
+
+  addFatigueAction: (playerIndex, duration) ->
+    @json[playerIndex].fatigue += 1
+    fatigueDmg = @json[playerIndex].fatigue
+    heroId = @json[playerIndex].hero
+    hero = @findCard(heroId)
+    hero.stats.health -= fatigueDmg
+    @addAction { duration: duration, playerIndex: playerIndex, action: Constants.Action.FATIGUE, amount: fatigueDmg }
+    if hero.stats.health < 1
+      @addDeadCardsAction(heroId)
 
   addAction: (action) ->
     if action.action == Constants.Action.DRAW_CARD
@@ -315,6 +341,7 @@ class ArenaReferee extends BaseReferee
       for onPlayEffect in card.onPlay
         for target in @getSpellTargets(action.playerIndex, onPlayEffect)
           @_handleDmgOnPlay(action, onPlayEffect, target)
+        @_handleDrawCards(action, onPlayEffect)
 
     if action.action == Constants.Action.TARGET_SPELL
       action.targets = []
@@ -323,16 +350,54 @@ class ArenaReferee extends BaseReferee
       target = @findCard(action.targetId)
 
       card.status = Constants.CardStatus.DISCARDED
-      # TODO: this is the reason why we can't have more than 2 target onPlay effects
       onPlayEffect = card.onPlay.where(target: true).first()
+      @_handleBuffOnPlay(action, onPlayEffect, target)
       @_handleDmgOnPlay(action, onPlayEffect, target)
 
     super(action)
 
+  _handleDrawCards: (action, onPlayEffect) ->
+    if onPlayEffect.drawCards?
+      action.drawCards = onPlayEffect.drawCards
+
+  _handleBuffOnPlay: (action, onPlayEffect, target) ->
+    if onPlayEffect.buff
+      hash = { cardId: target.cardId, buff: true, set: onPlayEffect.set }
+      hash.health = onPlayEffect.health if onPlayEffect.health?
+      hash.attack = onPlayEffect.attack if onPlayEffect.attack?
+      hash.taunt = onPlayEffect.taunt if onPlayEffect.taunt?
+      action.targets.push hash
+      @_handleBuff(target, onPlayEffect)
+
+  _handleBuff: (target, onPlayEffect) ->
+    if onPlayEffect.health?
+      if onPlayEffect.set
+        target.stats.health = onPlayEffect.health
+        target.stats.maxHealth = onPlayEffect.health
+      else
+        target.stats.health += onPlayEffect.health
+        target.stats.maxHealth += onPlayEffect.health
+    if onPlayEffect.attack?
+      if onPlayEffect.set
+        target.stats.attack = onPlayEffect.attack
+        target.stats.maxAttack = onPlayEffect.attack
+      else
+        target.stats.attack += onPlayEffect.attack
+        target.stats.maxAttack += onPlayEffect.attack
+    target.taunt = onPlayEffect.taunt if onPlayEffect.taunt?
+
   _handleDmgOnPlay: (action, onPlayEffect, target) ->
     if onPlayEffect.dmg?
       action.targets.push { cardId: target.cardId, dmg: onPlayEffect.dmg }
-      target.stats.health += onPlayEffect.dmg
+      @_handleDmg(target, onPlayEffect.dmg)
+
+  _handleDmg: (target, dmg) ->
+    target.stats.health += dmg
+    if target.stats.health > target.defaults.health
+      target.stats.health = target.defaults.health
+
+  hasSpellTargets: (playerIndex, onPlayEffect) ->
+    @getSpellTargets(playerIndex, onPlayEffect).any()
 
   getSpellTargets: (playerIndex, onPlayEffect) ->
     targets = []
@@ -375,6 +440,8 @@ class ArenaReferee extends BaseReferee
           return unless @hasManaFor(input.playerIndex, input.cardId)
           if card.type == Constants.CardType.MINION
             return unless @hasMinionSpace(input.playerIndex)
+          if card.type == Constants.CardType.SPELL
+            return unless @hasSpellTargets(input.playerIndex, card.validTargets)
           super(input)
         when Constants.Input.ATTACK
           card1 = @findCard(input.cards[0])
@@ -400,8 +467,14 @@ class ArenaReferee extends BaseReferee
           super(input)
         when Constants.Input.TARGET_SPELL
           return unless @isTurn(input.playerIndex)
-          return unless input.cardId? # maybe check for the actual card
-          return unless input.targetId? # maybe check for the actual card
+          return unless input.cardId?
+          return unless input.targetId?
+          spellCard = @findCard(input.cardId)
+          targetCard = @findCard(input.targetId)
+          return unless spellCard?
+          return unless targetCard?
+          validTargets = @getSpellTargets(input.playerIndex, spellCard.validTargets)
+          return if validTargets.isEmpty()
           super(input)
         else
           console.log "not adding, unknown input action #{input.action}"

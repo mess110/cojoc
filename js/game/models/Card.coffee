@@ -96,8 +96,8 @@ class Card extends BoxedModel
     tween
 
   _findTextFillColor: (json, which) ->
-    return Constants.TEXT_DAMAGED_COLOR if json.stats[which] < json.defaults[which]
-    return Constants.TEXT_BUFFED_COLOR if json.stats[which] > json.defaults[which]
+    return Constants.TEXT_DAMAGED_COLOR if json.stats[which] < json.stats["max#{which.capitalizeFirstLetter()}"]
+    return Constants.TEXT_BUFFED_COLOR if json.stats[which] > json.defaults["max#{which.capitalizeFirstLetter()}"]
     return Constants.TEXT_COLOR
 
   mkMinionMaterial: (json) ->
@@ -160,8 +160,51 @@ class Card extends BoxedModel
         s = "+#{s}" if onPlayEffect.dmg > 0
         s += " viață"
 
+      if onPlayEffect.buff?
+        s = ''
+        if onPlayEffect.set
+          if onPlayEffect.attack?
+            s += "#{onPlayEffect.attack}"
+          if onPlayEffect.health?
+            s += '/' if onPlayEffect.attack?
+            s += "#{onPlayEffect.health}"
+          if onPlayEffect.taunt?
+            s += '/' if onPlayEffect.health? or onPlayEffect.attack?
+            s += 'taunt'
+          s += ' transformare'
+        else
+          if onPlayEffect.attack?
+            if onPlayEffect.attack > 0
+              s += "+"
+            s += "#{onPlayEffect.attack}"
+          if onPlayEffect.health?
+            s += '/' if onPlayEffect.attack?
+            if onPlayEffect.health > 0
+              s += "+"
+            s += "#{onPlayEffect.health}"
+          if onPlayEffect.taunt
+            s += '/' if onPlayEffect.health? or onPlayEffect.attack?
+            s += 'taunt'
+          s += ' buff'
+
+      if onPlayEffect.drawCards?
+        totalCardsToDraw = onPlayEffect.drawCards
+        s = "trage #{totalCardsToDraw} "
+        s += if totalCardsToDraw == 1 then 'carte' else 'cărți'
+
       s += @_flavorTextTarget(onPlayEffect)
 
+      lineCountOffset = @_getLineOffset(json, lineCount)
+      cw = s.size()
+      @art.drawText(text: s, strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - cw / 2 * 10 - 10, y: @canvasHeight / 3 * 2 + lineCountOffset, font: Constants.FLAVOR_FONT)
+      lineCount += 1
+
+    for onDeathEffect in json.onDeath
+      s = '?'
+      if onDeathEffect.drawCards?
+        totalCardsToDraw = onDeathEffect.drawCards
+        s = "pe ducă trage #{totalCardsToDraw} "
+        s += if totalCardsToDraw == 1 then 'carte' else 'cărți'
       lineCountOffset = @_getLineOffset(json, lineCount)
       cw = s.size()
       @art.drawText(text: s, strokeLineWidth: 3, strokeStyle: Constants.FLAVOR_STROKE_COLOR, fillStyle: Constants.FLAVOR_TEXT_COLOR, x: @canvasWidth / 2 - cw / 2 * 10 - 10, y: @canvasHeight / 3 * 2 + lineCountOffset, font: Constants.FLAVOR_FONT)
@@ -197,7 +240,9 @@ class Card extends BoxedModel
   _countFlavorTextLines: (json) ->
     totalLineCount = 0
     for onPlayEffect in json.onPlay
-      totalLineCount += 1 if onPlayEffect.dmg?
+      totalLineCount += 1 # if onPlayEffect.dmg? || onPlayEffect.buff || onPlayEffect.drawCards?
+    for onDeathEffect in json.onDeath
+      totalLineCount += 1 # if onDeathEffect
     totalLineCount += 1 if json.charge
     totalLineCount += 1 if json.windfury
     totalLineCount += 1 if json.taunt

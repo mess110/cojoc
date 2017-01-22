@@ -108,12 +108,22 @@
     },
     {
       "libPath": "",
+      "destPath": "assets/cards/duh.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
       "destPath": "assets/cards/fireball.png",
       "type": "texture"
     },
     {
       "libPath": "",
       "destPath": "assets/cards/fireember.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/furnica.png",
       "type": "texture"
     },
     {
@@ -154,6 +164,11 @@
     {
       "libPath": "",
       "destPath": "assets/cards/sanziene.png",
+      "type": "texture"
+    },
+    {
+      "libPath": "",
+      "destPath": "assets/cards/soarta.png",
       "type": "texture"
     },
     {

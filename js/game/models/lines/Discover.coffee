@@ -24,11 +24,11 @@ class Discover extends BaseLine
     # doesn't happen at every tick
     return unless @mine
     currScene = SceneManager.currentScene()
-    if @cards.size() == 3 and currScene.game?
+    if @cards.any() and currScene.game?
       card = currScene.game.referee.findCard(@cards.first().id)
       isHoldingNonHeroes = card.type != Constants.CardType.HERO
     @toggleButton.setVisible(isHoldingNonHeroes or false)
-    @panel.setVisible(currScene.game.referee.isDiscovering(currScene.mover._getMyPlayerIndex()) and @cards.size() == 3 and @toggleButton.faceUp)
+    @panel.setVisible(currScene.game.referee.isDiscovering(currScene.mover._getMyPlayerIndex()) and @cards.any() and @toggleButton.faceUp)
 
   _moveInPosition: () ->
     for card in @cards
